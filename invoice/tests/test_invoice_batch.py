@@ -5,7 +5,6 @@ from decimal import Decimal
 from django.test import TestCase
 
 from invoice.models import Invoice
-#from crm.models import VAT_RATE
 from invoice.service import InvoiceCreateBatch
 from crm.tests.model_maker import (
     make_contact,
@@ -28,35 +27,6 @@ class TestInvoiceCreateBatch(TestCase):
 
     def _set_up_test_data(self, billable):
         """ Create a project with a task and time records """
-        #make_config(
-        #    make_company(
-        #        'Connexion Software Ltd',
-        #        'Unit 10, Creedy Centre',
-        #        'Crediton',
-        #        'Devon',
-        #        'EX17 3LQ',
-        #        '01363 77 51 71',
-        #        make_company_status('Client'),
-        #        address_2='117 High Street',
-        #    ),
-        #    Decimal('20.00')
-        #)
-        #company = make_company(
-        #    'Red House Antiques',
-        #    'Upper Street',
-        #    'Tavistock',
-        #    'Devon',
-        #    'PL17 4AB',
-        #    '01822 123 456',
-        #    make_company_status('Prospect')
-        #)
-        #project = make_project(
-        #    company,
-        #    'CRM',
-        #    'Create CRM System',
-        #    iteration_end=datetime(2012, 9, 30),
-        #    hourly_rate=Decimal('300.00')
-        #)
         tom = make_user('tom')
         icl = make_contact('icl', 'ICL', hourly_rate=Decimal('20.00'))
         ticket = make_ticket(

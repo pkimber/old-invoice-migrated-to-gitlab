@@ -10,6 +10,7 @@ from django.utils.timesince import timeuntil
 import reversion
 
 from base.model_utils import TimeStampedModel
+from base.singleton import SingletonModel
 from crm.models import (
     Contact,
     Ticket,
@@ -68,6 +69,22 @@ class Invoice(TimeStampedModel):
     net = property(_net)
 
 reversion.register(Invoice)
+
+
+class InvoicePrintSettings(SingletonModel):
+    # e.g. 'invoice'
+    file_name_prefix = models.CharField(max_length=10)
+    vat_number = models.CharField(max_length=12, blank=True)
+    # comma-separated e.g. 'Patrick Kimber, Hatherleigh, EX17 4AB'
+    name_and_address = models.TextField()
+    phone_number = models.CharField(max_length=100)
+    # include '<br />' tags for new lines
+    footer = models.TextField()
+
+    class Meta:
+        verbose_name = 'Invoice print settings'
+
+reversion.register(InvoicePrintSettings)
 
 
 class InvoiceLine(TimeStampedModel):

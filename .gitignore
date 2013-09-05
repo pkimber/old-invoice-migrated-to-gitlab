@@ -25,6 +25,7 @@ MANIFEST
 # Unit test / coverage reports
 .coverage
 .tox
+*.pdf
 nosetests.xml
 temp.db
 
