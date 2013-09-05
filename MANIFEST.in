@@ -1,0 +1,9 @@
+recursive-include cms/static *
+recursive-include cms/templates *
+
+include LICENSE
+include README
+include requirements/*.txt
+include *.txt
+
+prune example/
