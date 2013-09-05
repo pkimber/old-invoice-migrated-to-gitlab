@@ -27,46 +27,6 @@ VAT_RATE = Decimal('0.20')
 class TestInvoicePrint(TestCase):
 
     def setUp(self):
-        #self.user = make_user('fred')
-        #make_config(
-        #    make_company(
-        #        'Connexion Software Ltd',
-        #        'Unit 10, Creedy Centre',
-        #        'Crediton',
-        #        'Devon',
-        #        'EX17 3LQ',
-        #        '01363 77 51 71',
-        #        make_company_status('Client'),
-        #        address_2='117 High Street',
-        #    ),
-        #    Decimal('20.00')
-        #)
-        #company = make_company(
-        #    'Red House Antiques',
-        #    'Upper Street',
-        #    'Tavistock',
-        #    'Devon',
-        #    'PL17 4AB',
-        #    '01822 123 456',
-        #    make_company_status('Prospect')
-        #)
-        #project_description = (
-        #    'Build a new cloud based customer relationship management system '
-        #    'using Open Source software.  Should be able to use the system on '
-        #    'a standard browser as well as tablets and modern phones'
-        #)
-        #project = make_project(
-        #    company,
-        #    'Customer Relationship Management',
-        #    project_description,
-        #    iteration_end=timezone.make_aware(datetime(2012, 9, 30), timezone.get_current_timezone()),
-        #    hourly_rate=Decimal('300.00')
-        #)
-        #active = make_task_status(TASK_ACTIVE)
-        #to_do = make_task_category('To Do')
-        #low = make_task_priority('Low', 1)
-        #task = make_task(project, 'Migrate', 'Data migration', to_do, low)
-        #make_task_user(task, self.user, active)
         tom = make_user('tom')
         icl = make_contact('icl', 'ICL', hourly_rate=Decimal('20.00'))
         ticket = make_ticket(
@@ -102,8 +62,6 @@ class TestInvoicePrint(TestCase):
             'Knitting',
             make_priority('Medium', 2),
         )
-        #task_backup = make_task(project, 'Backup', 'Backup data', to_do, low)
-        #make_task_user(task_backup, self.user, active)
         make_time_record(
             ticket_knit,
             tom,
