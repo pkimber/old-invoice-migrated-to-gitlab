@@ -161,7 +161,6 @@ class InvoicePrint(object):
         # Container for the 'Flowable' objects
         elements = []
         elements.append(self._table_header(invoice, print_settings, header_image))
-        #elements.append(self._text_project_description(invoice))
         elements.append(platypus.Spacer(1, 12))
         elements.append(self._table_lines(invoice))
         elements.append(self._table_totals(invoice))
@@ -361,28 +360,25 @@ class InvoicePrint(object):
     def _round(self, value):
         return value.quantize(Decimal('.01'))
 
-    #def _text_project_description(self, invoice):
-    #    return self._para('<b>{}</b>: {}'.format(
-    #        invoice.project.name, invoice.project.description
-    #    ))
-
     def _text_footer(self, footer):
         """ Build a list of text to go in the footer """
         result = []
         result.append('All prices in pounds sterling')
-        for text in footer:
+        lines = footer.split('\n')
+        for text in lines:
             result.append(text)
         return tuple(result)
 
     def _text_invoice_address(self, invoice):
         """ Name and address of contact we are invoicing """
-        return '{}<br />{}'.format(
-            invoice.contact.name, invoice.contact.address
-        )
+        lines = [invoice.contact.name]
+        lines = lines + invoice.contact.address.split('\n')
+        return '<br />'.join(lines)
 
     def _text_our_address(self, name_and_address):
         """ Company name and address """
-        return '<br />'.join(name_and_address)
+        lines = name_and_address.split(',')
+        return '<br />'.join(lines)
 
     def _text_our_vat_number(self, vat_number):
         return '<b>VAT Number</b> {}'.format(vat_number)

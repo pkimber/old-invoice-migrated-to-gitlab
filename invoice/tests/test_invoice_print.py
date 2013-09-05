@@ -28,7 +28,12 @@ class TestInvoicePrint(TestCase):
 
     def setUp(self):
         tom = make_user('tom')
-        icl = make_contact('icl', 'ICL', hourly_rate=Decimal('20.00'))
+        icl = make_contact(
+            'icl',
+            'ICL',
+            address="130 High Street\nSheepwash\nHolsworthy\nEX2 3RF",
+            hourly_rate=Decimal('20.00')
+        )
         ticket = make_ticket(
             icl,
             tom,
