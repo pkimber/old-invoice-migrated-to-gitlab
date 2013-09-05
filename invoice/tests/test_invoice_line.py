@@ -6,12 +6,16 @@ from datetime import time
 
 from django.test import TestCase
 
-from crm.tests.model_maker import make_contact
-from crm.tests.model_maker import make_priority
-from crm.tests.model_maker import make_ticket
-from invoice.tests.model_maker import make_invoice
-from invoice.tests.model_maker import make_invoice_line
-from invoice.tests.model_maker import make_time_record
+from crm.tests.model_maker import (
+    make_contact,
+    make_priority,
+    make_ticket,
+)
+from invoice.tests.model_maker import (
+    make_invoice,
+    make_invoice_line,
+    make_time_record,
+)
 from login.tests.model_maker import make_user
 
 
