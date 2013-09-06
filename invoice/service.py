@@ -13,6 +13,7 @@ from invoice.models import (
     Invoice,
     InvoiceLine,
     InvoicePrintSettings,
+    TimeRecord,
 )
 
 
@@ -38,34 +39,34 @@ class InvoiceCreate(object):
         self._check_contact_data(contact)
         invoice = None
         line_number = 0
-        for ticket in contact.ticket_set.all():
-            ticket_time_records = self._get_time_records_for_ticket(
-                ticket, self.iteration_end
-            )
-            for time_record in ticket_time_records:
-                if not invoice:
-                    invoice = Invoice(
-                        invoice_date=datetime.today(),
-                        contact=contact,
-                    )
-                    invoice.save()
-                hourly_rate = self._get_hourly_rate(ticket)
-                line_number = line_number + 1
-                invoice_line = InvoiceLine(
-                    invoice=invoice,
-                    line_number=line_number,
-                    quantity=time_record.invoice_quantity,
-                    price=hourly_rate,
-                    units='hours',
-                    vat_rate=self.vat_rate
+        time_records = self._get_time_records(contact, self.iteration_end)
+        for time_record in time_records:
+            if not invoice:
+                invoice = Invoice(
+                    invoice_date=datetime.today(),
+                    contact=contact,
                 )
-                invoice_line.save()
-                # link time record to invoice line
-                time_record.invoice_line = invoice_line
-                time_record.save()
+                invoice.save()
+            line_number = line_number + 1
+            invoice_line = InvoiceLine(
+                invoice=invoice,
+                line_number=line_number,
+                quantity=time_record.invoice_quantity,
+                price=contact.hourly_rate,
+                units='hours',
+                vat_rate=self.vat_rate
+            )
+            invoice_line.save()
+            # link time record to invoice line
+            time_record.invoice_line = invoice_line
+            time_record.save()
         if invoice:
             invoice.save()
         return invoice
+
+    def preview(self, contact):
+        """Return a queryset with time records selected to invoice"""
+        return self._get_time_records(contact, self.iteration_end)
 
     def _check_contact_data(self, contact):
         if not contact.hourly_rate:
@@ -73,20 +74,21 @@ class InvoiceCreate(object):
                 'Hourly rate for the contact has not been set'
             )
 
-    def _get_hourly_rate(self, ticket):
-        return ticket.contact.hourly_rate
-
-    def _get_time_records_for_ticket(self, ticket, iteration_end):
+    def _get_time_records(self, contact, iteration_end):
         """
         Find time records:
         - before iteration ended
         - which have not been included on a previous invoice
         - which are billable
         """
-        return ticket.timerecord_set.filter(
+        return TimeRecord.objects.filter(
+            ticket__contact=contact,
             date_started__lte=iteration_end,
             invoice_line__isnull=True,
-            billable=True
+            billable=True,
+        ).order_by(
+            'ticket__pk',
+            'date_started',
         )
 
 
