@@ -5,7 +5,9 @@ from django.conf.urls import (
 
 from .views import (
     ContactTimeRecordListView,
-    InvoicePreviewListView,
+    InvoiceCreateRedirectView,
+    InvoiceDraftListView,
+    InvoiceListView,
     TicketTimeRecordListView,
     TimeRecordCreateView,
     TimeRecordUpdateView,
@@ -18,9 +20,17 @@ urlpatterns = patterns(
         view=ContactTimeRecordListView.as_view(),
         name='invoice.time.contact.list'
         ),
-    url(regex=r'^preview/(?P<slug>[-\w\d]+)/$',
-        view=InvoicePreviewListView.as_view(),
-        name='invoice.preview'
+    url(regex=r'^create/(?P<slug>[-\w\d]+)/$',
+        view=InvoiceCreateRedirectView.as_view(),
+        name='invoice.create'
+        ),
+    url(regex=r'^$',
+        view=InvoiceListView.as_view(),
+        name='invoice.list'
+        ),
+    url(regex=r'^draft/(?P<slug>[-\w\d]+)/$',
+        view=InvoiceDraftListView.as_view(),
+        name='invoice.draft'
         ),
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),

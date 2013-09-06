@@ -1,4 +1,4 @@
-{% extends "crm/base.html" %}
+{% extends "invoice/base.html" %}
 
 {% block sub_title %}
   Time records
@@ -62,7 +62,7 @@
           </tbody>
         </table>
         <br />
-        <a class="pure-button" href="{% url "invoice.preview" contact.slug %}">
+        <a class="pure-button" href="{% url "invoice.draft" contact.slug %}">
           <i class="icon-gbp"></i>
           Preview invoice...
         </a>

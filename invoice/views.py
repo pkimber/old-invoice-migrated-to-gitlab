@@ -1,16 +1,25 @@
 from datetime import datetime
 
+from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.views.generic import (
     CreateView,
     ListView,
+    RedirectView,
     UpdateView,
 )
 
-from braces.views import LoginRequiredMixin
+from braces.views import (
+    LoginRequiredMixin,
+    StaffuserRequiredMixin,
+)
 
 from .forms import TimeRecordForm
-from .models import TimeRecord
+from .models import (
+    Invoice,
+    TimeRecord,
+)
 from crm.models import (
     Contact,
     Ticket,
@@ -24,7 +33,6 @@ from invoice.service import (
 
 class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
 
-    model = TimeRecord
     template_name = 'invoice/contact_timerecord_list.html'
 
     def _get_contact(self):
@@ -45,18 +53,32 @@ class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return TimeRecord.objects.filter(ticket__contact=contact)
 
 
-class InvoicePreviewListView(LoginRequiredMixin, CheckPermMixin, ListView):
+class InvoiceCreateRedirectView(LoginRequiredMixin, StaffuserRequiredMixin, RedirectView):
 
-    template_name = 'invoice/preview_timerecord_list.html'
+    permanent = False
+
+    def get_redirect_url(self, slug):
+        contact = get_object_or_404(Contact, slug=slug)
+        invoice_create = InvoiceCreate(VAT_RATE, datetime.today())
+        invoice_create.create(contact)
+        return reverse('invoice.list')
+
+
+class InvoiceListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+    model = Invoice
+
+
+class InvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+
+    template_name = 'invoice/invoice_draft.html'
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
         contact = get_object_or_404(Contact, slug=slug)
-        self._check_perm(contact)
         return contact
 
     def get_context_data(self, **kwargs):
-        context = super(InvoicePreviewListView, self).get_context_data(**kwargs)
+        context = super(InvoiceDraftListView, self).get_context_data(**kwargs)
         context.update(dict(
             contact=self._get_contact(),
         ))
@@ -65,10 +87,13 @@ class InvoicePreviewListView(LoginRequiredMixin, CheckPermMixin, ListView):
     def get_queryset(self):
         contact = self._get_contact()
         invoice_create = InvoiceCreate(VAT_RATE, datetime.today())
-        return invoice_create.preview(contact)
+        warnings = invoice_create.is_valid(contact)
+        for message in warnings:
+            messages.warning(self.request, message)
+        return invoice_create.draft(contact)
 
 
-class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):
+class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateView):
 
     form_class = TimeRecordForm
     model = TimeRecord
@@ -76,7 +101,6 @@ class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):
     def _get_ticket(self):
         pk = self.kwargs.get('pk')
         ticket = get_object_or_404(Ticket, pk=pk)
-        self._check_perm(ticket.contact)
         return ticket
 
     def get_context_data(self, **kwargs):
@@ -95,7 +119,6 @@ class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):
 
 class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
 
-    model = TimeRecord
     template_name = 'invoice/ticket_timerecord_list.html'
 
     def _get_ticket(self):
@@ -116,13 +139,13 @@ class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return TimeRecord.objects.filter(ticket=ticket)
 
 
-class TimeRecordUpdateView(LoginRequiredMixin, CheckPermMixin, UpdateView):
+class TimeRecordUpdateView(LoginRequiredMixin, StaffuserRequiredMixin, UpdateView):
+
     form_class = TimeRecordForm
     model = TimeRecord
 
     def get_context_data(self, **kwargs):
         context = super(TimeRecordUpdateView, self).get_context_data(**kwargs)
-        self._check_perm(self.object.ticket.contact)
         context.update(dict(
             ticket=self.object.ticket,
         ))

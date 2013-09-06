@@ -1,4 +1,4 @@
-{% extends "crm/base.html" %}
+{% extends "invoice/base.html" %}
 
 {% block sub_title %}
   Draft Invoice
@@ -9,7 +9,6 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="content">
     <div class="pure-g-r">
       <div class="pure-u-1">
         <p>
@@ -55,11 +54,12 @@
           </tbody>
         </table>
         <br />
-        <a class="pure-button" href="{% url "invoice.preview" contact.slug %}">
-          <i class="icon-gbp"></i>
-          Create invoice...
-        </a>
+        {% if not messages %}
+          <a class="pure-button" href="{% url "invoice.create" contact.slug %}">
+            <i class="icon-gbp"></i>
+            Create invoice...
+          </a>
+        {% endif %}
       </div>
     </div>
-  </div>
 {% endblock content %}

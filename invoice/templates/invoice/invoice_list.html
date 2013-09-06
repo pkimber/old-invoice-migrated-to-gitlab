@@ -1,0 +1,38 @@
+{% extends "invoice/base.html" %}
+
+{% block sub_title %}
+  Invoices
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Invoices
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g-r">
+    <div class="pure-u-1">
+      <table class="pure-table pure-table-bordered">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Number</th>
+            <th>Contact</th>
+            <th>Net</th>
+            <th>Gross</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for invoice in invoice_list %}
+            <tr valign="top">
+              <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
+              <td>{{ invoice.invoice_number }}</td>
+              <td>{{ invoice.contact.name }}</td>
+              <td>{{ invoice.net }}</td>
+              <td>{{ invoice.gross }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock content %}

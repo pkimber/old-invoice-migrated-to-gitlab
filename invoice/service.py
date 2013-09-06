@@ -39,7 +39,7 @@ class InvoiceCreate(object):
 
     def create(self, contact):
         """ Create invoices from time records """
-        self._check_contact_data(contact)
+        self.is_valid(contact, raise_exception=True)
         invoice = None
         line_number = 0
         time_records = self._get_time_records(contact, self.iteration_end)
@@ -67,15 +67,22 @@ class InvoiceCreate(object):
             invoice.save()
         return invoice
 
-    def preview(self, contact):
+    def draft(self, contact):
         """Return a queryset with time records selected to invoice"""
         return self._get_time_records(contact, self.iteration_end)
 
-    def _check_contact_data(self, contact):
+    def is_valid(self, contact, raise_exception=None):
+        result = []
         if not contact.hourly_rate:
-            raise InvoiceError(
-                'Hourly rate for the contact has not been set'
+            result.append(
+                'Cannot create invoice - no hourly rate for the contact'
             )
+        if result and raise_exception:
+            raise InvoiceError(
+                ', '.join(result)
+            )
+        else:
+            return result
 
     def _get_time_records(self, contact, iteration_end):
         """
