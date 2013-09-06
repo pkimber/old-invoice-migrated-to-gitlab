@@ -38,7 +38,6 @@ class TestInvoicePrint(TestCase):
             icl,
             tom,
             'Sew',
-            'Sewing',
             make_priority('Low', 1),
         )
         make_time_record(
@@ -59,12 +58,10 @@ class TestInvoicePrint(TestCase):
             time(15, 30),
             True
         )
-
         ticket_knit = make_ticket(
             icl,
             tom,
             'Knit',
-            'Knitting',
             make_priority('Medium', 2),
         )
         make_time_record(

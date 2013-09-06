@@ -33,7 +33,6 @@ class TestInvoiceCreateBatch(TestCase):
             icl,
             tom,
             'Sew',
-            'Sewing',
             make_priority('Low', 1),
         )
         make_time_record(

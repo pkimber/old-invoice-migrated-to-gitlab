@@ -19,16 +19,15 @@
           </a>
           contact
           <a href="{% url 'crm.contact.detail' ticket.contact.slug %}">
-            {{ticket.contact.name }}
+            {{ ticket.contact.name }}
           </a>
         </p>
         <table class="pure-table pure-table-bordered">
           <thead>
             <tr>
               <th>Time</th>
-              <th>Date</th>
               <th>Start</th>
-              <th>End</th>
+              <th>Elapsed</th>
               <th>Bill</th>
             </tr>
           </thead>
@@ -45,9 +44,11 @@
                     {{ timerecord.description|linebreaksbr }}
                   {% endif %}
                 </td>
-                <td>{{ timerecord.date_started|date:"d/m/y" }}</td>
-                <td>{{ timerecord.start_time|time:"H:i" }}</td>
-                <td>{{ timerecord.end_time|time:"H:i" }}</td>
+                <td>
+                  {{ timerecord.date_started|date:"d/m/y" }}
+                  {{ timerecord.start_time|time:"H:i" }}
+                </td>
+                <td>{{ timerecord.delta_as_string }}</td>
                 <td>
                   {% if timerecord.billable %}
                     <i class="icon-check-sign"></i>

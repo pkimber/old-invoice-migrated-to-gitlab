@@ -38,7 +38,6 @@ class TestInvoiceLine(TestCase):
             icl,
             tom,
             'Sew',
-            'Sewing',
             make_priority('Low', 1),
         )
         time_record = make_time_record(

@@ -9,8 +9,34 @@ from braces.views import LoginRequiredMixin
 
 from .forms import TimeRecordForm
 from .models import TimeRecord
-from crm.models import Ticket
+from crm.models import (
+    Contact,
+    Ticket,
+)
 from crm.views import CheckPermMixin
+
+
+class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
+
+    model = TimeRecord
+    template_name = 'invoice/contact_timerecord_list.html'
+
+    def _get_contact(self):
+        slug = self.kwargs.get('slug')
+        contact = get_object_or_404(Contact, slug=slug)
+        self._check_perm(contact)
+        return contact
+
+    def get_context_data(self, **kwargs):
+        context = super(ContactTimeRecordListView, self).get_context_data(**kwargs)
+        context.update(dict(
+            contact=self._get_contact(),
+        ))
+        return context
+
+    def get_queryset(self):
+        contact = self._get_contact()
+        return TimeRecord.objects.filter(ticket__contact=contact)
 
 
 class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):
@@ -38,9 +64,10 @@ class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):
         return super(TimeRecordCreateView, self).form_valid(form)
 
 
-class TimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
+class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
 
     model = TimeRecord
+    template_name = 'invoice/ticket_timerecord_list.html'
 
     def _get_ticket(self):
         pk = self.kwargs.get('pk')
@@ -49,7 +76,7 @@ class TimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return ticket
 
     def get_context_data(self, **kwargs):
-        context = super(TimeRecordListView, self).get_context_data(**kwargs)
+        context = super(TicketTimeRecordListView, self).get_context_data(**kwargs)
         context.update(dict(
             ticket=self._get_ticket(),
         ))
@@ -71,4 +98,3 @@ class TimeRecordUpdateView(LoginRequiredMixin, CheckPermMixin, UpdateView):
             ticket=self.object.ticket,
         ))
         return context
-
