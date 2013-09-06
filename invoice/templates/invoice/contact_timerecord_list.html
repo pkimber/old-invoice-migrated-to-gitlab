@@ -9,64 +9,62 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="content">
-    <div class="pure-g-r">
-      <div class="pure-u-1">
-        <p>
-          Time records for contact
-          <a href="{% url 'crm.contact.detail' contact.slug %}">
-            {{ contact.name }}
-          </a>
-          {{ contact.address }}
-        </p>
-        <table class="pure-table pure-table-bordered">
-          <thead>
-            <tr>
-              <th>Ticket</th>
-              <th>Time</th>
-              <th>Start</th>
-              <th>Elapsed</th>
-              <th>Bill</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for timerecord in timerecord_list %}
-              <tr valign="top">
-                <td>
-                  <a href="{% url "crm.ticket.detail" timerecord.pk %}">
-                    {{ timerecord.ticket.pk }}, {{ timerecord.ticket.name }}
-                  </a>
-                </td>
-                <td>
-                  <a href="{% url "invoice.time.update" timerecord.pk %}">
-                    <i class="icon-edit"></i>
-                    {{ timerecord.name }}
-                  </a>
-                  {% if timerecord.description %}
-                    <br />
-                    {{ timerecord.description|linebreaksbr }}
-                  {% endif %}
-                </td>
-                <td>
-                  {{ timerecord.date_started|date:"d/m/y" }}
-                  {{ timerecord.start_time|time:"H:i" }}
-                </td>
-                <td>{{ timerecord.delta_as_string }}</td>
-                <td>
-                  {% if timerecord.billable %}
-                    <i class="icon-check-sign"></i>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        <br />
-        <a class="pure-button" href="{% url "invoice.draft" contact.slug %}">
-          <i class="icon-gbp"></i>
-          Preview invoice...
+  <div class="pure-g-r">
+    <div class="pure-u-1">
+      <p>
+        Time records for contact
+        <a href="{% url 'crm.contact.detail' contact.slug %}">
+          {{ contact.name }}
         </a>
-      </div>
+        {{ contact.address }}
+      </p>
+      <table class="pure-table pure-table-bordered">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Time</th>
+            <th>Start</th>
+            <th>Elapsed</th>
+            <th>Bill</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for timerecord in timerecord_list %}
+            <tr valign="top">
+              <td>
+                <a href="{% url "crm.ticket.detail" timerecord.pk %}">
+                  {{ timerecord.ticket.pk }}, {{ timerecord.ticket.name }}
+                </a>
+              </td>
+              <td>
+                <a href="{% url "invoice.time.update" timerecord.pk %}">
+                  <i class="icon-edit"></i>
+                  {{ timerecord.name }}
+                </a>
+                {% if timerecord.description %}
+                  <br />
+                  {{ timerecord.description|linebreaksbr }}
+                {% endif %}
+              </td>
+              <td>
+                {{ timerecord.date_started|date:"d/m/y" }}
+                {{ timerecord.start_time|time:"H:i" }}
+              </td>
+              <td>{{ timerecord.delta_as_string }}</td>
+              <td>
+                {% if timerecord.billable %}
+                  <i class="icon-check-sign"></i>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <br />
+      <a class="pure-button" href="{% url "invoice.draft" contact.slug %}">
+        <i class="icon-gbp"></i>
+        Preview invoice...
+      </a>
     </div>
   </div>
 {% endblock content %}
