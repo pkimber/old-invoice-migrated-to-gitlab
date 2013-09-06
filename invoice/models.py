@@ -133,10 +133,11 @@ class TimeRecord(TimeStampedModel):
     """Simple time recording"""
     ticket = models.ForeignKey(Ticket)
     user = models.ForeignKey(User)
-    description = models.TextField()
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
     date_started = models.DateField()
     start_time = models.TimeField()
-    end_time = models.TimeField()
+    end_time = models.TimeField(blank=True, null=True)
     billable = models.BooleanField()
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
 
@@ -146,8 +147,8 @@ class TimeRecord(TimeStampedModel):
         verbose_name_plural = 'Time records'
 
     def __unicode__(self):
-        return unicode("{0}: {1}: {2}: {3}".format(
-            self.task,
+        return unicode("{}: {}: {}: {}".format(
+            self.name,
             self.date_started,
             self.start_time,
             self.end_time
@@ -164,7 +165,7 @@ class TimeRecord(TimeStampedModel):
         return timeuntil(self._end_date_time(), self._date_started_time())
 
     def get_absolute_url(self):
-        return self.task.get_absolute_url()
+        return self.ticket.get_absolute_url()
 
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)

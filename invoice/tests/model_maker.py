@@ -42,12 +42,12 @@ def make_invoice_print_settings(file_name_prefix, vat_number, name_and_address, 
     )
 
 
-def make_time_record(ticket, user, description, date_started, start_time, end_time, billable):
+def make_time_record(ticket, user, name, date_started, start_time, end_time, billable):
     return clean_and_save(
         TimeRecord.objects.create(
             ticket=ticket,
             user=user,
-            description=description,
+            name=name,
             date_started=date_started,
             start_time=start_time,
             end_time=end_time,
