@@ -1,0 +1,63 @@
+{% extends "crm/base.html" %}
+
+{% block sub_title %}
+  Time records
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Time records
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="content">
+    <div class="pure-g-r">
+      <div class="pure-u-1">
+        <p>
+          Time records for ticket
+          <a href="{% url 'crm.ticket.detail' ticket.pk %}">
+            {{ ticket.pk }}, <strong>{{ ticket.name }}</strong>
+          </a>
+          contact
+          <a href="{% url 'crm.contact.detail' ticket.contact.slug %}">
+            {{ticket.contact.name }}
+          </a>
+        </p>
+        <table class="pure-table pure-table-bordered">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Date</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Bill</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for timerecord in timerecord_list %}
+              <tr valign="top">
+                <td>
+                  <a href="{% url "invoice.time.update" timerecord.pk %}">
+                    <i class="icon-edit"></i>
+                    {{ timerecord.name }}
+                  </a>
+                  {% if timerecord.description %}
+                    <br />
+                    {{ timerecord.description|linebreaksbr }}
+                  {% endif %}
+                </td>
+                <td>{{ timerecord.date_started|date:"d/m/y" }}</td>
+                <td>{{ timerecord.start_time|time:"H:i" }}</td>
+                <td>{{ timerecord.end_time|time:"H:i" }}</td>
+                <td>
+                  {% if timerecord.billable %}
+                    <i class="icon-check-sign"></i>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

@@ -165,7 +165,7 @@ class TimeRecord(TimeStampedModel):
         return timeuntil(self._end_date_time(), self._date_started_time())
 
     def get_absolute_url(self):
-        return self.ticket.get_absolute_url()
+        return reverse('invoice.time.list', args=[self.ticket.pk])
 
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)
