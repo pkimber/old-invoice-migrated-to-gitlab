@@ -117,6 +117,10 @@ class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateVie
         return super(TimeRecordCreateView, self).form_valid(form)
 
 
+class TimeRecordListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+    model = TimeRecord
+
+
 class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
 
     template_name = 'invoice/ticket_timerecord_list.html'
