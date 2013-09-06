@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import (
     CreateView,
@@ -14,6 +16,10 @@ from crm.models import (
     Ticket,
 )
 from crm.views import CheckPermMixin
+from invoice.service import (
+    InvoiceCreate,
+    VAT_RATE,
+)
 
 
 class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
@@ -37,6 +43,29 @@ class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
     def get_queryset(self):
         contact = self._get_contact()
         return TimeRecord.objects.filter(ticket__contact=contact)
+
+
+class InvoicePreviewListView(LoginRequiredMixin, CheckPermMixin, ListView):
+
+    template_name = 'invoice/preview_timerecord_list.html'
+
+    def _get_contact(self):
+        slug = self.kwargs.get('slug')
+        contact = get_object_or_404(Contact, slug=slug)
+        self._check_perm(contact)
+        return contact
+
+    def get_context_data(self, **kwargs):
+        context = super(InvoicePreviewListView, self).get_context_data(**kwargs)
+        context.update(dict(
+            contact=self._get_contact(),
+        ))
+        return context
+
+    def get_queryset(self):
+        contact = self._get_contact()
+        invoice_create = InvoiceCreate(VAT_RATE, datetime.today())
+        return invoice_create.preview(contact)
 
 
 class TimeRecordCreateView(LoginRequiredMixin, CheckPermMixin, CreateView):

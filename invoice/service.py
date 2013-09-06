@@ -17,6 +17,9 @@ from invoice.models import (
 )
 
 
+VAT_RATE = Decimal('0.20')
+
+
 class InvoiceError(Exception):
 
     def __init__(self, value):

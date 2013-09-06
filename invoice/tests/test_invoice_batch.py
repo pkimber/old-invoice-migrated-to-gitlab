@@ -5,7 +5,10 @@ from decimal import Decimal
 from django.test import TestCase
 
 from invoice.models import Invoice
-from invoice.service import InvoiceCreateBatch
+from invoice.service import (
+    InvoiceCreateBatch,
+    VAT_RATE,
+)
 from crm.tests.model_maker import (
     make_contact,
     make_priority,
@@ -15,9 +18,6 @@ from invoice.tests.model_maker import (
     make_time_record,
 )
 from login.tests.model_maker import make_user
-
-
-VAT_RATE = Decimal('0.20')
 
 
 class TestInvoiceCreateBatch(TestCase):
