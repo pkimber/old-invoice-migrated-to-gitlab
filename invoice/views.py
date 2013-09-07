@@ -42,7 +42,9 @@ class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return contact
 
     def get_context_data(self, **kwargs):
-        context = super(ContactTimeRecordListView, self).get_context_data(**kwargs)
+        context = super(
+            ContactTimeRecordListView, self
+        ).get_context_data(**kwargs)
         context.update(dict(
             contact=self._get_contact(),
         ))
@@ -70,31 +72,6 @@ class InvoiceListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
     model = Invoice
 
 
-class InvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
-
-    template_name = 'invoice/invoice_draft.html'
-
-    def _get_contact(self):
-        slug = self.kwargs.get('slug')
-        contact = get_object_or_404(Contact, slug=slug)
-        return contact
-
-    def get_context_data(self, **kwargs):
-        context = super(InvoiceDraftListView, self).get_context_data(**kwargs)
-        context.update(dict(
-            contact=self._get_contact(),
-        ))
-        return context
-
-    def get_queryset(self):
-        contact = self._get_contact()
-        invoice_create = InvoiceCreate(datetime.today())
-        warnings = invoice_create.is_valid(contact)
-        for message in warnings:
-            messages.warning(self.request, message)
-        return invoice_create.draft(contact)
-
-
 class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateView):
 
     form_class = TimeRecordForm
@@ -119,6 +96,33 @@ class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateVie
         return super(TimeRecordCreateView, self).form_valid(form)
 
 
+class TimeRecordInvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+
+    template_name = 'invoice/timerecord_invoice_draft.html'
+
+    def _get_contact(self):
+        slug = self.kwargs.get('slug')
+        contact = get_object_or_404(Contact, slug=slug)
+        return contact
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            TimeRecordInvoiceDraftListView, self
+        ).get_context_data(**kwargs)
+        context.update(dict(
+            contact=self._get_contact(),
+        ))
+        return context
+
+    def get_queryset(self):
+        contact = self._get_contact()
+        invoice_create = InvoiceCreate(datetime.today())
+        warnings = invoice_create.is_valid(contact)
+        for message in warnings:
+            messages.warning(self.request, message)
+        return invoice_create.draft(contact)
+
+
 class TimeRecordListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
     model = TimeRecord
 
@@ -134,7 +138,9 @@ class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return ticket
 
     def get_context_data(self, **kwargs):
-        context = super(TicketTimeRecordListView, self).get_context_data(**kwargs)
+        context = super(
+            TicketTimeRecordListView, self
+        ).get_context_data(**kwargs)
         context.update(dict(
             ticket=self._get_ticket(),
         ))

@@ -6,12 +6,12 @@ from django.conf.urls import (
 from .views import (
     ContactTimeRecordListView,
     InvoiceCreateView,
-    InvoiceDraftListView,
     InvoiceListView,
     TicketTimeRecordListView,
     TimeRecordCreateView,
-    TimeRecordUpdateView,
+    TimeRecordInvoiceDraftListView,
     TimeRecordListView,
+    TimeRecordUpdateView,
 )
 
 
@@ -29,10 +29,6 @@ urlpatterns = patterns(
         view=InvoiceListView.as_view(),
         name='invoice.list'
         ),
-    url(regex=r'^draft/(?P<slug>[-\w\d]+)/$',
-        view=InvoiceDraftListView.as_view(),
-        name='invoice.draft'
-        ),
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),
         name='invoice.time.ticket.list'
@@ -40,6 +36,10 @@ urlpatterns = patterns(
     url(regex=r'^ticket/(?P<pk>\d+)/time/add/$',
         view=TimeRecordCreateView.as_view(),
         name='invoice.time.create'
+        ),
+    url(regex=r'^draft/(?P<slug>[-\w\d]+)/$',
+        view=TimeRecordInvoiceDraftListView.as_view(),
+        name='invoice.time.draft'
         ),
     url(regex=r'^time/$',
         view=TimeRecordListView.as_view(),

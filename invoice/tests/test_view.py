@@ -1,4 +1,6 @@
 """Simple tests to make sure a view doesn't throw any exceptions"""
+from datetime import datetime
+from datetime import time
 from decimal import Decimal
 
 from django.core.urlresolvers import reverse
@@ -13,6 +15,7 @@ from crm.tests.model_maker import (
 )
 from invoice.tests.model_maker import (
     make_invoice_settings,
+    make_time_record,
 )
 from login.tests.model_maker import make_user
 
@@ -29,6 +32,15 @@ class TestView(TestCase):
         )
         self.note = make_note(
             self.sew, self.tom, 'Cut out some material and make a pillow case'
+        )
+        self.pillow = make_time_record(
+            self.sew,
+            self.tom,
+            'Make a pillow case',
+            datetime(2012, 9, 1),
+            time(9, 0),
+            time(12, 30),
+            True,
         )
         make_invoice_settings(
             vat_rate=Decimal('0.20'),
@@ -55,6 +67,29 @@ class TestView(TestCase):
 
     def test_invoice_list(self):
         url = reverse('invoice.list')
+        self._assert_get(url)
+
+    def test_timerecord_create(self):
+        url = reverse('invoice.time.create', kwargs={'pk': self.sew.pk})
+        self._assert_get(url)
+
+    def test_timerecord_invoice_draft_list(self):
+        url = reverse(
+            'invoice.time.draft',
+            kwargs={'slug': self.icl.slug}
+        )
+        self._assert_get(url)
+
+    def test_timerecord_list(self):
+        url = reverse('invoice.time')
+        self._assert_get(url)
+
+    def test_ticket_timerecord_list(self):
+        url = reverse('invoice.time.ticket.list', kwargs={'pk': self.sew.pk})
+        self._assert_get(url)
+
+    def test_timerecord_update(self):
+        url = reverse('invoice.time.update', kwargs={'pk': self.pillow.pk})
         self._assert_get(url)
 
     def _assert_get(self, url):
