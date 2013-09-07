@@ -2,12 +2,13 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import (
     CreateView,
     ListView,
-    RedirectView,
     UpdateView,
+    View,
 )
 
 from braces.views import (
@@ -52,15 +53,17 @@ class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return TimeRecord.objects.filter(ticket__contact=contact)
 
 
-class InvoiceCreateRedirectView(LoginRequiredMixin, StaffuserRequiredMixin, RedirectView):
+class InvoiceCreateView(LoginRequiredMixin, StaffuserRequiredMixin, View):
 
-    permanent = False
-
-    def get_redirect_url(self, slug):
+    def _get_contact(self):
+        slug = self.kwargs.get('slug')
         contact = get_object_or_404(Contact, slug=slug)
-        invoice_create = InvoiceCreate(VAT_RATE, datetime.today())
-        invoice_create.create(contact)
-        return reverse('invoice.list')
+        return contact
+
+    def post(self, request, *args, **kwargs):
+        invoice_create = InvoiceCreate(datetime.today())
+        invoice_create.create(self._get_contact())
+        return HttpResponseRedirect(reverse('invoice.list'))
 
 
 class InvoiceListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
@@ -85,7 +88,7 @@ class InvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView)
 
     def get_queryset(self):
         contact = self._get_contact()
-        invoice_create = InvoiceCreate(VAT_RATE, datetime.today())
+        invoice_create = InvoiceCreate(datetime.today())
         warnings = invoice_create.is_valid(contact)
         for message in warnings:
             messages.warning(self.request, message)
