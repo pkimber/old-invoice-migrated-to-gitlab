@@ -21,6 +21,7 @@ from .models import (
     Invoice,
     TimeRecord,
 )
+from base.view_utils import BaseMixin
 from crm.models import (
     Contact,
     Ticket,
@@ -31,7 +32,8 @@ from invoice.service import (
 )
 
 
-class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
+class ContactTimeRecordListView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
 
     template_name = 'invoice/contact_timerecord_list.html'
 
@@ -55,7 +57,8 @@ class ContactTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return TimeRecord.objects.filter(ticket__contact=contact)
 
 
-class InvoiceCreateView(LoginRequiredMixin, StaffuserRequiredMixin, View):
+class InvoiceCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, View):
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
@@ -68,11 +71,13 @@ class InvoiceCreateView(LoginRequiredMixin, StaffuserRequiredMixin, View):
         return HttpResponseRedirect(reverse('invoice.list'))
 
 
-class InvoiceListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+class InvoiceListView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
     model = Invoice
 
 
-class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateView):
+class TimeRecordCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
 
     form_class = TimeRecordForm
     model = TimeRecord
@@ -96,7 +101,8 @@ class TimeRecordCreateView(LoginRequiredMixin, StaffuserRequiredMixin, CreateVie
         return super(TimeRecordCreateView, self).form_valid(form)
 
 
-class TimeRecordInvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+class TimeRecordInvoiceDraftListView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     template_name = 'invoice/timerecord_invoice_draft.html'
 
@@ -123,11 +129,13 @@ class TimeRecordInvoiceDraftListView(LoginRequiredMixin, StaffuserRequiredMixin,
         return invoice_create.draft(contact)
 
 
-class TimeRecordListView(LoginRequiredMixin, StaffuserRequiredMixin, ListView):
+class TimeRecordListView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
     model = TimeRecord
 
 
-class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
+class TicketTimeRecordListView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
 
     template_name = 'invoice/ticket_timerecord_list.html'
 
@@ -151,7 +159,8 @@ class TicketTimeRecordListView(LoginRequiredMixin, CheckPermMixin, ListView):
         return TimeRecord.objects.filter(ticket=ticket)
 
 
-class TimeRecordUpdateView(LoginRequiredMixin, StaffuserRequiredMixin, UpdateView):
+class TimeRecordUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     form_class = TimeRecordForm
     model = TimeRecord
