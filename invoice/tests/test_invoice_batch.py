@@ -7,7 +7,6 @@ from django.test import TestCase
 from invoice.models import Invoice
 from invoice.service import (
     InvoiceCreateBatch,
-    VAT_RATE,
 )
 from crm.tests.model_maker import (
     make_contact,
@@ -15,6 +14,7 @@ from crm.tests.model_maker import (
     make_ticket,
 )
 from invoice.tests.model_maker import (
+    make_invoice_settings,
     make_time_record,
 )
 from login.tests.model_maker import make_user
@@ -64,13 +64,21 @@ class TestInvoiceCreateBatch(TestCase):
             time(15, 30),
             billable
         )
+        make_invoice_settings(
+            vat_rate=Decimal('0.20'),
+            file_name_prefix='invoice',
+            vat_number='',
+            name_and_address='Patrick Kimber, Hatherleigh, EX20 1AB',
+            phone_number='01234 234 456',
+            footer="Please pay by bank transfer<br />Thank you"
+        )
 
     def test_create_invoices(self):
         """
         Create a project with a task and time records.  Create an invoice.
         """
         self._set_up_test_data(billable=True)
-        InvoiceCreateBatch(VAT_RATE, datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
         invoices = Invoice.objects.all()
         self.assertEquals(1, len(invoices))
         invoice = invoices[0]
@@ -81,7 +89,7 @@ class TestInvoiceCreateBatch(TestCase):
         Create a project with a task and time records.  Create an invoice.
         """
         self._set_up_test_data(billable=False)
-        InvoiceCreateBatch(VAT_RATE, datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
         self.assertEquals(0, Invoice.objects.all().count())
 
     def test_create_invoices_do_not_bill_twice(self):
@@ -90,7 +98,7 @@ class TestInvoiceCreateBatch(TestCase):
         the time records more than once.
         """
         self._set_up_test_data(billable=True)
-        InvoiceCreateBatch(VAT_RATE, datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
         self.assertEquals(1, Invoice.objects.all().count())
-        InvoiceCreateBatch(VAT_RATE, datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
         self.assertEquals(1, Invoice.objects.all().count())

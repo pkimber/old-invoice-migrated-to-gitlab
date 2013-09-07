@@ -71,7 +71,8 @@ class Invoice(TimeStampedModel):
 reversion.register(Invoice)
 
 
-class InvoicePrintSettings(SingletonModel):
+class InvoiceSettings(SingletonModel):
+    vat_rate = models.DecimalField(max_digits=8, decimal_places=2)
     # e.g. 'invoice'
     file_name_prefix = models.CharField(max_length=10)
     vat_number = models.CharField(max_length=12, blank=True)
@@ -84,7 +85,7 @@ class InvoicePrintSettings(SingletonModel):
     class Meta:
         verbose_name = 'Invoice print settings'
 
-reversion.register(InvoicePrintSettings)
+reversion.register(InvoiceSettings)
 
 
 class InvoiceLine(TimeStampedModel):

@@ -12,12 +12,9 @@ from crm.models import Contact
 from invoice.models import (
     Invoice,
     InvoiceLine,
-    InvoicePrintSettings,
+    InvoiceSettings,
     TimeRecord,
 )
-
-
-VAT_RATE = Decimal('0.20')
 
 
 class InvoiceError(Exception):
@@ -33,15 +30,15 @@ class InvoiceError(Exception):
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
-    def __init__(self, vat_rate, iteration_end):
+    def __init__(self, iteration_end):
         self.iteration_end = iteration_end
-        self.vat_rate = vat_rate
 
     def create(self, contact):
         """ Create invoices from time records """
         self.is_valid(contact, raise_exception=True)
         invoice = None
         line_number = 0
+        print_settings = self._get_print_settings()
         time_records = self._get_time_records(contact, self.iteration_end)
         for time_record in time_records:
             if not invoice:
@@ -57,7 +54,7 @@ class InvoiceCreate(object):
                 quantity=time_record.invoice_quantity,
                 price=contact.hourly_rate,
                 units='hours',
-                vat_rate=self.vat_rate
+                vat_rate=print_settings.vat_rate
             )
             invoice_line.save()
             # link time record to invoice line
@@ -73,6 +70,12 @@ class InvoiceCreate(object):
 
     def is_valid(self, contact, raise_exception=None):
         result = []
+        try:
+            InvoiceSettings.objects.get()
+        except InvoiceSettings.DoesNotExist:
+            result.append(
+                'Invoice print settings have not been set-up in admin'
+            )
         if not contact.hourly_rate:
             result.append(
                 'Cannot create invoice - no hourly rate for the contact'
@@ -83,6 +86,12 @@ class InvoiceCreate(object):
             )
         else:
             return result
+
+    def _get_print_settings(self):
+        try:
+            return InvoiceSettings.objects.get()
+        except InvoiceSettings.DoesNotExist:
+            raise InvoiceError("invoice print settings have not been set-up in admin")
 
     def _get_time_records(self, contact, iteration_end):
         """
@@ -104,13 +113,12 @@ class InvoiceCreate(object):
 
 class InvoiceCreateBatch(object):
 
-    def __init__(self, vat_rate, iteration_end):
+    def __init__(self, iteration_end):
         self.iteration_end = iteration_end
-        self.vat_rate = vat_rate
 
     def create(self):
         """ Create invoices from time records """
-        invoice_create = InvoiceCreate(self.vat_rate, self.iteration_end)
+        invoice_create = InvoiceCreate(self.iteration_end)
         for contact in Contact.objects.all():
             invoice_create.create(contact)
 
@@ -153,8 +161,8 @@ class InvoicePrint(object):
 
     def _get_print_settings(self):
         try:
-            return InvoicePrintSettings.objects.get()
-        except InvoicePrintSettings.DoesNotExist:
+            return InvoiceSettings.objects.get()
+        except InvoiceSettings.DoesNotExist:
             raise InvoiceError("invoice print settings have not been set-up in admin")
 
     def create_pdf(self, invoice, header_image):

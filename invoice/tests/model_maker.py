@@ -3,7 +3,7 @@ from base.tests.model_maker import clean_and_save
 from invoice.models import (
     Invoice,
     InvoiceLine,
-    InvoicePrintSettings,
+    InvoiceSettings,
     TimeRecord,
 )
 
@@ -30,9 +30,10 @@ def make_invoice_line(invoice, line_number, quantity, units, price, vat_rate):
     )
 
 
-def make_invoice_print_settings(file_name_prefix, vat_number, name_and_address, phone_number, footer):
+def make_invoice_settings(vat_rate, file_name_prefix, vat_number, name_and_address, phone_number, footer):
     return clean_and_save(
-        InvoicePrintSettings(
+        InvoiceSettings(
+            vat_rate=vat_rate,
             file_name_prefix=file_name_prefix,
             vat_number=vat_number,
             name_and_address=name_and_address,

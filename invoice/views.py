@@ -27,7 +27,6 @@ from crm.models import (
 from crm.views import CheckPermMixin
 from invoice.service import (
     InvoiceCreate,
-    VAT_RATE,
 )
 
 

@@ -10,7 +10,7 @@ from invoice.service import (
     InvoicePrint,
 )
 from invoice.tests.model_maker import (
-    make_invoice_print_settings,
+    make_invoice_settings,
     make_time_record,
 )
 from login.tests.model_maker import make_user
@@ -73,14 +73,15 @@ class TestInvoicePrint(TestCase):
             time(12, 30),
             True
         )
-        make_invoice_print_settings(
+        make_invoice_settings(
+            vat_rate=Decimal('0.20'),
             file_name_prefix='invoice',
             vat_number='',
-            name_and_address='Patrick Kimber, Hatherleigh, EX20 3LF',
+            name_and_address='Patrick Kimber, Hatherleigh, EX20 1AB',
             phone_number='01234 234 456',
             footer="Please pay by bank transfer<br />For help, please phone<br />Thank you"
         )
-        InvoiceCreateBatch(VAT_RATE, datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
 
     def test_invoice_create_pdf(self):
         invoice = Invoice.objects.all()[0]

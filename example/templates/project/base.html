@@ -15,6 +15,15 @@
 
 {% block menu %}
   <li>
+    <a href="{% url "crm.ticket.home" %}">CRM</a>
+  </li>
+  <li>
+    <a href="{% url "invoice.list" %}">Invoices</a>
+  </li>
+  <li>
+    <a href="{% url "invoice.time" %}">Time records</a>
+  </li>
+  <li>
     <a href="{% url "admin:index" %}">Admin</a>
   </li>
   {{ block.super }}

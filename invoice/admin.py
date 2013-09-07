@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from .models import InvoicePrintSettings
+from .models import InvoiceSettings
 
 
-class InvoicePrintSettingsAdmin(admin.ModelAdmin):
+class InvoiceSettingsAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(InvoicePrintSettings, InvoicePrintSettingsAdmin)
+admin.site.register(InvoiceSettings, InvoiceSettingsAdmin)
