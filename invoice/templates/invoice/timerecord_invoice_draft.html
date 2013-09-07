@@ -53,12 +53,17 @@
           {% endfor %}
         </tbody>
       </table>
-      <br />
       {% if not messages %}
-        <a class="pure-button" href="{% url "invoice.create" contact.slug %}">
-          <i class="icon-gbp"></i>
-          Create invoice...
-        </a>
+        <div class="pure-menu pure-menu-open pure-menu-horizontal">
+          <ul>
+            <li>
+              <a href="{% url "invoice.create" contact.slug %}">
+                <i class="icon-gbp"></i>
+                Create invoice
+              </a>
+            </li>
+          </ul>
+        </div>
       {% endif %}
     </div>
   </div>
