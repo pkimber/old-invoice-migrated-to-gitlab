@@ -1,27 +1,20 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Time records
+  Time records for ticket {{ ticket.pk }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Time records
+  Time records for ticket {{ ticket.pk }}
 {% endblock sub_heading %}
 
 {% block content %}
   <div class="pure-g-r">
     <div class="pure-u-1">
       <p>
-        {% if timerecord_list %}
-          Time records
-        {% else %}
-          There are no time records
-        {% endif %}
-        for ticket
         <a href="{% url 'crm.ticket.detail' ticket.pk %}">
-          {{ ticket.pk }}, <strong>{{ ticket.name }}</strong>
+          <strong>{{ ticket.name }}</strong>
         </a>
-        contact
         <a href="{% url 'crm.contact.detail' ticket.contact.slug %}">
           {{ ticket.contact.name }}
         </a>
@@ -40,10 +33,14 @@
             {% for timerecord in timerecord_list %}
               <tr valign="top">
                 <td>
+                  {% if user.is_staff %}
                   <a href="{% url "invoice.time.update" timerecord.pk %}">
                     <i class="icon-edit"></i>
                     {{ timerecord.name }}
                   </a>
+                  {% else %}
+                  <strong>{{ timerecord.name }}</strong>
+                  {% endif %}
                   {% if timerecord.description %}
                     <br />
                     {{ timerecord.description|linebreaksbr }}
@@ -72,12 +69,14 @@
       {% endif %}
       <div class="pure-menu pure-menu-open pure-menu-horizontal">
         <ul>
+          {% if user.is_staff %}
           <li>
             <a href="{% url "invoice.time.create" ticket.pk %}">
               <i class="icon-time"></i>
               Add time
             </a>
           </li>
+          {% endif %}
           <li>
             <a href="{% url "crm.note.create" ticket.pk %}">
               <i class="icon-comment"></i>

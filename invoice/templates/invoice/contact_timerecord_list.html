@@ -12,7 +12,6 @@
   <div class="pure-g-r">
     <div class="pure-u-1">
       <p>
-        Time records for contact
         <a href="{% url 'crm.contact.detail' contact.slug %}">
           {{ contact.name }}
         </a>
@@ -60,16 +59,18 @@
           {% endfor %}
         </tbody>
       </table>
-      <div class="pure-menu pure-menu-open pure-menu-horizontal">
-        <ul>
-          <li>
-            <a href="{% url "invoice.create" contact.slug %}">
-              <i class="icon-gbp"></i>
-              Draft invoice
-            </a>
-          </li>
-        </ul>
-      </div>
+      {% if user.is_staff %}
+        <div class="pure-menu pure-menu-open pure-menu-horizontal">
+          <ul>
+            <li>
+              <a href="{% url "invoice.create" contact.slug %}">
+                <i class="icon-gbp"></i>
+                Draft invoice
+              </a>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
