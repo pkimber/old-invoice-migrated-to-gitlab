@@ -129,34 +129,6 @@ class TimeRecordCreateView(
         return super(TimeRecordCreateView, self).form_valid(form)
 
 
-class TimeRecordInvoiceDraftListView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
-
-    template_name = 'invoice/timerecord_invoice_draft.html'
-
-    def _get_contact(self):
-        slug = self.kwargs.get('slug')
-        contact = get_object_or_404(Contact, slug=slug)
-        return contact
-
-    def get_context_data(self, **kwargs):
-        context = super(
-            TimeRecordInvoiceDraftListView, self
-        ).get_context_data(**kwargs)
-        context.update(dict(
-            contact=self._get_contact(),
-        ))
-        return context
-
-    def get_queryset(self):
-        contact = self._get_contact()
-        invoice_create = InvoiceCreate(datetime.today())
-        warnings = invoice_create.is_valid(contact)
-        for message in warnings:
-            messages.warning(self.request, message)
-        return invoice_create.draft(contact)
-
-
 class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
     model = TimeRecord
