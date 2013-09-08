@@ -16,7 +16,10 @@ from braces.views import (
     StaffuserRequiredMixin,
 )
 
-from .forms import TimeRecordForm
+from .forms import (
+    InvoiceCreateForm,
+    TimeRecordForm,
+)
 from .models import (
     Invoice,
     TimeRecord,
@@ -58,21 +61,40 @@ class ContactTimeRecordListView(
 
 
 class InvoiceCreateView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, View):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+
+    form_class = InvoiceCreateForm
+    model = Invoice
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
         contact = get_object_or_404(Contact, slug=slug)
         return contact
 
-    def post(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        context = super(InvoiceCreateView, self).get_context_data(**kwargs)
+        context.update(dict(
+            contact=self._get_contact(),
+        ))
+        return context
+
+    def form_valid(self, form):
         invoice_create = InvoiceCreate(datetime.today())
-        invoice_create.create(self._get_contact())
+        self.object = invoice_create.create(self._get_contact())
+        messages.info(
+            self.request,
+            "Invoice {} for {} created at {} today.".format(
+                self.object.invoice_number,
+                self.object.contact.name,
+                self.object.date_created.strftime("%H:%M"),
+            )
+        )
         return HttpResponseRedirect(reverse('invoice.list'))
 
 
 class InvoiceListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+
     model = Invoice
 
 

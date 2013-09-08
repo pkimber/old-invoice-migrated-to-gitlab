@@ -1,6 +1,16 @@
 from django import forms
 
-from .models import TimeRecord
+from .models import (
+    Invoice,
+    TimeRecord,
+)
+
+
+class InvoiceCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Invoice
+        fields = ()
 
 
 class TimeRecordForm(forms.ModelForm):
