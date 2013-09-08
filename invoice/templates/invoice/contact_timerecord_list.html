@@ -1,11 +1,11 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Time records
+  Time records for {{ contact.name }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Time records
+  Time records for {{ contact.name }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -31,7 +31,7 @@
           {% for timerecord in timerecord_list %}
             <tr valign="top">
               <td>
-                <a href="{% url "crm.ticket.detail" timerecord.pk %}">
+                <a href="{% url "crm.ticket.detail" timerecord.ticket.pk %}">
                   {{ timerecord.ticket.pk }}, {{ timerecord.ticket.name }}
                 </a>
               </td>
