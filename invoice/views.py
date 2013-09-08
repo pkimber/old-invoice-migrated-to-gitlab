@@ -73,8 +73,14 @@ class InvoiceCreateView(
 
     def get_context_data(self, **kwargs):
         context = super(InvoiceCreateView, self).get_context_data(**kwargs)
+        contact = self._get_contact()
+        invoice_create = InvoiceCreate(datetime.today())
+        warnings = invoice_create.is_valid(contact)
+        for message in warnings:
+            messages.warning(self.request, message)
         context.update(dict(
             contact=self._get_contact(),
+            timerecords=invoice_create.draft(contact),
         ))
         return context
 

@@ -1,75 +1,64 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Time records
+  Draft Invoice
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Time records
+  Draft Invoice
 {% endblock sub_heading %}
 
 {% block content %}
   <div class="pure-g-r">
     <div class="pure-u-1">
       <p>
-        Time records for contact
         <a href="{% url 'crm.contact.detail' contact.slug %}">
           {{ contact.name }}
         </a>
         {{ contact.address }}
       </p>
+      {% if not messages %}
+        Click 'Submit' to create an invoice at
+        <strong>{{ contact.hourly_rate }} pounds per hour</strong>:
+      {% endif %}
       <table class="pure-table pure-table-bordered">
         <thead>
           <tr>
             <th>Ticket</th>
+            <th>Description</th>
             <th>Time</th>
             <th>Start</th>
             <th>Elapsed</th>
-            <th>Bill</th>
           </tr>
         </thead>
         <tbody>
-          {% for timerecord in timerecord_list %}
+          {% for timerecord in timerecords %}
             <tr valign="top">
               <td>
                 <a href="{% url "crm.ticket.detail" timerecord.pk %}">
-                  {{ timerecord.ticket.pk }}, {{ timerecord.ticket.name }}
+                  {{ timerecord.ticket.pk }}
                 </a>
               </td>
               <td>
-                <a href="{% url "invoice.time.update" timerecord.pk %}">
-                  <i class="icon-edit"></i>
-                  {{ timerecord.name }}
+                <a href="{% url "crm.ticket.detail" timerecord.pk %}">
+                  {{ timerecord.ticket.name }}
                 </a>
-                {% if timerecord.description %}
-                  <br />
-                  {{ timerecord.description|linebreaksbr }}
-                {% endif %}
+              </td>
+              <td>
+                {{ timerecord.name }}
               </td>
               <td>
                 {{ timerecord.date_started|date:"d/m/y" }}
                 {{ timerecord.start_time|time:"H:i" }}
               </td>
               <td>{{ timerecord.delta_as_string }}</td>
-              <td>
-                {% if timerecord.billable %}
-                  <i class="icon-check-sign"></i>
-                {% endif %}
-              </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-      <div class="pure-menu pure-menu-open pure-menu-horizontal">
-        <ul>
-          <li>
-            <a href="{% url "invoice.create" contact.slug %}">
-              <i class="icon-gbp"></i>
-              Draft invoice
-            </a>
-          </li>
-        </ul>
-      </div>
+      {% if not messages %}
+        {% include '_form.html' %}
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
