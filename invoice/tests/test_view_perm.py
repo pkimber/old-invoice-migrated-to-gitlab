@@ -11,7 +11,12 @@ from crm.tests.model_maker import (
     make_priority,
     make_ticket,
 )
+from invoice.service import (
+    InvoicePrint,
+)
 from invoice.tests.model_maker import (
+    make_invoice,
+    make_invoice_line,
     make_invoice_settings,
     make_time_record,
 )
@@ -64,6 +69,17 @@ class TestViewPerm(TestCase):
             kwargs={'slug': self.icl.slug}
         )
         self._assert_post_staff_only(url)
+
+    def test_invoice_download(self):
+        invoice = make_invoice(
+            invoice_date=datetime.today(),
+            contact=self.icl,
+        )
+        make_invoice_line(invoice, 1, 1.3, 'hours', 300.00, 0.20)
+        make_invoice_line(invoice, 2, 2.4, 'hours', 200.23, 0.20)
+        InvoicePrint().create_pdf(invoice, header_image=None)
+        url = reverse('invoice.download', kwargs={'pk': invoice.pk})
+        self._assert_get_perm_denied(url)
 
     def test_invoice_list(self):
         url = reverse('invoice.list')

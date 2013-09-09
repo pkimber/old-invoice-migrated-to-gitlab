@@ -30,7 +30,10 @@ from crm.models import (
     Contact,
     Ticket,
 )
-from crm.views import CheckPermMixin
+from crm.views import (
+    check_perm,
+    CheckPermMixin,
+)
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
@@ -40,6 +43,7 @@ from invoice.service import (
 @login_required
 def invoice_download(request, pk):
     invoice = Invoice.objects.get(pk=pk)
+    check_perm(request.user, invoice.contact)
     return sendfile(request, invoice.pdf.path)
 
 
