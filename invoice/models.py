@@ -21,7 +21,9 @@ from crm.models import (
 # We want attachments to be stored in a private location and NOT available to
 # the world at a public URL.  The idea for this came from:
 # http://nemesisdesign.net/blog/coding/django-private-file-upload-and-serving/
-fs = FileSystemStorage(location=settings.MEDIA_ROOT_PRIVATE)
+# and
+# https://github.com/johnsensible/django-sendfile
+fs = FileSystemStorage(location=settings.SENDFILE_ROOT)
 
 
 class Invoice(TimeStampedModel):
