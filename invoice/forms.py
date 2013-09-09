@@ -17,7 +17,7 @@ class TimeRecordForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TimeRecordForm, self).__init__(*args, **kwargs)
-        for name in ('name', 'description'):
+        for name in ('title', 'description'):
             self.fields[name].widget.attrs.update(
                 {'class': 'pure-input-2-3'}
             )
@@ -25,7 +25,7 @@ class TimeRecordForm(forms.ModelForm):
     class Meta:
         model = TimeRecord
         fields = (
-            "name",
+            "title",
             "description",
             "date_started",
             "start_time",

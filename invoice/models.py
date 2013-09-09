@@ -144,7 +144,7 @@ class TimeRecord(TimeStampedModel):
     """Simple time recording"""
     ticket = models.ForeignKey(Ticket)
     user = models.ForeignKey(User)
-    name = models.CharField(max_length=100)
+    title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     date_started = models.DateField()
     start_time = models.TimeField()
@@ -159,7 +159,7 @@ class TimeRecord(TimeStampedModel):
 
     def __unicode__(self):
         return unicode("{}: {}: {}: {}".format(
-            self.name,
+            self.title,
             self.date_started,
             self.start_time,
             self.end_time
