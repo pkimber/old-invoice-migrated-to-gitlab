@@ -13,7 +13,7 @@
     <div class="pure-u-1">
       <p>
         <a href="{% url 'crm.ticket.detail' ticket.pk %}">
-          <strong>{{ ticket.name }}</strong>
+          <strong>{{ ticket.title }}</strong>
         </a>
         <a href="{% url 'crm.contact.detail' ticket.contact.slug %}">
           {{ ticket.contact.name }}
@@ -25,6 +25,7 @@
             <tr>
               <th>Time</th>
               <th>Start</th>
+              <th></th>
               <th>Elapsed</th>
               <th>Bill</th>
             </tr>
@@ -36,10 +37,10 @@
                   {% if user.is_staff %}
                   <a href="{% url "invoice.time.update" timerecord.pk %}">
                     <i class="icon-edit"></i>
-                    {{ timerecord.name }}
+                    {{ timerecord.title }}
                   </a>
                   {% else %}
-                  <strong>{{ timerecord.name }}</strong>
+                  <strong>{{ timerecord.title }}</strong>
                   {% endif %}
                   {% if timerecord.description %}
                     <br />
@@ -48,12 +49,22 @@
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}
+                </td>
+                <td>
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
                 <td>{{ timerecord.delta_as_string }}</td>
                 <td>
-                  {% if timerecord.billable %}
-                    <i class="icon-check-sign"></i>
+                  {% if timerecord.invoice_line %}
+                    <a href="{% url 'invoice.download' timerecord.invoice_line.invoice.pk %}">
+                      {{ timerecord.invoice_line.invoice.invoice_number }}
+                    </a>
+                  {% else %}
+                    {% if timerecord.billable %}
+                      <small>Pending</small>
+                    {% else %}
+                      <small>No-charge</small>
+                    {% endif %}
                   {% endif %}
                 </td>
               </tr>
