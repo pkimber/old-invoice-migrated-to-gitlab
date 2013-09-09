@@ -1,29 +1,23 @@
 from datetime import datetime
 from decimal import Decimal
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.files.storage import FileSystemStorage
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.timesince import timeuntil
 
 import reversion
 
-from base.model_utils import TimeStampedModel
+from base.model_utils import (
+    private_file_store,
+    TimeStampedModel,
+)
 from base.singleton import SingletonModel
 from crm.models import (
     Contact,
     Ticket,
 )
-
-# We want attachments to be stored in a private location and NOT available to
-# the world at a public URL.  The idea for this came from:
-# http://nemesisdesign.net/blog/coding/django-private-file-upload-and-serving/
-# and
-# https://github.com/johnsensible/django-sendfile
-fs = FileSystemStorage(location=settings.SENDFILE_ROOT)
 
 
 class Invoice(TimeStampedModel):
@@ -54,7 +48,7 @@ class Invoice(TimeStampedModel):
     invoice_date = models.DateField()
     contact = models.ForeignKey(Contact)
     pdf = models.FileField(
-        upload_to='invoice/%Y/%m/%d', storage=fs, blank=True
+        upload_to='invoice/%Y/%m/%d', storage=private_file_store, blank=True
     )
 
     class Meta:

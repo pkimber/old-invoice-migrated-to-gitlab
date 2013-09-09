@@ -42,9 +42,15 @@ from invoice.service import (
 
 @login_required
 def invoice_download(request, pk):
+    """https://github.com/johnsensible/django-sendfile"""
     invoice = get_object_or_404(Invoice, pk=pk)
     check_perm(request.user, invoice.contact)
-    return sendfile(request, invoice.pdf.path)
+    return sendfile(
+        request,
+        invoice.pdf.path,
+        attachment=True,
+        attachment_filename='{}.pdf'.format(invoice.invoice_number)
+    )
 
 
 class ContactTimeRecordListView(
