@@ -50,6 +50,13 @@ class TestView(TestCase):
             footer="Please pay by bank transfer<br />Thank you"
         )
 
+    def test_contact_invoice_list(self):
+        url = reverse(
+            'invoice.contact.list',
+            kwargs={'slug': self.icl.slug}
+        )
+        self._assert_get(url)
+
     def test_contact_time_record_list(self):
         url = reverse(
             'invoice.time.contact.list',

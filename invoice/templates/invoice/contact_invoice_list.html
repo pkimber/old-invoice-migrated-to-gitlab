@@ -1,23 +1,28 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Invoices
+  Invoices for {{ contact.name }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Invoices
+  Invoices for {{ contact.name }}
 {% endblock sub_heading %}
 
 {% block content %}
   <div class="pure-g-r">
     <div class="pure-u-1">
+      <p>
+        <a href="{% url 'crm.contact.detail' contact.slug %}">
+          {{ contact.name }}
+        </a>
+        {{ contact.address }}
+      </p>
       {% if invoice_list %}
         <table class="pure-table pure-table-bordered">
           <thead>
             <tr>
               <th>Number</th>
               <th>Date</th>
-              <th>Contact</th>
               <th>Net</th>
               <th>Gross</th>
               <th>Download</th>
@@ -28,11 +33,6 @@
               <tr valign="top">
                 <td>{{ invoice.invoice_number }}</td>
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
-                <td>
-                  <a href="{% url 'crm.contact.detail' invoice.contact.slug %}">
-                    <strong>{{ invoice.contact.name }}</strong>
-                  </a>
-                </td>
                 <td>{{ invoice.net }}</td>
                 <td>{{ invoice.gross }}</td>
                 <td>
@@ -45,7 +45,7 @@
           </tbody>
         </table>
       {% else %}
-        Sorry, there are no invoices on the system
+        Sorry, there are no invoices on the system for {{ contact.name }}
       {% endif %}
     </div>
   </div>

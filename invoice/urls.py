@@ -4,6 +4,7 @@ from django.conf.urls import (
 )
 
 from .views import (
+    ContactInvoiceListView,
     ContactTimeRecordListView,
     invoice_download,
     InvoiceCreateView,
@@ -17,6 +18,10 @@ from .views import (
 
 urlpatterns = patterns(
     '',
+    url(regex=r'^contact/(?P<slug>[-\w\d]+)/invoice/$',
+        view=ContactInvoiceListView.as_view(),
+        name='invoice.contact.list'
+        ),
     url(regex=r'^contact/(?P<slug>[-\w\d]+)/time/$',
         view=ContactTimeRecordListView.as_view(),
         name='invoice.time.contact.list'
