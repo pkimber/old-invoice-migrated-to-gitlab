@@ -42,7 +42,7 @@ from invoice.service import (
 
 @login_required
 def invoice_download(request, pk):
-    invoice = Invoice.objects.get(pk=pk)
+    invoice = get_object_or_404(Invoice, pk=pk)
     check_perm(request.user, invoice.contact)
     return sendfile(request, invoice.pdf.path)
 

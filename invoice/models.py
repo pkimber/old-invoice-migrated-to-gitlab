@@ -84,18 +84,24 @@ reversion.register(Invoice)
 
 
 class InvoiceSettings(SingletonModel):
-    vat_rate = models.DecimalField(max_digits=8, decimal_places=2)
-    # e.g. 'invoice'
-    file_name_prefix = models.CharField(max_length=10)
+    vat_rate = models.DecimalField(
+        max_digits=8, decimal_places=2,
+        help_text="e.g. 0.175 to charge VAT at 17.5 percent",
+    )
     vat_number = models.CharField(max_length=12, blank=True)
-    # comma-separated e.g. 'Patrick Kimber, Hatherleigh, EX17 4AB'
     name_and_address = models.TextField()
     phone_number = models.CharField(max_length=100)
-    # include '<br />' tags for new lines
     footer = models.TextField()
 
     class Meta:
         verbose_name = 'Invoice print settings'
+
+    def __unicode__(self):
+        return unicode("{}, Phone {}, VAT {}".format(
+            ' '.join(self.name_and_address.split('\n')),
+            self.phone_number,
+            self.vat_rate,
+        ))
 
 reversion.register(InvoiceSettings)
 

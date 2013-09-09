@@ -201,9 +201,7 @@ class InvoicePrint(object):
         doc.build(elements)
         pdf = buff.getvalue()
         buff.close()
-        invoice_filename = '{}-{}.pdf'.format(
-            print_settings.file_name_prefix, invoice.invoice_number
-        )
+        invoice_filename = '{}.pdf'.format(invoice.invoice_number)
         invoice.pdf.save(invoice_filename, ContentFile(pdf))
         return invoice_filename
 
@@ -424,7 +422,7 @@ class InvoicePrint(object):
 
     def _text_our_address(self, name_and_address):
         """ Company name and address """
-        lines = name_and_address.split(',')
+        lines = name_and_address.split('\n')
         return '<br />'.join(lines)
 
     def _text_our_vat_number(self, vat_number):

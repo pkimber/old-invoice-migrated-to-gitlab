@@ -67,11 +67,10 @@ class Command(BaseCommand):
     def _invoice_settings(self):
         make_invoice_settings(
             vat_rate=Decimal('0.20'),
-            file_name_prefix='invoice',
             vat_number='',
-            name_and_address='Patrick Kimber, Hatherleigh, EX20 1AB',
+            name_and_address='Patrick Kimber\nHatherleigh\nEX20 1AB',
             phone_number='01234 234 456',
-            footer="Please pay by bank transfer<br />For help, please phone<br />Thank you"
+            footer="Please pay by bank transfer\nThank you"
         )
 
     def _time_for_ticket(self):

@@ -44,7 +44,6 @@ class TestView(TestCase):
         )
         make_invoice_settings(
             vat_rate=Decimal('0.20'),
-            file_name_prefix='invoice',
             vat_number='',
             name_and_address='Patrick Kimber, Hatherleigh, EX20 1AB',
             phone_number='01234 234 456',
