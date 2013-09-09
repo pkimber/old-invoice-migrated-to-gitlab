@@ -161,14 +161,22 @@ class InvoicePrint(object):
         # style - add vertical grid lines
         style = []
         for idx in range(len(column_widths) - 1):
-            style.append(('LINEAFTER', (idx, 0), (idx, -1), self.GRID_LINE_WIDTH, colors.gray))
+            style.append((
+                'LINEAFTER',
+                (idx, 0),
+                (idx, -1),
+                self.GRID_LINE_WIDTH,
+                colors.gray)
+            )
         return style
 
     def _get_print_settings(self):
         try:
             return InvoiceSettings.objects.get()
         except InvoiceSettings.DoesNotExist:
-            raise InvoiceError("invoice print settings have not been set-up in admin")
+            raise InvoiceError(
+                "invoice print settings have not been set-up in admin"
+            )
 
     def create_pdf(self, invoice, header_image):
         # Create the document template
@@ -208,8 +216,14 @@ class InvoicePrint(object):
         """
         # invoice header
         invoice_header_data = [
-            [self._bold('Date'), '%s' % invoice.invoice_date.strftime('%d/%m/%Y')],
-            [self._bold('Invoice'), '%s' % invoice.invoice_number],
+            [
+                self._bold('Date'),
+                '%s' % invoice.invoice_date.strftime('%d/%m/%Y')
+            ],
+            [
+                self._bold('Invoice'),
+                '%s' % invoice.invoice_number
+            ],
         ]
         return platypus.Table(
             invoice_header_data,
@@ -237,10 +251,14 @@ class InvoicePrint(object):
         # right hand content
         if header_image:
             right.append(self._image(header_image))
-        right.append(self._para(self._text_our_address(print_settings.name_and_address)))
+        right.append(self._para(
+            self._text_our_address(print_settings.name_and_address)
+        ))
         right.append(self._bold(print_settings.phone_number))
         if print_settings.vat_number:
-            right.append(self._para(self._text_our_vat_number(print_settings.vat_number)))
+            right.append(self._para(
+                self._text_our_vat_number(print_settings.vat_number)
+            ))
 
         heading = [platypus.Paragraph('Invoice', self.head_1)]
 
@@ -298,13 +316,16 @@ class InvoicePrint(object):
         for idx, line in enumerate(lines):
             row_number = line[0]
             if not row_number:
-                style.append(('LINEBELOW', (0, idx), (-1, idx), self.GRID_LINE_WIDTH, colors.gray))
+                style.append((
+                    'LINEBELOW',
+                    (0, idx),
+                    (-1, idx),
+                    self.GRID_LINE_WIDTH,
+                    colors.gray)
+                )
         # column widths
         column_widths = [20, 230, 50, 40, 50, 50]
         style = style + self._get_column_styles(column_widths)
-        # style - add vertical grid lines
-        #for idx in range(len(column_widths)):
-        #    style.append(('LINEAFTER', (idx, 0), (idx, -1), self.GRID_LINE_WIDTH, colors.gray))
         # draw the table
         return platypus.Table(
             data + lines,
@@ -329,8 +350,6 @@ class InvoicePrint(object):
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
             ('LINEBELOW', (0, 0), (-1, 0), self.GRID_LINE_WIDTH, colors.gray),
             ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
-            #('LINEBEFORE', (0, 0), (0, -1), self.GRID_LINE_WIDTH, colors.gray),
-            #('LINEAFTER', (-1, 0), (-1, -1), self.GRID_LINE_WIDTH, colors.gray),
         ]
         column_widths = [250, 50, 40, 50, 50]
         style = style + self._get_column_styles(column_widths)
