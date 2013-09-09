@@ -8,6 +8,12 @@ from crm.models import (
     Contact,
     Ticket,
 )
+from crm.tests.scenario import (
+    get_contact_farm,
+)
+from login.tests.scenario import (
+    get_user_fred,
+)
 from invoice.service import (
     InvoiceCreate,
 )
@@ -22,24 +28,24 @@ class Command(BaseCommand):
     help = "Create demo data for 'invoice'"
 
     def handle(self, *args, **options):
-        self._invoice_settings()
-        self._time_for_ticket()
-        self._invoice_for_contact()
-        print("Created 'invoice' demo data...")
-
-    def _invoice_for_contact(self):
         try:
-            contact = Contact.objects.get(slug='ssmith')
+            farm = get_contact_farm()
         except Contact.DoesNotExist:
             raise Exception(
                 "Expected 'crm' demo data to create a contact"
-                "with the slug value of '{}'".format('ssmith')
+                "with the slug value of '{}'".format('fred')
             )
-        tickets = contact.ticket_set.all()
+        self._invoice_settings()
+        self._time_for_ticket(farm)
+        self._invoice_for_contact(farm)
+        print("Created 'invoice' demo data...")
+
+    def _invoice_for_contact(self, farm):
+        tickets = farm.ticket_set.all()
         if not len(tickets) > 0:
             raise Exception(
                 "Expected 'crm' demo data to have created a ticket "
-                "for contact '{}'".format('ssmith')
+                "for contact '{}'".format('fred')
             )
         ticket = tickets[0]
         make_time_record(
@@ -62,7 +68,7 @@ class Command(BaseCommand):
             True,
         )
         invoice_create = InvoiceCreate(datetime(2013, 9, 6))
-        invoice_create.create(contact)
+        invoice_create.create(farm)
 
     def _invoice_settings(self):
         make_invoice_settings(
@@ -73,12 +79,12 @@ class Command(BaseCommand):
             footer="Please pay by bank transfer\nThank you"
         )
 
-    def _time_for_ticket(self):
-        tickets = Ticket.objects.filter(contact__slug='pkimber')
+    def _time_for_ticket(self, fred):
+        tickets = Ticket.objects.filter(contact=fred)
         if not len(tickets) > 1:
             raise Exception(
                 "Expected 'crm' demo data to create two tickets "
-                "for contact '{}'".format('pkimber')
+                "for contact '{}'".format(fred.username)
             )
         description = """Please use the posts from the barn.
 You can find staples in the wood shed"""
