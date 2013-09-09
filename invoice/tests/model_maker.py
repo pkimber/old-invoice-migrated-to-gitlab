@@ -30,7 +30,9 @@ def make_invoice_line(invoice, line_number, quantity, units, price, vat_rate):
     )
 
 
-def make_invoice_settings(vat_rate, file_name_prefix, vat_number, name_and_address, phone_number, footer):
+def make_invoice_settings(
+        vat_rate, file_name_prefix, vat_number,
+        name_and_address, phone_number, footer):
     return clean_and_save(
         InvoiceSettings(
             vat_rate=vat_rate,
@@ -43,12 +45,14 @@ def make_invoice_settings(vat_rate, file_name_prefix, vat_number, name_and_addre
     )
 
 
-def make_time_record(ticket, user, name, date_started, start_time, end_time, billable, **kwargs):
+def make_time_record(
+        ticket, user, title, date_started,
+        start_time, end_time, billable, **kwargs):
     return clean_and_save(
         TimeRecord.objects.create(
             ticket=ticket,
             user=user,
-            name=name,
+            title=title,
             date_started=date_started,
             start_time=start_time,
             end_time=end_time,

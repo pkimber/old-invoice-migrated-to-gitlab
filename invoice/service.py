@@ -369,7 +369,7 @@ class InvoicePrint(object):
                 ticket_pk = line.timerecord.ticket.pk
                 data.append([
                     None,
-                    self._bold(line.timerecord.ticket.name),
+                    self._bold(line.timerecord.ticket.title),
                     None,
                     None,
                     None,
