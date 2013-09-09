@@ -28,7 +28,7 @@ setup(
             'templates/invoice/*.*',
         ],
     },
-    version='0.0.01',
+    version='0.0.02',
     description='invoice',
     author='Patrick Kimber',
     author_email='code@pkimber.net',
