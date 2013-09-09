@@ -1,5 +1,8 @@
 from django import forms
 
+from base.form_utils import (
+    RequiredFieldForm,
+)
 from .models import (
     Invoice,
     TimeRecord,
@@ -13,7 +16,7 @@ class InvoiceCreateForm(forms.ModelForm):
         fields = ()
 
 
-class TimeRecordForm(forms.ModelForm):
+class TimeRecordForm(RequiredFieldForm):
 
     def __init__(self, *args, **kwargs):
         super(TimeRecordForm, self).__init__(*args, **kwargs)
