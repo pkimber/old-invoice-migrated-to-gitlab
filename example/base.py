@@ -162,3 +162,6 @@ LOGGING = {
 # URL where requests are redirected after login when the contrib.auth.login
 # view gets no next parameter.
 LOGIN_REDIRECT_URL = reverse_lazy('project.home.user')
+
+# https://github.com/johnsensible/django-sendfile
+SENDFILE_BACKEND = 'sendfile.backends.development'

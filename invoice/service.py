@@ -94,7 +94,9 @@ class InvoiceCreate(object):
         try:
             return InvoiceSettings.objects.get()
         except InvoiceSettings.DoesNotExist:
-            raise InvoiceError("invoice print settings have not been set-up in admin")
+            raise InvoiceError(
+                "invoice print settings have not been set-up in admin"
+            )
 
     def _get_time_records(self, contact, iteration_end):
         """
@@ -169,22 +171,19 @@ class InvoicePrint(object):
             raise InvoiceError("invoice print settings have not been set-up in admin")
 
     def create_pdf(self, invoice, header_image):
-        print_settings = self._get_print_settings()
-
         # Create the document template
-        invoice_filename = '{}-{}.pdf'.format(
-            print_settings.file_name_prefix, invoice.invoice_number
-        )
         buff = StringIO()
         doc = platypus.SimpleDocTemplate(
             buff,
             title='Invoice',
             pagesize=A4
         )
-
+        print_settings = self._get_print_settings()
         # Container for the 'Flowable' objects
         elements = []
-        elements.append(self._table_header(invoice, print_settings, header_image))
+        elements.append(
+            self._table_header(invoice, print_settings, header_image)
+        )
         elements.append(platypus.Spacer(1, 12))
         elements.append(self._table_lines(invoice))
         elements.append(self._table_totals(invoice))
@@ -194,6 +193,9 @@ class InvoicePrint(object):
         doc.build(elements)
         pdf = buff.getvalue()
         buff.close()
+        invoice_filename = '{}-{}.pdf'.format(
+            print_settings.file_name_prefix, invoice.invoice_number
+        )
         invoice.pdf.save(invoice_filename, ContentFile(pdf))
         return invoice_filename
 

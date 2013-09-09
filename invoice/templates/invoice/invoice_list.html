@@ -20,6 +20,7 @@
               <th>Contact</th>
               <th>Net</th>
               <th>Gross</th>
+              <th>Download</th>
             </tr>
           </thead>
           <tbody>
@@ -34,6 +35,11 @@
                 </td>
                 <td>{{ invoice.net }}</td>
                 <td>{{ invoice.gross }}</td>
+                <td>
+                  <a href="{% url 'invoice.download' invoice.pk %}">
+                    Download
+                  </a>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

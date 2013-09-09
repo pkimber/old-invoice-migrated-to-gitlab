@@ -5,6 +5,7 @@ from django.conf.urls import (
 
 from .views import (
     ContactTimeRecordListView,
+    invoice_download,
     InvoiceCreateView,
     InvoiceListView,
     TicketTimeRecordListView,
@@ -27,6 +28,10 @@ urlpatterns = patterns(
     url(regex=r'^$',
         view=InvoiceListView.as_view(),
         name='invoice.list'
+        ),
+    url(regex=r'^download/(?P<pk>\d+)/$',
+        view=invoice_download,
+        name='invoice.download'
         ),
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),

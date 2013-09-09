@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -8,13 +9,13 @@ from django.views.generic import (
     CreateView,
     ListView,
     UpdateView,
-    View,
 )
 
 from braces.views import (
     LoginRequiredMixin,
     StaffuserRequiredMixin,
 )
+from sendfile import sendfile
 
 from .forms import (
     InvoiceCreateForm,
@@ -32,7 +33,14 @@ from crm.models import (
 from crm.views import CheckPermMixin
 from invoice.service import (
     InvoiceCreate,
+    InvoicePrint,
 )
+
+
+@login_required
+def invoice_download(request, pk):
+    invoice = Invoice.objects.get(pk=pk)
+    return sendfile(request, invoice.pdf.path)
 
 
 class ContactTimeRecordListView(
@@ -87,6 +95,7 @@ class InvoiceCreateView(
     def form_valid(self, form):
         invoice_create = InvoiceCreate(datetime.today())
         self.object = invoice_create.create(self._get_contact())
+        InvoicePrint().create_pdf(self.object, header_image=None)
         messages.info(
             self.request,
             "Invoice {} for {} created at {} today.".format(
