@@ -2,6 +2,9 @@ import os
 
 from datetime import datetime
 from decimal import Decimal
+from StringIO import StringIO
+
+from django.core.files.base import ContentFile
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -172,8 +175,9 @@ class InvoicePrint(object):
         invoice_filename = '{}-{}.pdf'.format(
             print_settings.file_name_prefix, invoice.invoice_number
         )
+        buff = StringIO()
         doc = platypus.SimpleDocTemplate(
-            invoice_filename,
+            buff,
             title='Invoice',
             pagesize=A4
         )
@@ -186,9 +190,11 @@ class InvoicePrint(object):
         elements.append(self._table_totals(invoice))
         for text in self._text_footer(print_settings.footer):
             elements.append(self._para(text))
-
         # write the document to disk
         doc.build(elements)
+        pdf = buff.getvalue()
+        buff.close()
+        invoice.pdf.save(invoice_filename, ContentFile(pdf))
         return invoice_filename
 
     def _table_invoice_detail(self, invoice):
