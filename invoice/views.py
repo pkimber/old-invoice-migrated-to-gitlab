@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import datetime
 
 from django.contrib import messages
@@ -165,6 +166,12 @@ class TimeRecordCreateView(
             ticket=self._get_ticket(),
         ))
         return context
+
+    def get_initial(self):
+        return dict(
+            date_started=date.today(),
+            start_time=datetime.today().time(),
+        )
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
