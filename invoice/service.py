@@ -113,6 +113,7 @@ class InvoiceCreate(object):
         ).order_by(
             'ticket__pk',
             'date_started',
+            'start_time',
         )
 
 

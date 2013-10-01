@@ -55,6 +55,9 @@ class Invoice(TimeStampedModel):
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
 
+    def __unicode__(self):
+        return unicode('{} {}'.format(self.pk, self.invoice_date))
+
     def get_absolute_url(self):
         return reverse('crm.invoice.detail', args=[self.pk])
 
@@ -155,7 +158,7 @@ class TimeRecord(TimeStampedModel):
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
 
     class Meta:
-        ordering = ['date_started', 'start_time']
+        ordering = ['-date_started', '-start_time']
         verbose_name = 'Time record'
         verbose_name_plural = 'Time records'
 
