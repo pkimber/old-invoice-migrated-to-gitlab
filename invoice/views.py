@@ -101,7 +101,12 @@ class ContactTimeRecordListView(
 
     def get_queryset(self):
         contact = self._get_contact()
-        return TimeRecord.objects.filter(ticket__contact=contact)
+        return TimeRecord.objects.filter(
+            ticket__contact=contact
+        ).order_by(
+            'date_started',
+            'start_time',
+        )
 
 
 class InvoiceCreateView(
@@ -207,7 +212,12 @@ class TicketTimeRecordListView(
 
     def get_queryset(self):
         ticket = self._get_ticket()
-        return TimeRecord.objects.filter(ticket=ticket)
+        return TimeRecord.objects.filter(
+            ticket=ticket
+        ).order_by(
+            'date_started',
+            'start_time',
+        )
 
 
 class TimeRecordUpdateView(
