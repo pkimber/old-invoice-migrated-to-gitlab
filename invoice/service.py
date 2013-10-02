@@ -364,8 +364,8 @@ class InvoicePrint(object):
             result.append('{}'.format(invoice_line.description))
         if invoice_line.has_time_record:
             time_record = invoice_line.timerecord
-            if time_record.description:
-                result.append('{}'.format(time_record.description))
+            if time_record.title:
+                result.append('{}'.format(time_record.title))
             result.append('%s %s to %s' % (
                 time_record.date_started.strftime("%a %d %b %Y"),
                 time_record.start_time.strftime("from %H:%M"),
