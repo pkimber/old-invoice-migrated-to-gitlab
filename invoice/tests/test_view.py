@@ -109,6 +109,14 @@ class TestView(TestCase):
         url = reverse('invoice.update', kwargs={'pk': invoice.pk})
         self._assert_get(url)
 
+    def test_ticket_timerecord_list(self):
+        fence = get_ticket_fence_for_farm()
+        url = reverse(
+            'invoice.time.ticket.list',
+            kwargs={'pk': fence.pk}
+        )
+        self._assert_get(url)
+
     def test_timerecord_create(self):
         fence = get_ticket_fence_for_farm()
         url = reverse(
@@ -119,14 +127,6 @@ class TestView(TestCase):
 
     def test_timerecord_list(self):
         url = reverse('invoice.time')
-        self._assert_get(url)
-
-    def test_ticket_timerecord_list(self):
-        fence = get_ticket_fence_for_farm()
-        url = reverse(
-            'invoice.time.ticket.list',
-            kwargs={'pk': fence.pk}
-        )
         self._assert_get(url)
 
     def test_timerecord_update(self):
