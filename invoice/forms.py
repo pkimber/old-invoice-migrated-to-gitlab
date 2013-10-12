@@ -5,15 +5,47 @@ from base.form_utils import (
 )
 from .models import (
     Invoice,
+    InvoiceLine,
     TimeRecord,
 )
 
 
-class InvoiceCreateForm(forms.ModelForm):
+class InvoiceDraftCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Invoice
+        fields = (
+            'invoice_date',
+        )
+
+
+class InvoiceBlankForm(forms.ModelForm):
 
     class Meta:
         model = Invoice
         fields = ()
+
+
+class InvoiceLineForm(forms.ModelForm):
+
+    class Meta:
+        model = InvoiceLine
+        fields = (
+            'description',
+            'quantity',
+            'units',
+            'price',
+            'vat_rate',
+        )
+
+
+class InvoiceUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = Invoice
+        fields = (
+            'invoice_date',
+        )
 
 
 class TimeRecordForm(RequiredFieldForm):

@@ -66,7 +66,7 @@ class TestView(TestCase):
 
     def test_invoice_create(self):
         url = reverse(
-            'invoice.create',
+            'invoice.create.time',
             kwargs={'slug': self.icl.slug}
         )
         self._assert_post(url)

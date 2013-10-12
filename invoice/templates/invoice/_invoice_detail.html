@@ -1,0 +1,95 @@
+<table class="pure-table pure-table-bordered">
+  <tbody>
+    <tr valign="top">
+      <td>Contact</td>
+      <td>
+        <a href="{% url 'crm.contact.detail' invoice.contact.slug %}">
+          <strong>{{ invoice.contact.name }}</strong>
+        </a>
+        <br />
+        {{ invoice.contact.address|linebreaksbr }}
+      </td>
+    </tr>
+    <tr>
+      <td>Number</td>
+      <td>
+        {% if invoice.is_draft %}
+          <a href="{% url 'invoice.update' invoice.pk %}">
+            <i class="icon-edit"></i>
+            {{ invoice.invoice_number }}
+          </a>
+        {% else %}
+          {{ invoice.invoice_number }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Date</td>
+      <td>
+        {{ invoice.invoice_date|date:"d/m/Y" }}
+      </td>
+    </tr>
+    <tr>
+      <td>Created by</td>
+      <td>
+        {{ invoice.user.username }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br />
+{% if invoice.invoiceline_set.all %}
+  <table class="pure-table pure-table-bordered">
+    <thead>
+      <tr>
+        <th>Number</th>
+        <th>Description</th>
+        <th>Quantity</th>
+        <th>Units</th>
+        <th>Price</th>
+        <th>Net</th>
+        <th>VAT</th>
+        <th>Gross</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in invoice.invoiceline_set.all %}
+        <tr valign="top">
+          <td>
+            {% if line.can_update %}
+              <a href="{% url 'invoice.line.update' line.pk %}">
+                <i class="icon-edit"></i>
+                {{ line.line_number }}
+              </a>
+            {% else %}
+              {{ line.line_number }}
+            {% endif %}
+          </td>
+          <td>
+            {% if line.description %}
+              {{ line.description }}
+            {% else %}
+              Time
+            {% endif %}
+          </td>
+          <td>{{ line.quantity }}</td>
+          <td>{{ line.units }}</td>
+          <td>{{ line.price }}</td>
+          <td>{{ line.net }}</td>
+          <td>{{ line.vat }}</td>
+          <td>{{ line.gross }}</td>
+        </tr>
+      {% endfor %}
+      <tr valign="top">
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><strong>Total</strong></td>
+        <td><strong>{{ invoice.net }}</strong></td>
+        <td><strong>{{ invoice.vat }}</strong></td>
+        <td><strong>{{ invoice.gross }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+{% endif %}

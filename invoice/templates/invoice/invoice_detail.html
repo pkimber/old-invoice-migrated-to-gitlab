@@ -1,0 +1,45 @@
+{% extends "invoice/base.html" %}
+
+{% block sub_title %}
+  Invoice
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  {% if invoice.is_draft %}
+    Draft
+  {% endif %}
+  Invoice {{ invoice.invoice_number }}
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g-r">
+    <div class="pure-u-1">
+      {% include "invoice/_invoice_detail.html" %}
+      <div class="pure-menu pure-menu-open pure-menu-horizontal">
+        <ul>
+          {% if invoice.is_draft %}
+            <li>
+              <a href="{% url "invoice.line.create" invoice.pk %}">
+                <i class="icon-reorder"></i>
+                Add invoice line
+              </a>
+            </li>
+            <li>
+              <a href="{% url "invoice.create.pdf" invoice.pk %}">
+                <i class="icon-gbp"></i>
+                Create PDF
+              </a>
+            </li>
+          {% else %}
+            <li>
+              <a href="{% url 'invoice.download' invoice.pk %}">
+                Download
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+

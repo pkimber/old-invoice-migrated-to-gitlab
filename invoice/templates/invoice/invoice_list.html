@@ -26,7 +26,14 @@
           <tbody>
             {% for invoice in invoice_list %}
               <tr valign="top">
-                <td>{{ invoice.invoice_number }}</td>
+                <td>
+                  <a href="{% url 'invoice.detail' invoice.pk %}">
+                    {% if invoice.is_draft %}
+                      <i class="icon-edit"></i>
+                    {% endif %}
+                    {{ invoice.invoice_number }}
+                  </a>
+                </td>
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
                 <td>
                   <a href="{% url 'crm.contact.detail' invoice.contact.slug %}">
@@ -36,9 +43,13 @@
                 <td>{{ invoice.net }}</td>
                 <td>{{ invoice.gross }}</td>
                 <td>
-                  <a href="{% url 'invoice.download' invoice.pk %}">
-                    {{ invoice.invoice_number }}.pdf
-                  </a>
+                  {% if invoice.is_draft %}
+                    DRAFT
+                  {% else %}
+                    <a href="{% url 'invoice.download' invoice.pk %}">
+                      {{ invoice.invoice_number }}.pdf
+                    </a>
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}

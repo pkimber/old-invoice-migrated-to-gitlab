@@ -7,13 +7,19 @@ from django.test import TestCase
 from invoice.models import Invoice
 from invoice.service import (
     InvoiceCreateBatch,
+    InvoiceError,
     InvoicePrint,
 )
 from invoice.tests.model_maker import (
+    make_invoice,
     make_invoice_settings,
     make_time_record,
 )
 from login.tests.model_maker import make_user
+from login.tests.scenario import (
+    get_user_staff,
+    user_default,
+)
 from crm.tests.model_maker import (
     make_contact,
     make_priority,
@@ -27,15 +33,16 @@ VAT_RATE = Decimal('0.20')
 class TestInvoicePrint(TestCase):
 
     def setUp(self):
+        user_default()
         tom = make_user('tom')
-        icl = make_contact(
+        self.icl = make_contact(
             'icl',
             'ICL',
             address="130 High Street\nSheepwash\nHolsworthy\nEX2 3RF",
             hourly_rate=Decimal('20.00')
         )
         ticket = make_ticket(
-            icl,
+            self.icl,
             tom,
             'Sew',
             make_priority('Low', 1),
@@ -59,7 +66,7 @@ class TestInvoicePrint(TestCase):
             True
         )
         ticket_knit = make_ticket(
-            icl,
+            self.icl,
             tom,
             'Knit',
             make_priority('Medium', 2),
@@ -80,8 +87,31 @@ class TestInvoicePrint(TestCase):
             phone_number='01234 234 456',
             footer="Please pay by bank transfer<br />For help, please phone<br />Thank you"
         )
-        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch().create(tom, datetime(2012, 9, 30))
 
     def test_invoice_create_pdf(self):
         invoice = Invoice.objects.all()[0]
         InvoicePrint().create_pdf(invoice, None)
+
+    def test_invoice_create_pdf_no_lines(self):
+        invoice = make_invoice(
+            user=get_user_staff(),
+            invoice_date=datetime.today(),
+            contact=self.icl,
+        )
+        self.assertRaises(
+            InvoiceError,
+            InvoicePrint().create_pdf,
+            invoice,
+            None
+        )
+
+    def test_invoice_create_pdf_not_draft(self):
+        invoice = Invoice.objects.all()[0]
+        InvoicePrint().create_pdf(invoice, None)
+        self.assertRaises(
+            InvoiceError,
+            InvoicePrint().create_pdf,
+            invoice,
+            None
+        )

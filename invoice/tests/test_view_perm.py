@@ -71,13 +71,14 @@ class TestViewPerm(TestCase):
 
     def test_invoice_create(self):
         url = reverse(
-            'invoice.create',
+            'invoice.create.time',
             kwargs={'slug': self.icl.slug}
         )
         self._assert_post_staff_only(url)
 
     def test_invoice_download(self):
         invoice = make_invoice(
+            self.tom,
             invoice_date=datetime.today(),
             contact=self.icl,
         )

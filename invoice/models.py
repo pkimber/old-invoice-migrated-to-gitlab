@@ -42,9 +42,7 @@ class Invoice(TimeStampedModel):
     - rate of any cash discount offered; and
     - total amount of VAT charged, shown in sterling.
     """
-    date_created = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name='Created'
-    )
+    user = models.ForeignKey(User)
     invoice_date = models.DateField()
     contact = models.ForeignKey(Contact)
     pdf = models.FileField(
@@ -59,7 +57,15 @@ class Invoice(TimeStampedModel):
         return unicode('{} {}'.format(self.pk, self.invoice_date))
 
     def get_absolute_url(self):
-        return reverse('crm.invoice.detail', args=[self.pk])
+        return reverse('invoice.detail', args=[self.pk])
+
+    def get_next_line_number(self):
+        result = self.invoiceline_set.aggregate(models.Max('line_number'))
+        max_line_number = result.get('line_number__max', None)
+        if max_line_number:
+            return max_line_number + 1
+        else:
+            return 1
 
     def _gross(self):
         totals = self.invoiceline_set.aggregate(
@@ -68,14 +74,27 @@ class Invoice(TimeStampedModel):
         return (totals['net__sum'] or Decimal()) + (totals['vat__sum'] or Decimal())
     gross = property(_gross)
 
+    def _has_lines(self):
+        return bool(self.invoiceline_set.count())
+    has_lines = property(_has_lines)
+
     def _invoice_number(self):
         return '{:06d}'.format(self.pk)
     invoice_number = property(_invoice_number)
+
+    def _is_draft(self):
+        return not bool(self.pdf)
+    is_draft = property(_is_draft)
 
     def _net(self):
         totals = self.invoiceline_set.aggregate(models.Sum('net'))
         return totals['net__sum'] or Decimal()
     net = property(_net)
+
+    def _vat(self):
+        totals = self.invoiceline_set.aggregate(models.Sum('vat'))
+        return totals['vat__sum'] or Decimal()
+    vat = property(_vat)
 
 reversion.register(Invoice)
 
@@ -110,6 +129,7 @@ class InvoiceLine(TimeStampedModel):
     Line total can be calculated by adding the net and vat amounts
     """
     invoice = models.ForeignKey(Invoice)
+    user = models.ForeignKey(User)
     line_number = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     quantity = models.DecimalField(max_digits=6, decimal_places=2)
@@ -124,6 +144,9 @@ class InvoiceLine(TimeStampedModel):
         verbose_name_plural = 'Invoice lines'
         unique_together = ('invoice', 'line_number')
 
+    def get_absolute_url(self):
+        return reverse('invoice.detail', args=[self.invoice.pk])
+
     def save(self, *args, **kwargs):
         self.net = self.price * self.quantity
         self.vat = self.price * self.quantity * self.vat_rate
@@ -133,6 +156,10 @@ class InvoiceLine(TimeStampedModel):
     def _gross(self):
         return self.net + self.vat
     gross = property(_gross)
+
+    def _can_update(self):
+        return self.invoice.is_draft and not self.has_time_record
+    can_update = property(_can_update)
 
     def _has_time_record(self):
         try:

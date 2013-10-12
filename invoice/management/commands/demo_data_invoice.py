@@ -67,8 +67,26 @@ class Command(BaseCommand):
             time(15, 30),
             True,
         )
-        invoice_create = InvoiceCreate(datetime(2013, 9, 6))
-        invoice_create.create(farm)
+        invoice_create = InvoiceCreate()
+        invoice_create.create(ticket.user, farm, datetime(2013, 9, 6))
+        make_time_record(
+            ticket,
+            ticket.user,
+            'Paint the shed',
+            datetime(2013, 8, 30),
+            time(13, 30),
+            time(15, 30),
+            True,
+        )
+        make_time_record(
+            ticket,
+            ticket.user,
+            'Fill the feed hopper',
+            datetime(2013, 6, 12),
+            time(12, 30),
+            time(16, 30),
+            True,
+        )
 
     def _invoice_settings(self):
         make_invoice_settings(

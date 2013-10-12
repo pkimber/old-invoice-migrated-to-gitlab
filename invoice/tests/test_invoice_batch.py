@@ -77,7 +77,7 @@ class TestInvoiceCreateBatch(TestCase):
         Create a project with a task and time records.  Create an invoice.
         """
         self._set_up_test_data(billable=True)
-        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch().create(self.user, datetime(2012, 9, 30))
         invoices = Invoice.objects.all()
         self.assertEquals(1, len(invoices))
         invoice = invoices[0]
@@ -88,7 +88,7 @@ class TestInvoiceCreateBatch(TestCase):
         Create a project with a task and time records.  Create an invoice.
         """
         self._set_up_test_data(billable=False)
-        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch().create(self.user, datetime(2012, 9, 30))
         self.assertEquals(0, Invoice.objects.all().count())
 
     def test_create_invoices_do_not_bill_twice(self):
@@ -97,7 +97,7 @@ class TestInvoiceCreateBatch(TestCase):
         the time records more than once.
         """
         self._set_up_test_data(billable=True)
-        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch().create(self.user, datetime(2012, 9, 30))
         self.assertEquals(1, Invoice.objects.all().count())
-        InvoiceCreateBatch(datetime(2012, 9, 30)).create()
+        InvoiceCreateBatch().create(self.user, datetime(2012, 9, 30))
         self.assertEquals(1, Invoice.objects.all().count())

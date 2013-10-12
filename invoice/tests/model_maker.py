@@ -8,9 +8,10 @@ from invoice.models import (
 )
 
 
-def make_invoice(invoice_date, contact):
+def make_invoice(user, invoice_date, contact):
     return clean_and_save(
         Invoice(
+            user=user,
             invoice_date=invoice_date,
             contact=contact,
         )
@@ -20,6 +21,7 @@ def make_invoice(invoice_date, contact):
 def make_invoice_line(invoice, line_number, quantity, units, price, vat_rate):
     return clean_and_save(
         InvoiceLine(
+            user=invoice.user,
             invoice=invoice,
             line_number=line_number,
             quantity=quantity,

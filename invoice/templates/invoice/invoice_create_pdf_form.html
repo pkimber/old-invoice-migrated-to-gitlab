@@ -1,0 +1,22 @@
+{% extends "invoice/base.html" %}
+
+{% block sub_title %}
+  Invoice PDF
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Create PDF for invoice {{ invoice.invoice_number }}, {{ invoice.contact.name }}
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g-r">
+    <div class="pure-u-1">
+      {% include "invoice/_invoice_detail.html" %}
+      {% if not messages %}
+        {% include '_form.html' with legend='' %}
+        Click 'Submit' to create a PDF for this invoice
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
+

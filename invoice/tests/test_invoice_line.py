@@ -25,6 +25,7 @@ class TestInvoiceLine(TestCase):
         tom = make_user('tom')
         icl = make_contact('icl', 'ICL')
         invoice = make_invoice(
+            tom,
             datetime.today(),
             icl,
         )

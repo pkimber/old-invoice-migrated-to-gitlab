@@ -3,11 +3,13 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import (
     CreateView,
+    DetailView,
     ListView,
     UpdateView,
 )
@@ -19,11 +21,15 @@ from braces.views import (
 from sendfile import sendfile
 
 from .forms import (
-    InvoiceCreateForm,
+    InvoiceBlankForm,
+    InvoiceDraftCreateForm,
+    InvoiceLineForm,
+    InvoiceUpdateForm,
     TimeRecordForm,
 )
 from .models import (
     Invoice,
+    InvoiceLine,
     TimeRecord,
 )
 from base.view_utils import BaseMixin
@@ -109,10 +115,8 @@ class ContactTimeRecordListView(
         )
 
 
-class InvoiceCreateView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
-    form_class = InvoiceCreateForm
     model = Invoice
 
     def _get_contact(self):
@@ -120,29 +124,136 @@ class InvoiceCreateView(
         contact = get_object_or_404(Contact, slug=slug)
         return contact
 
-    def get_context_data(self, **kwargs):
-        context = super(InvoiceCreateView, self).get_context_data(**kwargs)
-        contact = self._get_contact()
-        invoice_create = InvoiceCreate(datetime.today())
-        warnings = invoice_create.is_valid(contact)
+    def _check_invoice_settings(self, contact):
+        warnings = InvoiceCreate().is_valid(contact)
         for message in warnings:
             messages.warning(self.request, message)
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            InvoiceCreateViewMixin, self
+        ).get_context_data(**kwargs)
+        contact = self._get_contact()
+        self._check_invoice_settings(contact)
         context.update(dict(
-            contact=self._get_contact(),
-            timerecords=invoice_create.draft(contact),
+            contact=contact,
+        ))
+        return context
+
+
+class InvoiceDetailView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, DetailView):
+
+    model = Invoice
+
+
+class InvoiceDraftCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, InvoiceCreateViewMixin):
+
+    form_class = InvoiceDraftCreateForm
+    template_name = 'invoice/invoice_create_draft_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.contact = self._get_contact()
+        self.object.user = self.request.user
+        return super(InvoiceDraftCreateView, self).form_valid(form)
+
+
+class InvoiceLineCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+
+    form_class = InvoiceLineForm
+    model = InvoiceLine
+    template_name = 'invoice/invoiceline_create_form.html'
+
+    def _get_invoice(self):
+        pk = self.kwargs.get('pk')
+        invoice = get_object_or_404(Invoice, pk=pk)
+        return invoice
+
+    def get_context_data(self, **kwargs):
+        context = super(InvoiceLineCreateView, self).get_context_data(**kwargs)
+        context.update(dict(
+            invoice=self._get_invoice(),
         ))
         return context
 
     def form_valid(self, form):
-        invoice_create = InvoiceCreate(datetime.today())
-        self.object = invoice_create.create(self._get_contact())
+        self.object = form.save(commit=False)
+        self.object.invoice = self._get_invoice()
+        self.object.line_number = self.object.invoice.get_next_line_number()
+        self.object.user = self.request.user
+        return super(InvoiceLineCreateView, self).form_valid(form)
+
+
+class InvoiceLineUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceLineForm
+    model = InvoiceLine
+    template_name = 'invoice/invoiceline_update_form.html'
+
+
+class InvoicePdfUpdateView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceBlankForm
+    model = Invoice
+    template_name = 'invoice/invoice_create_pdf_form.html'
+
+    def _check_invoice_print(self, invoice):
+        warnings = InvoicePrint().is_valid(invoice)
+        for message in warnings:
+            messages.warning(self.request, message)
+
+    def get_object(self, *args, **kwargs):
+        obj = super(InvoicePdfUpdateView, self).get_object(*args, **kwargs)
+        self._check_invoice_print(obj)
+        return obj
+
+    def form_valid(self, form):
         InvoicePrint().create_pdf(self.object, header_image=None)
         messages.info(
             self.request,
-            "Invoice {} for {} created at {} today.".format(
+            "Created PDF for invoice {}, {} at {} today.".format(
                 self.object.invoice_number,
                 self.object.contact.name,
-                self.object.date_created.strftime("%H:%M"),
+                self.object.created.strftime("%H:%M"),
+            )
+        )
+        return HttpResponseRedirect(reverse('invoice.list'))
+
+
+class InvoiceTimeCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, InvoiceCreateViewMixin):
+
+    form_class = InvoiceBlankForm
+    template_name = 'invoice/invoice_create_time_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(InvoiceTimeCreateView, self).get_context_data(**kwargs)
+        context.update(dict(
+            timerecords=InvoiceCreate().draft(
+                self._get_contact(), datetime.today()
+            ),
+        ))
+        return context
+
+    def form_valid(self, form):
+        invoice_create = InvoiceCreate()
+        self.object = invoice_create.create(
+            self.request.user,
+            self._get_contact(),
+            datetime.today(),
+        )
+        #InvoicePrint().create_pdf(self.object, header_image=None)
+        messages.info(
+            self.request,
+            "Draft invoice {} for {} created at {} today.".format(
+                self.object.invoice_number,
+                self.object.contact.name,
+                self.object.created.strftime("%H:%M"),
             )
         )
         return HttpResponseRedirect(reverse('invoice.list'))
@@ -152,6 +263,14 @@ class InvoiceListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     model = Invoice
+
+
+class InvoiceUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceUpdateForm
+    model = Invoice
+    template_name = 'invoice/invoice_update_form.html'
 
 
 class TimeRecordCreateView(

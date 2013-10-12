@@ -33,27 +33,24 @@ class InvoiceError(Exception):
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
-    def __init__(self, iteration_end):
-        self.iteration_end = iteration_end
-
-    def create(self, contact):
+    def create(self, user, contact, iteration_end):
         """ Create invoices from time records """
         self.is_valid(contact, raise_exception=True)
         invoice = None
-        line_number = 0
         print_settings = self._get_print_settings()
-        time_records = self._get_time_records(contact, self.iteration_end)
+        time_records = self._get_time_records(contact, iteration_end)
         for time_record in time_records:
             if not invoice:
                 invoice = Invoice(
                     invoice_date=datetime.today(),
                     contact=contact,
+                    user=user,
                 )
                 invoice.save()
-            line_number = line_number + 1
             invoice_line = InvoiceLine(
+                user=user,
                 invoice=invoice,
-                line_number=line_number,
+                line_number=invoice.get_next_line_number(),
                 quantity=time_record.invoice_quantity,
                 price=contact.hourly_rate,
                 units='hours',
@@ -67,9 +64,9 @@ class InvoiceCreate(object):
             invoice.save()
         return invoice
 
-    def draft(self, contact):
+    def draft(self, contact, iteration_end):
         """Return a queryset with time records selected to invoice"""
-        return self._get_time_records(contact, self.iteration_end)
+        return self._get_time_records(contact, iteration_end)
 
     def is_valid(self, contact, raise_exception=None):
         result = []
@@ -119,14 +116,11 @@ class InvoiceCreate(object):
 
 class InvoiceCreateBatch(object):
 
-    def __init__(self, iteration_end):
-        self.iteration_end = iteration_end
-
-    def create(self):
+    def create(self, user, iteration_end):
         """ Create invoices from time records """
-        invoice_create = InvoiceCreate(self.iteration_end)
+        invoice_create = InvoiceCreate()
         for contact in Contact.objects.all():
-            invoice_create.create(contact)
+            invoice_create.create(user, contact, iteration_end)
 
 
 class InvoicePrint(object):
@@ -180,6 +174,7 @@ class InvoicePrint(object):
             )
 
     def create_pdf(self, invoice, header_image):
+        self.is_valid(invoice, raise_exception=True)
         # Create the document template
         buff = StringIO()
         doc = platypus.SimpleDocTemplate(
@@ -205,6 +200,25 @@ class InvoicePrint(object):
         invoice_filename = '{}.pdf'.format(invoice.invoice_number)
         invoice.pdf.save(invoice_filename, ContentFile(pdf))
         return invoice_filename
+
+    def is_valid(self, invoice, raise_exception=None):
+        result = []
+        if not invoice.has_lines:
+            result.append(
+                "Invoice {} has no lines - cannot create "
+                "PDF".format(invoice.invoice_number)
+            )
+        if not invoice.is_draft:
+            result.append(
+                "Invoice {} is not a draft invoice - cannot "
+                "create a PDF".format(invoice.invoice_number)
+            )
+        if result and raise_exception:
+            raise InvoiceError(
+                ', '.join(result)
+            )
+        else:
+            return result
 
     def _table_invoice_detail(self, invoice):
         """
