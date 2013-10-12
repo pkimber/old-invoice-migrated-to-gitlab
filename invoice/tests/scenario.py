@@ -3,16 +3,17 @@ from datetime import time
 from decimal import Decimal
 
 from crm.tests.scenario import (
-    get_ticket_fence_for_fred,
-    get_ticket_paperwork_for_sara,
+    get_contact_smallholding,
+    get_ticket_fence_for_farm,
+    get_ticket_paperwork_for_smallholding,
 )
 from invoice.tests.model_maker import (
+    make_invoice,
+    make_invoice_line,
     make_invoice_settings,
     make_time_record,
 )
 from login.tests.scenario import (
-    get_user_fred,
-    get_user_sara,
     get_user_staff,
 )
 
@@ -28,9 +29,10 @@ def invoice_settings():
 
 
 def time_fencing():
-    """this fencing is for Fred's farm.  We charge him for all the work we do"""
-    fence = get_ticket_fence_for_fred()
+    """fencing for the farm.  We charge Fred for all the work we do"""
+    fence = get_ticket_fence_for_farm()
     staff = get_user_staff()
+
     make_time_record(
         fence,
         staff,
@@ -60,9 +62,43 @@ def time_fencing():
     )
 
 
-def time_paperwork_no_charge():
-    paper = get_ticket_paperwork_for_sara()
+def time_paperwork():
+    smallholding = get_contact_smallholding()
+    paper = get_ticket_paperwork_for_smallholding()
     staff = get_user_staff()
+    time_record = make_time_record(
+        paper,
+        staff,
+        'Invoice template on Microsoft Word',
+        datetime(2012, 3, 4),
+        time(11, 0),
+        time(13, 30),
+        billable=True,
+    )
+    invoice = make_invoice(
+        staff,
+        datetime(2012, 3, 31),
+        smallholding,
+    )
+    make_invoice_line(
+        invoice,
+        2,
+        1,
+        'pen',
+        1.00,
+        0.0
+    )
+    invoice_line = make_invoice_line(
+        invoice,
+        1,
+        2,
+        'hours',
+        20.00,
+        0.20
+    )
+    time_record.invoice_line = invoice_line
+    time_record.save()
+    # Some non-chargeable time
     make_time_record(
         paper,
         staff,
