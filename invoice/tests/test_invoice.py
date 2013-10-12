@@ -6,12 +6,16 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from crm.tests.model_maker import make_contact
 from invoice.models import Invoice
 from invoice.tests.model_maker import make_invoice
 from invoice.tests.model_maker import make_invoice_line
+from crm.tests.scenario import (
+    contact_contractor,
+    get_contact_farm,
+)
 from login.tests.scenario import (
     get_user_staff,
+    user_contractor,
     user_default,
 )
 
@@ -19,15 +23,17 @@ from login.tests.scenario import (
 class TestInvoice(TestCase):
 
     def setUp(self):
-        self.icl = make_contact('icl', 'ICL')
+        user_contractor()
         user_default()
+        contact_contractor()
+        self.farm = get_contact_farm()
 
     def test_create(self):
         """ Create a simple invoice """
         invoice = Invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         invoice.full_clean()
         invoice.save()
@@ -38,7 +44,7 @@ class TestInvoice(TestCase):
         invoice = make_invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         make_invoice_line(invoice, 1, 1.3, 'hours', 300.00, 0.20)
         make_invoice_line(invoice, 2, 2.4, 'hours', 200.23, 0.20)
@@ -47,27 +53,30 @@ class TestInvoice(TestCase):
         self.assertEqual(Decimal('870.55'), invoice.net)
 
     def test_get_first_line_number(self):
+        """get the number for the first invoice line"""
         invoice = make_invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         self.assertEqual(1, invoice.get_next_line_number())
 
     def test_get_next_line_number(self):
+        """get the number for the next invoice line"""
         invoice = make_invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         make_invoice_line(invoice, 2, 1.3, 'hours', 300.00, 0.20)
         self.assertEqual(3, invoice.get_next_line_number())
 
     def test_has_lines(self):
+        """does the invoice have any lines"""
         invoice = make_invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         make_invoice_line(invoice, 2, 1.3, 'hours', 300.00, 0.20)
         self.assertTrue(invoice.has_lines)
@@ -76,6 +85,6 @@ class TestInvoice(TestCase):
         invoice = make_invoice(
             user=get_user_staff(),
             invoice_date=datetime.today(),
-            contact=self.icl,
+            contact=self.farm,
         )
         self.assertFalse(invoice.has_lines)
