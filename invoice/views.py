@@ -142,7 +142,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
 
 class InvoiceDetailView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, DetailView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, DetailView):
 
     model = Invoice
 

@@ -14,6 +14,7 @@ from crm.tests.scenario import (
     get_ticket_fence_for_farm,
 )
 from invoice.tests.scenario import (
+    get_invoice_paperwork,
     get_timerecord_fence_dig_holes,
     time_fencing,
     time_paperwork,
@@ -57,13 +58,25 @@ class TestViewPerm(TestCase):
         )
         self._assert_get_perm_denied(url)
 
-    def test_invoice_create(self):
+    def test_invoice_create_draft(self):
+        farm = get_contact_farm()
+        url = reverse(
+            'invoice.create.draft',
+            kwargs={'slug': farm.slug}
+        )
+        self._assert_post_staff_only(url)
+
+    def test_invoice_create_time(self):
         farm = get_contact_farm()
         url = reverse(
             'invoice.create.time',
             kwargs={'slug': farm.slug}
         )
         self._assert_post_staff_only(url)
+
+    def test_invoice_list(self):
+        url = reverse('invoice.list')
+        self._assert_get_staff_only(url)
 
     def test_invoice_download(self):
         invoice = InvoiceCreate().create(
@@ -75,8 +88,33 @@ class TestViewPerm(TestCase):
         url = reverse('invoice.download', kwargs={'pk': invoice.pk})
         self._assert_get_perm_denied(url)
 
-    def test_invoice_list(self):
-        url = reverse('invoice.list')
+    def test_invoice_detail(self):
+        invoice = get_invoice_paperwork()
+        url = reverse('invoice.detail', kwargs={'pk': invoice.pk})
+        self._assert_get_staff_only(url)
+
+    def test_invoice_line_create(self):
+        invoice = get_invoice_paperwork()
+        url = reverse('invoice.line.create', kwargs={'pk': invoice.pk})
+        self._assert_get_staff_only(url)
+
+    def test_invoice_line_update(self):
+        invoice = get_invoice_paperwork()
+        url = reverse('invoice.line.update', kwargs={'pk': invoice.pk})
+        self._assert_get_staff_only(url)
+
+    def test_invoice_create_pdf(self):
+        invoice = get_invoice_paperwork()
+        url = reverse('invoice.create.pdf', kwargs={'pk': invoice.pk})
+        self._assert_get_staff_only(url)
+
+    def test_invoice_update(self):
+        invoice = get_invoice_paperwork()
+        url = reverse('invoice.update', kwargs={'pk': invoice.pk})
+        self._assert_get_staff_only(url)
+
+    def test_timerecord_list(self):
+        url = reverse('invoice.time')
         self._assert_get_staff_only(url)
 
     def test_timerecord_create(self):
@@ -85,10 +123,6 @@ class TestViewPerm(TestCase):
             'invoice.time.create',
             kwargs={'pk': fence.pk}
         )
-        self._assert_get_staff_only(url)
-
-    def test_timerecord_list(self):
-        url = reverse('invoice.time')
         self._assert_get_staff_only(url)
 
     def test_ticket_timerecord_list(self):
