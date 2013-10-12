@@ -1,73 +1,58 @@
 """Simple tests to make sure a view doesn't throw any exceptions"""
-from datetime import datetime
-from datetime import time
-from decimal import Decimal
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from crm.tests.model_maker import (
-    make_contact,
-    make_note,
-    make_priority,
-    make_ticket,
-    make_user_contact,
+from crm.tests.scenario import (
+    contact_contractor,
+    get_contact_farm,
+    get_contact_smallholding,
+    get_ticket_fence_for_farm,
 )
-from invoice.tests.model_maker import (
-    make_invoice_settings,
-    make_time_record,
+from invoice.tests.scenario import (
+    get_timerecord_fence_dig_holes,
+    time_fencing,
+    time_paperwork,
+    invoice_settings,
 )
-from login.tests.model_maker import make_user
+from login.tests.scenario import (
+    get_user_staff,
+    user_contractor,
+    user_default,
+)
 
 
 class TestView(TestCase):
 
     def setUp(self):
-        """tom has access to contact icl"""
-        self.tom = make_user('tom', is_staff=True)
-        self.icl = make_contact('icl', 'ICL', hourly_rate=Decimal('20.00'))
-        make_user_contact(self.tom, self.icl)
-        self.sew = make_ticket(
-            self.icl, self.tom, 'Sew', make_priority('Low', 1)
-        )
-        self.note = make_note(
-            self.sew, self.tom, 'Cut out some material and make a pillow case'
-        )
-        self.pillow = make_time_record(
-            self.sew,
-            self.tom,
-            'Make a pillow case',
-            datetime(2012, 9, 1),
-            time(9, 0),
-            time(12, 30),
-            True,
-        )
-        make_invoice_settings(
-            vat_rate=Decimal('0.20'),
-            vat_number='',
-            name_and_address='Patrick Kimber, Hatherleigh, EX20 1AB',
-            phone_number='01234 234 456',
-            footer="Please pay by bank transfer<br />Thank you"
-        )
+        user_contractor()
+        user_default()
+        contact_contractor()
+        invoice_settings()
+        time_fencing()
+        time_paperwork()
 
     def test_contact_invoice_list(self):
+        smallholding = get_contact_smallholding()
         url = reverse(
             'invoice.contact.list',
-            kwargs={'slug': self.icl.slug}
+            kwargs={'slug': smallholding.slug}
         )
         self._assert_get(url)
 
     def test_contact_time_record_list(self):
+        farm = get_contact_farm()
         url = reverse(
             'invoice.time.contact.list',
-            kwargs={'slug': self.icl.slug}
+            kwargs={'slug': farm.slug}
         )
         self._assert_get(url)
 
     def test_invoice_create(self):
+        farm = get_contact_farm()
         url = reverse(
             'invoice.create.time',
-            kwargs={'slug': self.icl.slug}
+            kwargs={'slug': farm.slug}
         )
         self._assert_post(url)
 
@@ -76,7 +61,11 @@ class TestView(TestCase):
         self._assert_get(url)
 
     def test_timerecord_create(self):
-        url = reverse('invoice.time.create', kwargs={'pk': self.sew.pk})
+        fence = get_ticket_fence_for_farm()
+        url = reverse(
+            'invoice.time.create',
+            kwargs={'pk': fence.pk}
+        )
         self._assert_get(url)
 
     def test_timerecord_list(self):
@@ -84,11 +73,19 @@ class TestView(TestCase):
         self._assert_get(url)
 
     def test_ticket_timerecord_list(self):
-        url = reverse('invoice.time.ticket.list', kwargs={'pk': self.sew.pk})
+        fence = get_ticket_fence_for_farm()
+        url = reverse(
+            'invoice.time.ticket.list',
+            kwargs={'pk': fence.pk}
+        )
         self._assert_get(url)
 
     def test_timerecord_update(self):
-        url = reverse('invoice.time.update', kwargs={'pk': self.pillow.pk})
+        dig = get_timerecord_fence_dig_holes()
+        url = reverse(
+            'invoice.time.update',
+            kwargs={'pk': dig.pk}
+        )
         self._assert_get(url)
 
     def _assert_get(self, url):
@@ -130,7 +127,8 @@ class TestView(TestCase):
 
     def _login_user(self):
         """Log the user in so they can access this URL"""
+        staff = get_user_staff()
         self.client.login(
-            username=self.tom.username,
-            password=self.tom.username,
+            username=staff.username,
+            password=staff.username,
         )

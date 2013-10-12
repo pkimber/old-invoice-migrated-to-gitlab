@@ -7,6 +7,9 @@ from crm.tests.scenario import (
     get_ticket_fence_for_farm,
     get_ticket_paperwork_for_smallholding,
 )
+from invoice.models import (
+    TimeRecord,
+)
 from invoice.tests.model_maker import (
     make_invoice,
     make_invoice_line,
@@ -16,6 +19,10 @@ from invoice.tests.model_maker import (
 from login.tests.scenario import (
     get_user_staff,
 )
+
+
+def get_timerecord_fence_dig_holes():
+    return TimeRecord.objects.get(title='Dig holes for the corner posts')
 
 
 def invoice_settings():
