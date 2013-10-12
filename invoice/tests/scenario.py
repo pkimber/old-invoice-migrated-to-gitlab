@@ -8,6 +8,7 @@ from crm.tests.scenario import (
     get_ticket_paperwork_for_smallholding,
 )
 from invoice.models import (
+    Invoice,
     TimeRecord,
 )
 from invoice.tests.model_maker import (
@@ -19,6 +20,13 @@ from invoice.tests.model_maker import (
 from login.tests.scenario import (
     get_user_staff,
 )
+
+
+def get_invoice_paperwork():
+    return Invoice.objects.get(
+        user=get_user_staff(),
+        invoice_date=datetime(2012, 3, 31),
+    )
 
 
 def get_timerecord_fence_dig_holes():
