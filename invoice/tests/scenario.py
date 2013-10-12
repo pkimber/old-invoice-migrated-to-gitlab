@@ -3,7 +3,8 @@ from datetime import time
 from decimal import Decimal
 
 from crm.tests.scenario import (
-    get_ticket_fence,
+    get_ticket_fence_for_fred,
+    get_ticket_paperwork_for_sara,
 )
 from invoice.tests.model_maker import (
     make_invoice_settings,
@@ -27,7 +28,8 @@ def invoice_settings():
 
 
 def time_fencing():
-    fence = get_ticket_fence()
+    """this fencing is for Fred's farm.  We charge him for all the work we do"""
+    fence = get_ticket_fence_for_fred()
     staff = get_user_staff()
     make_time_record(
         fence,
@@ -55,4 +57,18 @@ def time_fencing():
         time(13, 30),
         time(15, 30),
         billable=True,
+    )
+
+
+def time_paperwork_no_charge():
+    paper = get_ticket_paperwork_for_sara()
+    staff = get_user_staff()
+    make_time_record(
+        paper,
+        staff,
+        'Help with the VAT return',
+        datetime(2012, 9, 1),
+        time(9, 0),
+        time(12, 30),
+        billable=False,
     )

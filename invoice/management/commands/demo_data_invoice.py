@@ -14,6 +14,7 @@ from crm.tests.scenario import (
 from invoice.tests.scenario import (
     invoice_settings,
     time_fencing,
+    time_paperwork_no_charge,
 )
 from login.tests.scenario import (
     get_user_fred,
@@ -44,6 +45,7 @@ class Command(BaseCommand):
         self._invoice_for_contact(farm)
         invoice_settings()
         time_fencing()
+        time_paperwork_no_charge()
         print("Created 'invoice' demo data...")
 
     def _invoice_for_contact(self, farm):
