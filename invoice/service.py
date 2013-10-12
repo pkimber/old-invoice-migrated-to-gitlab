@@ -78,7 +78,8 @@ class InvoiceCreate(object):
             )
         if not contact.hourly_rate:
             result.append(
-                'Cannot create invoice - no hourly rate for the contact'
+                "Cannot create invoice - no hourly rate for "
+                "'{}' ('{}')".format(contact.name, contact.slug)
             )
         if result and raise_exception:
             raise InvoiceError(

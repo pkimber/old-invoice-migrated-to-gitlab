@@ -13,17 +13,29 @@ from crm.tests.model_maker import (
     make_priority,
     make_ticket,
 )
+from crm.tests.scenario import (
+    contact_contractor,
+    get_note_fence_forgot,
+)
 from invoice.tests.model_maker import (
     make_invoice_settings,
     make_time_record,
 )
+from invoice.tests.scenario import (
+    time_fencing,
+    invoice_settings,
+)
 from login.tests.model_maker import make_user
+from login.tests.scenario import (
+    user_contractor,
+    user_default,
+)
 
 
 class TestInvoiceCreateBatch(TestCase):
 
     def setUp(self):
-        self.user = make_user('fred')
+        self.user = make_user('fredtemp')
 
     def _set_up_test_data(self, billable):
         """ Create a project with a task and time records """
@@ -76,7 +88,13 @@ class TestInvoiceCreateBatch(TestCase):
         """
         Create a project with a task and time records.  Create an invoice.
         """
-        self._set_up_test_data(billable=True)
+        user_contractor()
+        user_default()
+        contact_contractor()
+        invoice_settings()
+        time_fencing()
+
+        #self._set_up_test_data(billable=True)
         InvoiceCreateBatch().create(self.user, datetime(2012, 9, 30))
         invoices = Invoice.objects.all()
         self.assertEquals(1, len(invoices))

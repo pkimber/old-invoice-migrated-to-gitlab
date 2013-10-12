@@ -11,6 +11,10 @@ from crm.models import (
 from crm.tests.scenario import (
     get_contact_farm,
 )
+from invoice.tests.scenario import (
+    invoice_settings,
+    time_fencing,
+)
 from login.tests.scenario import (
     get_user_fred,
 )
@@ -38,6 +42,8 @@ class Command(BaseCommand):
         self._invoice_settings()
         self._time_for_ticket(farm)
         self._invoice_for_contact(farm)
+        invoice_settings()
+        time_fencing()
         print("Created 'invoice' demo data...")
 
     def _invoice_for_contact(self, farm):
