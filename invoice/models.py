@@ -71,7 +71,10 @@ class Invoice(TimeStampedModel):
         totals = self.invoiceline_set.aggregate(
             models.Sum('net'), models.Sum('vat')
         )
-        return (totals['net__sum'] or Decimal()) + (totals['vat__sum'] or Decimal())
+        return (
+            (totals['net__sum'] or Decimal()) +
+            (totals['vat__sum'] or Decimal())
+        )
     gross = property(_gross)
 
     def _has_lines(self):
@@ -157,9 +160,9 @@ class InvoiceLine(TimeStampedModel):
         return self.net + self.vat
     gross = property(_gross)
 
-    def _can_update(self):
+    def _user_can_edit(self):
         return self.invoice.is_draft and not self.has_time_record
-    can_update = property(_can_update)
+    user_can_edit = property(_user_can_edit)
 
     def _has_time_record(self):
         try:
@@ -168,6 +171,7 @@ class InvoiceLine(TimeStampedModel):
         except TimeRecord.DoesNotExist:
             return False
     has_time_record = property(_has_time_record)
+
 
 reversion.register(InvoiceLine)
 
@@ -198,7 +202,8 @@ class TimeRecord(TimeStampedModel):
         ))
 
     def clean(self):
-        if self.start_time and self.end_time and self.start_time >= self.end_time:
+        if (self.start_time and self.end_time
+                and self.start_time >= self.end_time):
             raise ValidationError('End time must be after the start time')
 
     def delta(self):
@@ -212,6 +217,11 @@ class TimeRecord(TimeStampedModel):
 
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)
+
+    def _has_invoice_line(self):
+        """is this time record attached to an invoice"""
+        return bool(self.invoice_line)
+    has_invoice_line = property(_has_invoice_line)
 
     def _invoice_quantity(self):
         """
@@ -228,5 +238,10 @@ class TimeRecord(TimeStampedModel):
         """ Convert the time difference into minutes """
         td = self.delta()
         return td.days * 1440 + td.seconds / 60
+
+    def _user_can_edit(self):
+        return not self.has_invoice_line
+    user_can_edit = property(_user_can_edit)
+
 
 reversion.register(TimeRecord)

@@ -13,6 +13,16 @@ from crm.tests.scenario import (
     contact_contractor,
     get_contact_farm,
 )
+from invoice.service import (
+    InvoicePrint,
+)
+from invoice.tests.scenario import (
+    get_invoice_line_paperwork_has_time,
+    get_invoice_line_paperwork_no_time,
+    get_invoice_paperwork,
+    invoice_settings,
+    time_paperwork,
+)
 from login.tests.scenario import (
     get_user_staff,
     user_contractor,
@@ -26,6 +36,8 @@ class TestInvoice(TestCase):
         user_contractor()
         user_default()
         contact_contractor()
+        invoice_settings()
+        time_paperwork()
         self.farm = get_contact_farm()
 
     def test_create(self):
@@ -37,7 +49,7 @@ class TestInvoice(TestCase):
         )
         invoice.full_clean()
         invoice.save()
-        self.assertEqual(1, invoice.pk)
+        self.assertGreater(invoice.pk, 0)
 
     def test_create_with_lines(self):
         """ Create a simple invoice with lines """
@@ -88,3 +100,17 @@ class TestInvoice(TestCase):
             contact=self.farm,
         )
         self.assertFalse(invoice.has_lines)
+
+    def test_user_can_edit(self):
+        line = get_invoice_line_paperwork_no_time()
+        self.assertTrue(line.user_can_edit)
+
+    def test_user_can_edit_has_time(self):
+        line = get_invoice_line_paperwork_has_time()
+        self.assertFalse(line.user_can_edit)
+
+    def test_user_can_edit_invoice(self):
+        invoice = get_invoice_paperwork()
+        InvoicePrint().create_pdf(invoice, None)
+        line = get_invoice_line_paperwork_no_time()
+        self.assertFalse(line.user_can_edit)

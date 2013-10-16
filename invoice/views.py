@@ -194,6 +194,12 @@ class InvoiceLineUpdateView(
     model = InvoiceLine
     template_name = 'invoice/invoiceline_update_form.html'
 
+    def get_object(self, *args, **kwargs):
+        obj = super(InvoiceLineUpdateView, self).get_object(*args, **kwargs)
+        if not obj.user_can_edit:
+            raise PermissionDenied()
+        return obj
+
 
 class InvoicePdfUpdateView(
         LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
@@ -351,3 +357,9 @@ class TimeRecordUpdateView(
             ticket=self.object.ticket,
         ))
         return context
+
+    def get_object(self, *args, **kwargs):
+        obj = super(TimeRecordUpdateView, self).get_object(*args, **kwargs)
+        if not obj.user_can_edit:
+            raise PermissionDenied()
+        return obj

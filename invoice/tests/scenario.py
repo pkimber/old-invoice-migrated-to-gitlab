@@ -29,8 +29,22 @@ def get_invoice_paperwork():
     )
 
 
+def get_invoice_line_paperwork_no_time():
+    invoice = get_invoice_paperwork()
+    return invoice.invoiceline_set.get(units='pen')
+
+
+def get_invoice_line_paperwork_has_time():
+    invoice = get_invoice_paperwork()
+    return invoice.invoiceline_set.get(units='hours')
+
+
 def get_timerecord_fence_dig_holes():
     return TimeRecord.objects.get(title='Dig holes for the corner posts')
+
+
+def get_timerecord_paperwork_template():
+    return TimeRecord.objects.get(title='Invoice template on Microsoft Word')
 
 
 def invoice_settings():
@@ -47,7 +61,6 @@ def time_fencing():
     """fencing for the farm.  We charge Fred for all the work we do"""
     fence = get_ticket_fence_for_farm()
     staff = get_user_staff()
-
     make_time_record(
         fence,
         staff,
