@@ -56,7 +56,7 @@
       {% for line in invoice.invoiceline_set.all %}
         <tr valign="top">
           <td>
-            {% if line.can_update %}
+            {% if line.user_can_edit %}
               <a href="{% url 'invoice.line.update' line.pk %}">
                 <i class="icon-edit"></i>
                 {{ line.line_number }}

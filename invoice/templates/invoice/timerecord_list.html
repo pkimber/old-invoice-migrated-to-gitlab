@@ -35,10 +35,15 @@
                   </a>
                 </td>
                 <td>
-                  <a href="{% url "invoice.time.update" timerecord.pk %}">
-                    <i class="icon-edit"></i>
+                  {% if timerecord.user_can_edit %}
+                    <a href="{% url "invoice.time.update" timerecord.pk %}">
+                      <i class="icon-edit"></i>
+                      {{ timerecord.title }}
+                    </a>
+                  {% else %}
                     {{ timerecord.title }}
                   </a>
+                  {% endif %}
                   {% if timerecord.description %}
                     <br />
                     {{ timerecord.description|linebreaksbr }}
@@ -53,7 +58,7 @@
                 <td>{{ timerecord.delta_as_string }}</td>
                 <td>
                   {% if timerecord.invoice_line %}
-                    <a href="{% url 'invoice.download' timerecord.invoice_line.invoice.pk %}">
+                    <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">
                       {{ timerecord.invoice_line.invoice.invoice_number }}
                     </a>
                   {% else %}
