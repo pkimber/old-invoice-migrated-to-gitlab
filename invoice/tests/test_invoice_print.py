@@ -23,9 +23,9 @@ from crm.tests.scenario import (
     get_contact_farm,
 )
 from login.tests.scenario import (
+    default_scenario_login,
     get_user_staff,
     user_contractor,
-    user_default,
 )
 
 
@@ -33,7 +33,7 @@ class TestInvoicePrint(TestCase):
 
     def setUp(self):
         user_contractor()
-        user_default()
+        default_scenario_login()
         contact_contractor()
         invoice_settings()
         time_fencing()

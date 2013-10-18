@@ -13,15 +13,15 @@ from invoice.tests.scenario import (
     time_paperwork,
 )
 from login.tests.scenario import (
+    default_scenario_login,
     user_contractor,
-    user_default,
 )
 
 
 class TestTimeRecord(TestCase):
 
     def setUp(self):
-        user_default()
+        default_scenario_login()
         user_contractor()
         contact_contractor()
         time_fencing()

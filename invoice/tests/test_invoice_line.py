@@ -13,8 +13,8 @@ from crm.tests.scenario import (
     contact_contractor,
 )
 from login.tests.scenario import (
+    default_scenario_login,
     user_contractor,
-    user_default,
 )
 
 
@@ -22,7 +22,7 @@ class TestInvoiceLine(TestCase):
 
     def setUp(self):
         user_contractor()
-        user_default()
+        default_scenario_login()
         contact_contractor()
         time_paperwork()
 
