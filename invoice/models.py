@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -42,7 +42,7 @@ class Invoice(TimeStampedModel):
     - rate of any cash discount offered; and
     - total amount of VAT charged, shown in sterling.
     """
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
     contact = models.ForeignKey(Contact)
     pdf = models.FileField(
@@ -132,7 +132,7 @@ class InvoiceLine(TimeStampedModel):
     Line total can be calculated by adding the net and vat amounts
     """
     invoice = models.ForeignKey(Invoice)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     line_number = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     quantity = models.DecimalField(max_digits=6, decimal_places=2)
@@ -179,7 +179,7 @@ reversion.register(InvoiceLine)
 class TimeRecord(TimeStampedModel):
     """Simple time recording"""
     ticket = models.ForeignKey(Ticket)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     date_started = models.DateField()
