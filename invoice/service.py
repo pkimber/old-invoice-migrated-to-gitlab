@@ -12,12 +12,13 @@ from reportlab import platypus
 from reportlab.lib.styles import getSampleStyleSheet
 
 from crm.models import Contact
-from invoice.models import (
+from .models import (
     Invoice,
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
 )
+from .pdf_utils import NumberedCanvas
 
 
 class InvoiceError(Exception):
@@ -195,7 +196,7 @@ class InvoicePrint(object):
         for text in self._text_footer(print_settings.footer):
             elements.append(self._para(text))
         # write the document to disk
-        doc.build(elements)
+        doc.build(elements, canvasmaker=NumberedCanvas)
         pdf = buff.getvalue()
         buff.close()
         invoice_filename = '{}.pdf'.format(invoice.invoice_number)
