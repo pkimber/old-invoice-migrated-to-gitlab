@@ -27,6 +27,9 @@
             {% for timerecord in timerecord_list %}
               <tr valign="top">
                 <td>
+                  {% if not timerecord.end_time %}
+                    <i class="icon-time"></i>
+                  {% endif %}
                   <a href="{% url 'crm.contact.detail' timerecord.ticket.contact.slug %}">
                     {{ timerecord.ticket.contact.name }},
                   </a>
@@ -55,7 +58,9 @@
                 <td>
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
-                <td>{{ timerecord.delta_as_string }}</td>
+                <td>
+                  {{ timerecord.delta_as_string }}
+                </td>
                 <td>
                   {% if timerecord.invoice_line %}
                     <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">

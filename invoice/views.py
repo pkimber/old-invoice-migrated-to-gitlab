@@ -1,5 +1,6 @@
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -312,7 +313,15 @@ class TimeRecordCreateView(
 
 class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
-    model = TimeRecord
+
+    def get_queryset(self):
+        some_day_last_week = datetime.now().date() - timedelta(days=7)
+        return TimeRecord.objects.filter(
+            date_started__gt=some_day_last_week,
+        ).order_by(
+            '-date_started',
+            '-start_time',
+        )
 
 
 class TicketTimeRecordListView(
@@ -340,8 +349,8 @@ class TicketTimeRecordListView(
         return TimeRecord.objects.filter(
             ticket=ticket
         ).order_by(
-            'date_started',
-            'start_time',
+            '-date_started',
+            '-start_time',
         )
 
 

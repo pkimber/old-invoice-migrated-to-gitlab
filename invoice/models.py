@@ -210,7 +210,10 @@ class TimeRecord(TimeStampedModel):
         return self._end_date_time() - self._date_started_time()
 
     def delta_as_string(self):
-        return timeuntil(self._end_date_time(), self._date_started_time())
+        if self.start_time and self.end_time:
+            return timeuntil(self._end_date_time(), self._date_started_time())
+        else:
+            return ''
 
     def get_absolute_url(self):
         return reverse('invoice.time.ticket.list', args=[self.ticket.pk])
