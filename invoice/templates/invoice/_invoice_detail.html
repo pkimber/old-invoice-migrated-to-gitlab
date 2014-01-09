@@ -15,7 +15,7 @@
       <td>
         {% if invoice.is_draft %}
           <a href="{% url 'invoice.update' invoice.pk %}">
-            <i class="icon-edit"></i>
+            <i class="fa fa-edit"></i>
             {{ invoice.invoice_number }}
           </a>
         {% else %}
@@ -58,7 +58,7 @@
           <td>
             {% if line.user_can_edit %}
               <a href="{% url 'invoice.line.update' line.pk %}">
-                <i class="icon-edit"></i>
+                <i class="fa fa-edit"></i>
                 {{ line.line_number }}
               </a>
             {% else %}

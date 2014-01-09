@@ -39,7 +39,7 @@
                   {% endif %}
                   {% if user.is_staff %}
                   <a href="{% url "invoice.time.update" timerecord.pk %}">
-                    <i class="icon-edit"></i>
+                    <i class="fa fa-edit"></i>
                     {{ timerecord.title }}
                   </a>
                   {% else %}

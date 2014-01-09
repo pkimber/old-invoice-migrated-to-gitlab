@@ -34,7 +34,7 @@
                 <td>
                   <a href="{% url 'invoice.detail' invoice.pk %}">
                     {% if invoice.is_draft %}
-                      <i class="icon-edit"></i>
+                      <i class="fa fa-edit"></i>
                     {% endif %}
                     {{ invoice.invoice_number }}
                   </a>
