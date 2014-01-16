@@ -47,8 +47,9 @@
                   {% endif %}
                   {% if timerecord.description %}
                     <br />
-                    {{ timerecord.description|linebreaksbr }}
+                    {{ timerecord.description|urlize|linebreaksbr }}
                   {% endif %}
+                  <small>{{ timerecord.user.username }}</small>
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}
