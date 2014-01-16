@@ -35,7 +35,7 @@
               <tr valign="top">
                 <td>
                   {% if not timerecord.end_time %}
-                    <i class="icon-time"></i>
+                    <i class="fa fa-clock-o"></i>
                   {% endif %}
                   {% if user.is_staff %}
                   <a href="{% url "invoice.time.update" timerecord.pk %}">
@@ -86,14 +86,14 @@
           {% if user.is_staff %}
           <li>
             <a href="{% url "invoice.time.create" ticket.pk %}">
-              <i class="icon-time"></i>
+              <i class="fa fa-clock-o"></i>
               Add time
             </a>
           </li>
           {% endif %}
           <li>
             <a href="{% url "crm.note.create" ticket.pk %}">
-              <i class="icon-comment"></i>
+              <i class="fa fa-comment"></i>
               Add note
             </a>
           </li>

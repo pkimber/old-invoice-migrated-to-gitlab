@@ -28,7 +28,7 @@
               <tr valign="top">
                 <td>
                   {% if not timerecord.end_time %}
-                    <i class="icon-time"></i>
+                    <i class="fa fa-clock-o"></i>
                   {% endif %}
                   <a href="{% url 'crm.contact.detail' timerecord.ticket.contact.slug %}">
                     {{ timerecord.ticket.contact.name }},
