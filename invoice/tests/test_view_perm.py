@@ -133,6 +133,11 @@ class TestViewPerm(TestCase):
         )
         self._assert_get_perm_denied(url)
 
+    def test_user_timerecord_list(self):
+        fence = get_ticket_fence_for_farm()
+        url = reverse('invoice.time.user.list')
+        self._assert_get_staff_only(url)
+
     def test_timerecord_update(self):
         dig = get_timerecord_fence_dig_holes()
         url = reverse(

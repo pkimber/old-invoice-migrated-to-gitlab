@@ -19,6 +19,7 @@ from .views import (
     TimeRecordCreateView,
     TimeRecordListView,
     TimeRecordUpdateView,
+    UserTimeRecordListView,
 )
 
 
@@ -71,6 +72,10 @@ urlpatterns = patterns(
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),
         name='invoice.time.ticket.list'
+        ),
+    url(regex=r'^user/time/$',
+        view=UserTimeRecordListView.as_view(),
+        name='invoice.time.user.list'
         ),
     url(regex=r'^ticket/(?P<pk>\d+)/time/add/$',
         view=TimeRecordCreateView.as_view(),

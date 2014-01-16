@@ -1,10 +1,12 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
+  {% if 'user' in path %}My{% endif %}
   Time records
 {% endblock sub_title %}
 
 {% block sub_heading %}
+  {% if 'user' in path %}My{% endif %}
   Time records
 {% endblock sub_heading %}
 

@@ -372,3 +372,17 @@ class TimeRecordUpdateView(
         if not obj.user_can_edit:
             raise PermissionDenied()
         return obj
+
+
+class UserTimeRecordListView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+
+    def get_queryset(self):
+        some_day_last_week = datetime.now().date() - timedelta(days=7)
+        return TimeRecord.objects.filter(
+            date_started__gt=some_day_last_week,
+            user=self.request.user,
+        ).order_by(
+            '-date_started',
+            '-start_time',
+        )
