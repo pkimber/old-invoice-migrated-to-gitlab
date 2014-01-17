@@ -29,30 +29,13 @@
             {% for timerecord in timerecord_list %}
               <tr valign="top">
                 <td>
-                  {% if not timerecord.end_time %}
-                    <i class="fa fa-clock-o"></i>
-                  {% endif %}
-                  <a href="{% url 'crm.contact.detail' timerecord.ticket.contact.slug %}">
-                    {{ timerecord.ticket.contact.name }},
-                  </a>
+                  {{ timerecord.ticket.contact.name }},
                   <a href="{% url 'crm.ticket.detail' timerecord.ticket.pk %}">
                     {{ timerecord.ticket.title }}
                   </a>
                 </td>
                 <td>
-                  {% if timerecord.user_can_edit %}
-                    <a href="{% url "invoice.time.update" timerecord.pk %}">
-                      <i class="fa fa-edit"></i>
-                      {{ timerecord.title }}
-                    </a>
-                  {% else %}
-                    {{ timerecord.title }}
-                  </a>
-                  {% endif %}
-                  {% if timerecord.description %}
-                    <br />
-                    {{ timerecord.description|linebreaksbr }}
-                  {% endif %}
+                  {% include 'invoice/_timerecord.html' %}
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}

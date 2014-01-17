@@ -40,20 +40,7 @@
                   </a>
                 </td>
                 <td>
-                  {% if timerecord.user_can_edit %}
-                    <a href="{% url "invoice.time.update" timerecord.pk %}">
-                      <i class="fa fa-edit"></i>
-                      {{ timerecord.title }}
-                    </a>
-                  {% else %}
-                    {{ timerecord.title }}
-                  </a>
-                  {% endif %}
-                  {% if timerecord.description %}
-                    <br />
-                    {{ timerecord.description|urlize|linebreaksbr }}
-                  {% endif %}
-                  <small>{{ timerecord.user.username }}</small>
+                  {% include 'invoice/_timerecord.html' %}
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}

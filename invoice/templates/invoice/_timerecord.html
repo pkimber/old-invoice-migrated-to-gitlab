@@ -1,0 +1,19 @@
+{% if not timerecord.end_time %}
+  <i class="fa fa-clock-o"></i>
+{% endif %}
+{% if user.is_staff and timerecord.user_can_edit %}
+  <a href="{% url "invoice.time.update" timerecord.pk %}">
+    <i class="fa fa-edit"></i>
+    {{ timerecord.title }}
+  </a>
+{% else %}
+  {{ timerecord.title }}
+</a>
+{% endif %}
+{% if timerecord.description %}
+  <br />
+  {{ timerecord.description|urlize|linebreaksbr }}
+{% endif %}
+{% if not 'user' in path %}
+  <small>{{ timerecord.user.username }}</small>
+{% endif %}
