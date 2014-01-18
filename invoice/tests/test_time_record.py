@@ -16,6 +16,7 @@ from login.tests.scenario import (
     default_scenario_login,
     user_contractor,
 )
+from search.tests.helper import check_search_methods
 
 
 class TestTimeRecord(TestCase):
@@ -26,6 +27,14 @@ class TestTimeRecord(TestCase):
         contact_contractor()
         time_fencing()
         time_paperwork()
+
+    def test_search_methods(self):
+        time_record = get_timerecord_fence_dig_holes()
+        check_search_methods(time_record)
+
+    def test_str(self):
+        time_record = get_timerecord_fence_dig_holes()
+        str(time_record)
 
     def test_user_can_edit(self):
         time_record = get_timerecord_fence_dig_holes()
