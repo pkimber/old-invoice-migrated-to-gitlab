@@ -219,10 +219,10 @@ class TimeRecord(TimeStampedModel):
         return reverse('invoice.time.ticket.list', args=[self.ticket.pk])
 
     def get_summary_description(self):
-        return (
+        return filter(None, (
             self.title,
             self.description,
-        )
+        ))
 
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)
