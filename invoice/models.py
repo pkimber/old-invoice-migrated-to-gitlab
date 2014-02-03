@@ -143,6 +143,7 @@ class InvoiceLine(TimeStampedModel):
     vat = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
+        ordering = ['line_number',]
         verbose_name = 'Invoice line'
         verbose_name_plural = 'Invoice lines'
         unique_together = ('invoice', 'line_number')
