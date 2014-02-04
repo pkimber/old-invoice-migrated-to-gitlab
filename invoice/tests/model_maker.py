@@ -18,18 +18,19 @@ def make_invoice(user, invoice_date, contact):
     )
 
 
-def make_invoice_line(invoice, line_number, quantity, units, price, vat_rate):
-    return clean_and_save(
-        InvoiceLine(
-            user=invoice.user,
-            invoice=invoice,
-            line_number=line_number,
-            quantity=quantity,
-            units=units,
-            price=price,
-            vat_rate=vat_rate,
-        )
+def make_invoice_line(
+        invoice, line_number, quantity, units, price, vat_rate, **kwargs):
+    defaults = dict(
+        user=invoice.user,
+        invoice=invoice,
+        line_number=line_number,
+        quantity=quantity,
+        units=units,
+        price=price,
+        vat_rate=vat_rate,
     )
+    defaults.update(kwargs)
+    return clean_and_save(InvoiceLine(**defaults))
 
 
 def make_invoice_settings(

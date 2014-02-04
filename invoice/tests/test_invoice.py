@@ -10,7 +10,7 @@ from invoice.models import Invoice
 from invoice.tests.model_maker import make_invoice
 from invoice.tests.model_maker import make_invoice_line
 from crm.tests.scenario import (
-    contact_contractor,
+    default_scenario_crm,
     get_contact_farm,
 )
 from invoice.service import (
@@ -35,7 +35,7 @@ class TestInvoice(TestCase):
     def setUp(self):
         user_contractor()
         default_scenario_login()
-        contact_contractor()
+        default_scenario_crm()
         invoice_settings()
         time_paperwork()
         self.farm = get_contact_farm()

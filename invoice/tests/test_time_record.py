@@ -3,9 +3,7 @@ Test time records.
 """
 from django.test import TestCase
 
-from crm.tests.scenario import (
-    contact_contractor,
-)
+from crm.tests.scenario import default_scenario_crm
 from invoice.tests.scenario import (
     get_timerecord_fence_dig_holes,
     get_timerecord_paperwork_template,
@@ -24,7 +22,7 @@ class TestTimeRecord(TestCase):
     def setUp(self):
         default_scenario_login()
         user_contractor()
-        contact_contractor()
+        default_scenario_crm()
         time_fencing()
         time_paperwork()
 

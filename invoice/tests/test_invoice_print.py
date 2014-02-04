@@ -7,19 +7,15 @@ from invoice.service import (
     InvoiceError,
     InvoicePrint,
 )
-from invoice.service import (
-    InvoiceCreate,
-)
-from invoice.tests.model_maker import (
-    make_invoice,
-)
+from invoice.service import InvoiceCreate
+from invoice.tests.model_maker import make_invoice
 from invoice.tests.scenario import (
     invoice_settings,
     time_fencing,
     time_paperwork,
 )
 from crm.tests.scenario import (
-    contact_contractor,
+    default_scenario_crm,
     get_contact_farm,
 )
 from login.tests.scenario import (
@@ -34,7 +30,7 @@ class TestInvoicePrint(TestCase):
     def setUp(self):
         user_contractor()
         default_scenario_login()
-        contact_contractor()
+        default_scenario_crm()
         invoice_settings()
         time_fencing()
         time_paperwork()

@@ -7,7 +7,7 @@ from invoice.service import (
     InvoiceCreateBatch,
 )
 from crm.tests.scenario import (
-    contact_contractor,
+    default_scenario_crm,
     get_contact_farm,
 )
 from invoice.tests.scenario import (
@@ -27,7 +27,7 @@ class TestInvoiceCreateBatch(TestCase):
     def setUp(self):
         user_contractor()
         default_scenario_login()
-        contact_contractor()
+        default_scenario_crm()
         invoice_settings()
         time_fencing()
         time_paperwork()
