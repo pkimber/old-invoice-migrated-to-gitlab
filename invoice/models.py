@@ -90,9 +90,12 @@ class Invoice(TimeStampedModel):
         result = {}
         qs = self.invoiceline_set.all()
         for line in qs:
-            if not line.user.username in result:
-                result[line.user.username] = {}
-            tickets = result[line.user.username]
+            user_name = ''
+            if line.has_time_record:
+                user_name = line.timerecord.user.username
+            if not user_name in result:
+                result[user_name] = {}
+            tickets = result[user_name]
             if line.has_time_record:
                 pk = line.timerecord.ticket.pk
             else:

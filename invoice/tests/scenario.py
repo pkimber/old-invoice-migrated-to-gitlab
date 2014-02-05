@@ -3,8 +3,10 @@ from datetime import time
 from decimal import Decimal
 
 from crm.tests.scenario import (
+    get_contact_farm,
     get_contact_smallholding,
     get_ticket_fence_for_farm,
+    get_ticket_fix_roof_for_farm,
     get_ticket_paperwork_for_smallholding,
 )
 from invoice.models import (
@@ -18,8 +20,18 @@ from invoice.tests.model_maker import (
     make_time_record,
 )
 from login.tests.scenario import (
+    get_user_fred,
+    get_user_sara,
     get_user_staff,
+    get_user_web,
 )
+
+
+def get_invoice_time_analysis():
+    return Invoice.objects.get(
+        user=get_user_staff(),
+        invoice_date=datetime(2014, 2, 5),
+    )
 
 
 def get_invoice_paperwork():
@@ -55,6 +67,55 @@ def invoice_settings():
         phone_number='01234 234 456',
         footer="Please pay by bank transfer<br />Thank you"
     )
+
+
+def _make_line(invoice, line_number, hours, user=None):
+    user = user or get_user_staff()
+    return make_invoice_line(
+        invoice,
+        line_number,
+        hours,
+        'hours',
+        100.00,
+        0.00,
+        user=user,
+    )
+
+
+def _make_time(invoice, line_number, ticket, hours, user):
+    time_record = make_time_record(
+        ticket,
+        user,
+        'Test Time',
+        datetime(2012, 3, 4),
+        time(11, 0),
+        time(13, 30),
+        billable=True,
+    )
+    time_record.invoice_line = _make_line(invoice, line_number, hours)
+    time_record.save()
+
+
+def default_scenario_invoice():
+    invoice_settings()
+    invoice = make_invoice(
+        get_user_staff(),
+        datetime(2014, 2, 5),
+        get_contact_farm()
+    )
+    line_number = 0
+    line_number = line_number + 1
+    _make_line(invoice, line_number, 1.0, get_user_web())
+    line_number = line_number + 1
+    _make_line(invoice, line_number, 1.0, get_user_sara())
+    line_number = line_number + 1
+    _make_time(invoice, line_number, get_ticket_fence_for_farm(), 2.0, get_user_fred())
+    line_number = line_number + 1
+    _make_time(invoice, line_number, get_ticket_fence_for_farm(), 8.0, get_user_fred())
+    line_number = line_number + 1
+    _make_time(invoice, line_number, get_ticket_fence_for_farm(), 6.0, get_user_sara())
+    line_number = line_number + 1
+    _make_time(invoice, line_number, get_ticket_fix_roof_for_farm(), 14.0, get_user_sara())
 
 
 def time_fencing():
@@ -136,3 +197,4 @@ def time_paperwork():
         time(12, 30),
         billable=False,
     )
+    return invoice
