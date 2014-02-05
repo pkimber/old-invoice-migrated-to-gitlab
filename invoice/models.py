@@ -76,14 +76,16 @@ class Invoice(TimeStampedModel):
         a time record:
 
         result = {
-            'patrick': {
-                0: {'quantity': 12, 'net': 23},
-                2: {'quantity': 12, 'net': 23},
+            '': {
+                0: {'net': Decimal('200'), 'quantity': Decimal('2')}
             },
-            'malcolm': {
-                0: {'quantity': 12, 'net': 23},
-                2: {'quantity': 12, 'net': 23},
+            'fred': {
+                1: {'net': Decimal('1000'), 'quantity': Decimal('10')}
             },
+            'sara': {
+                1: {'net': Decimal('600'), 'quantity': Decimal('6')},
+                3: {'net': Decimal('1400'), 'quantity': Decimal('14')}
+            }
         }
 
         """

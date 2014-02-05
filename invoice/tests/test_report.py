@@ -34,9 +34,22 @@ class TestReport(TestCase):
         result = invoice.time_analysis()
         import pprint
         pprint.pprint(result, indent=4)
+        # invoice has a line with no time records
+        self.assertIn('', result)
+        # fred recorded time on one ticket
         self.assertIn('fred', result)
+        fred = result['fred']
+        self.assertEqual(1, len(fred))
+        self.assertIn(1, fred)
+        # sara recorded time on two tickets
         self.assertIn('sara', result)
+        sara = result['sara']
+        self.assertEqual(2, len(sara))
+        self.assertIn(1, sara)
+        self.assertIn(3, sara)
+        # web user added an invoice line, but didn't record time
         self.assertNotIn('web', result)
+        # check net total matches invoice
         net = Decimal()
         for user, tickets in result.items():
             for ticket_pk, totals in tickets.items():
