@@ -4,25 +4,9 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 
-from crm.models import (
-    Contact,
-    Ticket,
-)
-from crm.tests.scenario import (
-    get_contact_farm,
-)
-from invoice.tests.scenario import (
-    invoice_settings,
-    time_fencing,
-    time_paperwork,
-)
-from invoice.service import (
-    InvoiceCreate,
-)
-from invoice.tests.model_maker import (
-    make_invoice_settings,
-    make_time_record,
-)
+from crm.models import Contact
+from crm.tests.scenario import get_contact_farm
+from invoice.tests.scenario import default_scenario_invoice
 
 
 class Command(BaseCommand):
@@ -34,9 +18,8 @@ class Command(BaseCommand):
             get_contact_farm()
         except Contact.DoesNotExist:
             raise Exception(
-                "Expected 'crm' demo data to create a contact"
+                "Expected to find 'crm' demo data before "
+                "adding 'invoice' demo data."
             )
-        invoice_settings()
-        time_fencing()
-        time_paperwork()
+        default_scenario_invoice()
         print("Created 'invoice' demo data...")

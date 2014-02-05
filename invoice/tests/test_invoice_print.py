@@ -9,11 +9,7 @@ from invoice.service import (
 )
 from invoice.service import InvoiceCreate
 from invoice.tests.model_maker import make_invoice
-from invoice.tests.scenario import (
-    invoice_settings,
-    time_fencing,
-    time_paperwork,
-)
+from invoice.tests.scenario import default_scenario_invoice
 from crm.tests.scenario import (
     default_scenario_crm,
     get_contact_farm,
@@ -31,9 +27,7 @@ class TestInvoicePrint(TestCase):
         user_contractor()
         default_scenario_login()
         default_scenario_crm()
-        invoice_settings()
-        time_fencing()
-        time_paperwork()
+        default_scenario_invoice()
 
     def test_invoice_create_pdf(self):
         invoice = InvoiceCreate().create(

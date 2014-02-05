@@ -5,10 +5,9 @@ from django.test import TestCase
 
 from crm.tests.scenario import default_scenario_crm
 from invoice.tests.scenario import (
+    default_scenario_invoice,
     get_timerecord_fence_dig_holes,
     get_timerecord_paperwork_template,
-    time_fencing,
-    time_paperwork,
 )
 from login.tests.scenario import (
     default_scenario_login,
@@ -23,8 +22,7 @@ class TestTimeRecord(TestCase):
         default_scenario_login()
         user_contractor()
         default_scenario_crm()
-        time_fencing()
-        time_paperwork()
+        default_scenario_invoice()
 
     def test_search_methods(self):
         time_record = get_timerecord_fence_dig_holes()

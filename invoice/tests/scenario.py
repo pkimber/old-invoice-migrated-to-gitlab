@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from crm.tests.scenario import (
     get_contact_farm,
+    get_contact_merchant,
     get_contact_smallholding,
     get_ticket_fence_for_farm,
     get_ticket_fix_roof_for_farm,
@@ -98,10 +99,12 @@ def _make_time(invoice, line_number, ticket, hours, user):
 
 def default_scenario_invoice():
     invoice_settings()
+    _time_fencing()
+    _time_paperwork()
     invoice = make_invoice(
         get_user_staff(),
         datetime(2014, 2, 5),
-        get_contact_farm()
+        get_contact_merchant()
     )
     line_number = 0
     line_number = line_number + 1
@@ -118,7 +121,7 @@ def default_scenario_invoice():
     _make_time(invoice, line_number, get_ticket_fix_roof_for_farm(), 14.0, get_user_sara())
 
 
-def time_fencing():
+def _time_fencing():
     """fencing for the farm.  We charge Fred for all the work we do"""
     fence = get_ticket_fence_for_farm()
     staff = get_user_staff()
@@ -151,7 +154,7 @@ def time_fencing():
     )
 
 
-def time_paperwork():
+def _time_paperwork():
     smallholding = get_contact_smallholding()
     paper = get_ticket_paperwork_for_smallholding()
     staff = get_user_staff()

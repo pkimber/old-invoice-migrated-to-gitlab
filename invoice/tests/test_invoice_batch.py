@@ -11,8 +11,7 @@ from crm.tests.scenario import (
     get_contact_farm,
 )
 from invoice.tests.scenario import (
-    time_fencing,
-    time_paperwork,
+    default_scenario_invoice,
     invoice_settings,
 )
 from login.tests.scenario import (
@@ -28,9 +27,7 @@ class TestInvoiceCreateBatch(TestCase):
         user_contractor()
         default_scenario_login()
         default_scenario_crm()
-        invoice_settings()
-        time_fencing()
-        time_paperwork()
+        default_scenario_invoice()
 
     def test_create_invoices(self):
         """Create an invoice"""

@@ -14,11 +14,9 @@ from crm.tests.scenario import (
     get_ticket_fence_for_farm,
 )
 from invoice.tests.scenario import (
+    default_scenario_invoice,
     get_invoice_paperwork,
     get_timerecord_fence_dig_holes,
-    time_fencing,
-    time_paperwork,
-    invoice_settings,
 )
 from login.tests.scenario import (
     default_scenario_login,
@@ -34,9 +32,7 @@ class TestViewPerm(TestCase):
         user_contractor()
         default_scenario_login()
         default_scenario_crm()
-        invoice_settings()
-        time_fencing()
-        time_paperwork()
+        default_scenario_invoice()
         self.web = get_user_web()
         self.client.login(
             username=self.web.username, password=self.web.username
