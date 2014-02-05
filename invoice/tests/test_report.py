@@ -32,8 +32,6 @@ class TestReport(TestCase):
     def test_report_total_by_user(self):
         invoice = get_invoice_time_analysis()
         result = invoice.time_analysis()
-        import pprint
-        pprint.pprint(result, indent=4)
         # invoice has a line with no time records
         self.assertIn('', result)
         # fred recorded time on one ticket

@@ -15,6 +15,7 @@ from .views import (
     InvoicePdfUpdateView,
     InvoiceTimeCreateView,
     InvoiceUpdateView,
+    report_invoice_time_analysis,
     TicketTimeRecordListView,
     TimeRecordCreateView,
     TimeRecordListView,
@@ -64,6 +65,10 @@ urlpatterns = patterns(
     url(regex=r'^invoice/(?P<pk>\d+)/pdf/$',
         view=InvoicePdfUpdateView.as_view(),
         name='invoice.create.pdf'
+        ),
+    url(regex=r'^invoice/(?P<pk>\d+)/report/$',
+        view=report_invoice_time_analysis,
+        name='invoice.report.time.analysis'
         ),
     url(regex=r'^invoice/(?P<pk>\d+)/edit/$',
         view=InvoiceUpdateView.as_view(),

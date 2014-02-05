@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import (
@@ -21,6 +22,16 @@ from braces.views import (
 )
 from sendfile import sendfile
 
+from base.view_utils import BaseMixin
+from crm.models import (
+    Contact,
+    Ticket,
+)
+from crm.views import (
+    check_perm,
+    CheckPermMixin,
+)
+
 from .forms import (
     InvoiceBlankForm,
     InvoiceDraftCreateForm,
@@ -33,19 +44,11 @@ from .models import (
     InvoiceLine,
     TimeRecord,
 )
-from base.view_utils import BaseMixin
-from crm.models import (
-    Contact,
-    Ticket,
-)
-from crm.views import (
-    check_perm,
-    CheckPermMixin,
-)
-from invoice.service import (
+from .service import (
     InvoiceCreate,
     InvoicePrint,
 )
+from .report import ReportInvoiceTimeAnalysis
 
 
 @login_required
@@ -59,6 +62,20 @@ def invoice_download(request, pk):
         attachment=True,
         attachment_filename='{}.pdf'.format(invoice.invoice_number)
     )
+
+
+@login_required
+def report_invoice_time_analysis(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    check_perm(request.user, invoice.contact)
+    response = HttpResponse(content_type='application/pdf')
+    file_name = 'invoice_{}_time_analysis.pdf'.format(invoice.pk)
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+        file_name
+    )
+    report = ReportInvoiceTimeAnalysis()
+    report.report(invoice, request.user, response)
+    return response
 
 
 class ContactInvoiceListView(

@@ -1,6 +1,40 @@
+from decimal import Decimal
 
-from reportlab.pdfgen import canvas
+from reportlab import platypus
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+
+
+class MyReport(object):
+
+    def __init__(self):
+        # Use the sample style sheet.
+        style_sheet = getSampleStyleSheet()
+        self.body = style_sheet["BodyText"]
+        self.head_1 = style_sheet["Heading1"]
+        self.head_2 = style_sheet["Heading2"]
+        self.GRID_LINE_WIDTH = 0.25
+
+    def _bold(self, text):
+        return self._para('<b>{}</b>'.format(text))
+
+    def _head(self, text):
+        return platypus.Paragraph(text, self.head_2)
+
+    def _image(self, file_name):
+        return platypus.Image(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'static',
+            file_name
+        ))
+
+    def _para(self, text):
+        return platypus.Paragraph(text, self.body)
+
+    def _round(self, value):
+        return value.quantize(Decimal('.01'))
 
 
 class NumberedCanvas(canvas.Canvas):

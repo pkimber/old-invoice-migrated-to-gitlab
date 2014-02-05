@@ -18,7 +18,10 @@ from .models import (
     InvoiceSettings,
     TimeRecord,
 )
-from .pdf_utils import NumberedCanvas
+from .pdf_utils import (
+    MyReport,
+    NumberedCanvas,
+)
 
 
 class InvoiceError(Exception):
@@ -125,34 +128,10 @@ class InvoiceCreateBatch(object):
             invoice_create.create(user, contact, iteration_end)
 
 
-class InvoicePrint(object):
+class InvoicePrint(MyReport):
     """
     Write a PDF for an invoice which has already been created in the database.
     """
-
-    def __init__(self):
-        # Use the sample style sheet.
-        style_sheet = getSampleStyleSheet()
-        self.body = style_sheet["BodyText"]
-        self.head_1 = style_sheet["Heading1"]
-        self.head_2 = style_sheet["Heading2"]
-        self.GRID_LINE_WIDTH = 0.25
-
-    def _para(self, text):
-        return platypus.Paragraph(text, self.body)
-
-    def _bold(self, text):
-        return self._para('<b>{}</b>'.format(text))
-
-    def _head(self, text):
-        return platypus.Paragraph(text, self.head_2)
-
-    def _image(self, file_name):
-        return platypus.Image(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            'static',
-            file_name
-        ))
 
     def _get_column_styles(self, column_widths):
         # style - add vertical grid lines
@@ -418,9 +397,6 @@ class InvoicePrint(object):
                 '%.2f' % (line.vat + line.net),
             ])
         return data
-
-    def _round(self, value):
-        return value.quantize(Decimal('.01'))
 
     def _text_footer(self, footer):
         """ Build a list of text to go in the footer """

@@ -1,0 +1,31 @@
+<div class="pure-menu pure-menu-open pure-menu-horizontal">
+  <ul>
+    {% if invoice.is_draft %}
+      <li>
+        <a href="{% url "invoice.line.create" invoice.pk %}">
+          <i class="fa fa-tasks"></i>
+          Add invoice line
+        </a>
+      </li>
+      <li>
+        <a href="{% url "invoice.create.pdf" invoice.pk %}">
+          <i class="fa fa-gbp"></i>
+          Create PDF
+        </a>
+      </li>
+    {% else %}
+      <li>
+        <a href="{% url 'invoice.download' invoice.pk %}">
+          <i class="fa fa-cloud-download"></i>
+          Download
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'invoice.report.time.analysis' invoice.pk %}">
+          <i class="fa fa-cloud-download"></i>
+          Time Analysis
+        </a>
+      </li>
+    {% endif %}
+  </ul>
+</div>
