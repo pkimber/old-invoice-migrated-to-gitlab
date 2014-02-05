@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from reportlab import platypus
 from reportlab.lib import colors
@@ -76,7 +77,13 @@ class ReportInvoiceTimeAnalysis(MyReport):
         lines = []
         for user, tickets in analysis.items():
             first_loop = True
+            total_net = Decimal()
+            total_quantity = Decimal()
             for ticket_pk, totals in tickets.items():
+                net = totals['net']
+                total_net = total_net + net
+                quantity = totals['quantity']
+                total_quantity = total_quantity + quantity
                 if first_loop:
                     user_name = self._para(user)
                     first_loop = False
@@ -85,9 +92,15 @@ class ReportInvoiceTimeAnalysis(MyReport):
                 lines.append([
                     user_name,
                     self._para(self._get_ticket_description(ticket_pk)),
-                    totals['quantity'],
-                    totals['net'],
+                    quantity,
+                    net,
                 ])
+            lines.append([
+                None,
+                None,
+                self._bold(total_quantity),
+                self._bold(total_net),
+            ])
         # initial styles
         style = [
             ('GRID', (0, 0), (-1, -1), self.GRID_LINE_WIDTH, colors.gray),
