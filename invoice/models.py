@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.aggregates import Sum
 from django.utils.timesince import timeuntil
 
 import reversion
@@ -66,6 +67,45 @@ class Invoice(TimeStampedModel):
             return max_line_number + 1
         else:
             return 1
+
+    def time_analysis(self):
+        """Time analysis by user and ticket for an invoice.
+
+        A dictionary will be returned.  The keys are 'user.username' and
+        primary key of the ticket (or zero for invoice lines which do not have
+        a time record:
+
+        result = {
+            'patrick': {
+                0: {'quantity': 12, 'net': 23},
+                2: {'quantity': 12, 'net': 23},
+            },
+            'malcolm': {
+                0: {'quantity': 12, 'net': 23},
+                2: {'quantity': 12, 'net': 23},
+            },
+        }
+
+        """
+        result = {}
+        qs = self.invoiceline_set.all()
+        for line in qs:
+            if not line.user.username in result:
+                result[line.user.username] = {}
+            tickets = result[line.user.username]
+            if line.has_time_record:
+                pk = line.timerecord.ticket.pk
+            else:
+                pk = 0
+            if not pk in tickets:
+                tickets[pk] = dict(
+                    quantity=Decimal(),
+                    net=Decimal(),
+                )
+            totals = tickets[pk]
+            totals['net'] = totals['net'] + line.net
+            totals['quantity'] = totals['quantity'] + line.quantity
+        return result
 
     def _gross(self):
         totals = self.invoiceline_set.aggregate(
