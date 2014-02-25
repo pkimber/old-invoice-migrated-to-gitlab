@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-
-from __future__ import unicode_literals
 import os
 from distutils.core import setup
 
@@ -34,7 +31,7 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.0.17',
+    version='0.0.18',
     description='invoice',
     author='Patrick Kimber',
     author_email='code@pkimber.net',
