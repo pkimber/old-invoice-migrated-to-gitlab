@@ -1,9 +1,13 @@
 -r base.txt
+-e ../base
+-e ../crm
+-e ../login
+-e ../search
 beautifulsoup4
 fabric
-gitpython==0.3.1-beta2
-ipdb
+gitpython
 hgapi
+ipdb
 psycopg2
 pytest-django
 pyyaml

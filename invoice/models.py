@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import unicode_literals
 from datetime import datetime
 from decimal import Decimal
 
@@ -54,8 +57,8 @@ class Invoice(TimeStampedModel):
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
 
-    def __unicode__(self):
-        return unicode('{} {}'.format(self.pk, self.invoice_date))
+    def __str__(self):
+        return '{} {}'.format(self.pk, self.invoice_date)
 
     def get_absolute_url(self):
         return reverse('invoice.detail', args=[self.pk])
@@ -160,12 +163,12 @@ class InvoiceSettings(SingletonModel):
     class Meta:
         verbose_name = 'Invoice print settings'
 
-    def __unicode__(self):
-        return unicode("{}, Phone {}, VAT {}".format(
+    def __str__(self):
+        return "{}, Phone {}, VAT {}".format(
             ' '.join(self.name_and_address.split('\n')),
             self.phone_number,
             self.vat_rate,
-        ))
+        )
 
 reversion.register(InvoiceSettings)
 
@@ -239,13 +242,13 @@ class TimeRecord(TimeStampedModel):
         verbose_name = 'Time record'
         verbose_name_plural = 'Time records'
 
-    def __unicode__(self):
-        return unicode("{}: {}: {}: {}".format(
+    def __str__(self):
+        return "{}: {}: {}: {}".format(
             self.title,
             self.date_started,
             self.start_time,
             self.end_time
-        ))
+        )
 
     def clean(self):
         if (self.start_time and self.end_time

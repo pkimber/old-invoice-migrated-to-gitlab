@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import unicode_literals
 """ Django settings """
 from django.core.urlresolvers import reverse_lazy
 

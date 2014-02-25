@@ -1,8 +1,11 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import unicode_literals
+import io
 import os
 
 from datetime import datetime
 from decimal import Decimal
-from StringIO import StringIO
 
 from django.core.files.base import ContentFile
 
@@ -157,7 +160,7 @@ class InvoicePrint(MyReport):
     def create_pdf(self, invoice, header_image):
         self.is_valid(invoice, raise_exception=True)
         # Create the document template
-        buff = StringIO()
+        buff = io.BytesIO()
         doc = platypus.SimpleDocTemplate(
             buff,
             title='Invoice',
