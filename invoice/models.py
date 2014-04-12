@@ -54,6 +54,7 @@ class Invoice(TimeStampedModel):
     )
 
     class Meta:
+        ordering = ['pk',]
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
 
