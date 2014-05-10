@@ -9,37 +9,27 @@ Install
 Virtual Environment
 -------------------
 
-Note: replace ``patrick`` with your name (checking in the ``example`` folder to make sure a file
-has been created for you)::
+::
 
-  mkvirtualenv dev_invoice
+  pyvenv-3.4 --without-pip venv-invoice
+  source venv-invoice/bin/activate
+  wget https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py
+  python get-pip.py
+
   pip install -r requirements/local.txt
-
-  echo "export DJANGO_SETTINGS_MODULE=example.dev_patrick" >> $VIRTUAL_ENV/bin/postactivate
-  echo "unset DJANGO_SETTINGS_MODULE" >> $VIRTUAL_ENV/bin/postdeactivate
-
-  add2virtualenv .
-  deactivate
 
 Testing
 =======
 
-Using ``pytest-django``::
+::
 
-  workon dev_invoice
   find . -name '*.pyc' -delete
-  py.test
-
-To stop on first failure::
-
   py.test -x
 
 Usage
 =====
 
 ::
-
-  workon dev_invoice
 
   py.test -x && \
       touch temp.db && rm temp.db && \
@@ -53,4 +43,4 @@ Usage
 Release
 =======
 
-https://github.com/pkimber/docs
+https://django-dev-and-deploy-using-salt.readthedocs.org/

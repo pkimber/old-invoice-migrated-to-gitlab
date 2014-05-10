@@ -28,6 +28,7 @@ MANIFEST
 *.pdf
 nosetests.xml
 temp.db
+venv-*
 
 # Translations
 *.mo
