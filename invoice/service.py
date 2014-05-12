@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 import io
 import os
 
@@ -321,7 +321,7 @@ class InvoicePrint(MyReport):
                     colors.gray)
                 )
         # column widths
-        column_widths = [20, 230, 50, 40, 50, 50]
+        column_widths = [30, 220, 50, 40, 50, 50]
         style = style + self._get_column_styles(column_widths)
         # draw the table
         return platypus.Table(
