@@ -404,7 +404,6 @@ class InvoicePrint(MyReport):
     def _text_footer(self, footer):
         """ Build a list of text to go in the footer """
         result = []
-        result.append('All prices in pounds sterling')
         lines = footer.split('\n')
         for text in lines:
             result.append(text)
