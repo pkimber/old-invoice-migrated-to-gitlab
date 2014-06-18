@@ -9,67 +9,69 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="pure-g-r">
+  <div class="pure-g">
     <div class="pure-u-1">
-      <p>
-        <a href="{% url 'crm.contact.detail' contact.slug %}">
-          {{ contact.name }}
-        </a>
-        {{ contact.address }}
-      </p>
-      {% if invoice_list %}
-        <table class="pure-table pure-table-bordered">
-          <thead>
-            <tr>
-              <th>Number</th>
-              <th>Date</th>
-              <th>Net</th>
-              <th>Gross</th>
-              <th>Download</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for invoice in invoice_list %}
-              <tr valign="top">
-                <td>
-                  <a href="{% url 'invoice.detail' invoice.pk %}">
-                    {% if invoice.is_draft %}
-                      <i class="fa fa-edit"></i>
-                    {% endif %}
-                    {{ invoice.invoice_number }}
-                  </a>
-                </td>
-                <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
-                <td>{{ invoice.net }}</td>
-                <td>{{ invoice.gross }}</td>
-                <td>
-                  {% if invoice.is_draft %}
-                    DRAFT
-                  {% else %}
-                    <a href="{% url 'invoice.download' invoice.pk %}">
-                      {{ invoice.invoice_number }}.pdf
-                    </a>
-                  {% endif %}
-                </td>
+      <div class="l-box">
+        <p>
+          <a href="{% url 'crm.contact.detail' contact.slug %}">
+            {{ contact.name }}
+          </a>
+          {{ contact.address }}
+        </p>
+        {% if invoice_list %}
+          <table class="pure-table pure-table-bordered">
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>Date</th>
+                <th>Net</th>
+                <th>Gross</th>
+                <th>Download</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        Sorry, there are no invoices on the system for {{ contact.name }}
-      {% endif %}
-      {% if user.is_staff %}
-        <div class="pure-menu pure-menu-open pure-menu-horizontal">
-          <ul>
-            <li>
-              <a href="{% url "invoice.create.draft" contact.slug %}">
-                <i class="fa fa-gbp"></i>
-                Create draft invoice
-              </a>
-            </li>
-          </ul>
-        </div>
-      {% endif %}
+            </thead>
+            <tbody>
+              {% for invoice in invoice_list %}
+                <tr valign="top">
+                  <td>
+                    <a href="{% url 'invoice.detail' invoice.pk %}">
+                      {% if invoice.is_draft %}
+                        <i class="fa fa-edit"></i>
+                      {% endif %}
+                      {{ invoice.invoice_number }}
+                    </a>
+                  </td>
+                  <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
+                  <td>{{ invoice.net }}</td>
+                  <td>{{ invoice.gross }}</td>
+                  <td>
+                    {% if invoice.is_draft %}
+                      DRAFT
+                    {% else %}
+                      <a href="{% url 'invoice.download' invoice.pk %}">
+                        {{ invoice.invoice_number }}.pdf
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          Sorry, there are no invoices on the system for {{ contact.name }}
+        {% endif %}
+        {% if user.is_staff %}
+          <div class="pure-menu pure-menu-open pure-menu-horizontal">
+            <ul>
+              <li>
+                <a href="{% url "invoice.create.draft" contact.slug %}">
+                  <i class="fa fa-gbp"></i>
+                  Create draft invoice
+                </a>
+              </li>
+            </ul>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}

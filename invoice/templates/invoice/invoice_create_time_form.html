@@ -9,61 +9,63 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="pure-g-r">
+  <div class="pure-g">
     <div class="pure-u-1">
-      <p>
-        <a href="{% url 'crm.contact.detail' contact.slug %}">
-          {{ contact.name }}
-        </a>
-        {{ contact.address }}
-      </p>
-      {% if not timerecords %}
-        Nothing to invoice :)
-      {% else %}
-        <table class="pure-table pure-table-bordered">
-          <thead>
-            <tr>
-              <th>Ticket</th>
-              <th>Description</th>
-              <th>Time</th>
-              <th>Start</th>
-              <th></th>
-              <th>Elapsed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for timerecord in timerecords %}
-              <tr valign="top">
-                <td>
-                  <a href="{% url "crm.ticket.detail" timerecord.pk %}">
-                    {{ timerecord.ticket.pk }}
-                  </a>
-                </td>
-                <td>
-                  <a href="{% url "crm.ticket.detail" timerecord.pk %}">
-                    {{ timerecord.ticket.title }}
-                  </a>
-                </td>
-                <td>
-                  {{ timerecord.title }}
-                </td>
-                <td>
-                  {{ timerecord.date_started|date:"d/m/y" }}
-                </td>
-                <td>
-                  {{ timerecord.start_time|time:"H:i" }}
-                </td>
-                <td>{{ timerecord.delta_as_string }}</td>
+      <div class="l-box">
+        <p>
+          <a href="{% url 'crm.contact.detail' contact.slug %}">
+            {{ contact.name }}
+          </a>
+          {{ contact.address }}
+        </p>
+        {% if not timerecords %}
+          Nothing to invoice :)
+        {% else %}
+          <table class="pure-table pure-table-bordered">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Description</th>
+                <th>Time</th>
+                <th>Start</th>
+                <th></th>
+                <th>Elapsed</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% if not messages %}
-          {% include '_form.html' with legend='' %}
-          Click 'Submit' to create an invoice at
-          <strong>{{ contact.hourly_rate }} pounds per hour</strong>:
+            </thead>
+            <tbody>
+              {% for timerecord in timerecords %}
+                <tr valign="top">
+                  <td>
+                    <a href="{% url "crm.ticket.detail" timerecord.pk %}">
+                      {{ timerecord.ticket.pk }}
+                    </a>
+                  </td>
+                  <td>
+                    <a href="{% url "crm.ticket.detail" timerecord.pk %}">
+                      {{ timerecord.ticket.title }}
+                    </a>
+                  </td>
+                  <td>
+                    {{ timerecord.title }}
+                  </td>
+                  <td>
+                    {{ timerecord.date_started|date:"d/m/y" }}
+                  </td>
+                  <td>
+                    {{ timerecord.start_time|time:"H:i" }}
+                  </td>
+                  <td>{{ timerecord.delta_as_string }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if not messages %}
+            {% include '_form.html' with legend='' %}
+            Click 'Submit' to create an invoice at
+            <strong>{{ contact.hourly_rate }} pounds per hour</strong>:
+          {% endif %}
         {% endif %}
-      {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}

@@ -9,76 +9,78 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="pure-g-r">
+  <div class="pure-g">
     <div class="pure-u-1">
-      <p>
-        <a href="{% url 'crm.contact.detail' contact.slug %}">
-          {{ contact.name }}
-        </a>
-        {{ contact.address }}
-      </p>
-      {% if not timerecord_list %}
-        No time records for {{ contact.name }}
-      {% else %}
-        <table class="pure-table pure-table-bordered">
-          <thead>
-            <tr>
-              <th>Ticket</th>
-              <th>Time</th>
-              <th>Start</th>
-              <th></th>
-              <th>Elapsed</th>
-              <th>Invoice</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for timerecord in timerecord_list %}
-              <tr valign="top">
-                <td>
-                  <a href="{% url "crm.ticket.detail" timerecord.ticket.pk %}">
-                    {{ timerecord.ticket.title }}
-                  </a>
-                </td>
-                <td>
-                  {% include 'invoice/_timerecord.html' %}
-                </td>
-                <td>
-                  {{ timerecord.date_started|date:"d/m/y" }}
-                </td>
-                <td>
-                  {{ timerecord.start_time|time:"H:i" }}
-                </td>
-                <td>{{ timerecord.delta_as_string }}</td>
-                <td>
-                  {% if timerecord.invoice_line %}
-                    <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">
-                      {{ timerecord.invoice_line.invoice.invoice_number }}
-                    </a>
-                  {% else %}
-                    {% if timerecord.billable %}
-                      <small>Pending</small>
-                    {% else %}
-                      <small>No-charge</small>
-                    {% endif %}
-                  {% endif %}
-                </td>
+      <div class="l-box">
+        <p>
+          <a href="{% url 'crm.contact.detail' contact.slug %}">
+            {{ contact.name }}
+          </a>
+          {{ contact.address }}
+        </p>
+        {% if not timerecord_list %}
+          No time records for {{ contact.name }}
+        {% else %}
+          <table class="pure-table pure-table-bordered">
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>Time</th>
+                <th>Start</th>
+                <th></th>
+                <th>Elapsed</th>
+                <th>Invoice</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% if user.is_staff %}
-          <div class="pure-menu pure-menu-open pure-menu-horizontal">
-            <ul>
-              <li>
-                <a href="{% url "invoice.create.time" contact.slug %}">
-                  <i class="fa fa-gbp"></i>
-                  Draft invoice
-                </a>
-              </li>
-            </ul>
-          </div>
+            </thead>
+            <tbody>
+              {% for timerecord in timerecord_list %}
+                <tr valign="top">
+                  <td>
+                    <a href="{% url "crm.ticket.detail" timerecord.ticket.pk %}">
+                      {{ timerecord.ticket.title }}
+                    </a>
+                  </td>
+                  <td>
+                    {% include 'invoice/_timerecord.html' %}
+                  </td>
+                  <td>
+                    {{ timerecord.date_started|date:"d/m/y" }}
+                  </td>
+                  <td>
+                    {{ timerecord.start_time|time:"H:i" }}
+                  </td>
+                  <td>{{ timerecord.delta_as_string }}</td>
+                  <td>
+                    {% if timerecord.invoice_line %}
+                      <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">
+                        {{ timerecord.invoice_line.invoice.invoice_number }}
+                      </a>
+                    {% else %}
+                      {% if timerecord.billable %}
+                        <small>Pending</small>
+                      {% else %}
+                        <small>No-charge</small>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if user.is_staff %}
+            <div class="pure-menu pure-menu-open pure-menu-horizontal">
+              <ul>
+                <li>
+                  <a href="{% url "invoice.create.time" contact.slug %}">
+                    <i class="fa fa-gbp"></i>
+                    Draft invoice
+                  </a>
+                </li>
+              </ul>
+            </div>
+          {% endif %}
         {% endif %}
-      {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}

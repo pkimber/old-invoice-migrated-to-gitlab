@@ -9,13 +9,15 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="pure-g-r">
+  <div class="pure-g">
     <div class="pure-u-1">
-      {% include "invoice/_invoice_detail.html" %}
-      {% if not messages %}
-        {% include '_form.html' with legend='' %}
-        Click 'Submit' to create a PDF for this invoice
-      {% endif %}
+      <div class="l-box">
+        {% include "invoice/_invoice_detail.html" %}
+        {% if not messages %}
+          {% include '_form.html' with legend='' %}
+          Click 'Submit' to create a PDF for this invoice
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}

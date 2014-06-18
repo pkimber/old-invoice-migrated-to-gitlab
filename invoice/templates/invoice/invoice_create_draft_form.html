@@ -9,13 +9,19 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  <div class="pure-g-r">
+  <div class="pure-g">
     <div class="pure-u-1">
-      {% include '_form.html' with legend='Draft Invoice (no time records)' %}
+      <div class="l-box">
+        {% include '_form.html' with legend='Draft Invoice (no time records)' %}
+      </div>
     </div>
+  </div>
+  <div class="pure-g">
     <div class="pure-u-1">
-      <strong>Note</strong>: this will create a simple draft invoice -
-      <strong>time records cannot be added to this invoice</strong>.
+      <div class="l-box">
+        <strong>Note</strong>: this will create a simple draft invoice -
+        <strong>time records cannot be added to this invoice</strong>.
+      </div>
     </div>
   </div>
 {% endblock content %}
