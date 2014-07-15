@@ -288,6 +288,8 @@ class InvoiceTimeCreateView(
 
 class InvoiceListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+        
+    paginate_by = 20
 
     model = Invoice
 
@@ -333,6 +335,8 @@ class TimeRecordCreateView(
 
 class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+        
+    paginate_by = 20
 
     def get_queryset(self):
         some_day_last_week = datetime.now().date() - timedelta(days=7)
@@ -396,11 +400,11 @@ class TimeRecordUpdateView(
 
 class UserTimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+        
+    paginate_by = 20
 
     def get_queryset(self):
-        some_day_last_week = datetime.now().date() - timedelta(days=7)
         return TimeRecord.objects.filter(
-            date_started__gt=some_day_last_week,
             user=self.request.user,
         ).order_by(
             '-date_started',

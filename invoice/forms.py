@@ -53,6 +53,8 @@ class InvoiceUpdateForm(forms.ModelForm):
 
 class TimeRecordForm(RequiredFieldForm):
 
+    paginate_by = 20
+
     def __init__(self, *args, **kwargs):
         super(TimeRecordForm, self).__init__(*args, **kwargs)
         for name in ('title', 'description'):

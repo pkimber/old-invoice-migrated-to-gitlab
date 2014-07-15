@@ -1,16 +1,20 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  {% if 'user' in path %}My{% endif %}
+  {% if 'user' in path %}My
+  {% else %}All{% endif %}
   Time records
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  {% if 'user' in path %}My{% endif %}
+  {% if 'user' in path %}My
+  {% else %}All{% endif %}
   Time records
 {% endblock sub_heading %}
 
 {% block content %}
+  {% include 'crm/_menu.html' %}
+  {% include 'base/_paginate.html' %}
   <div class="pure-g">
     <div class="pure-u-1">
       <div class="l-box">
@@ -72,4 +76,6 @@
       </div>
     </div>
   </div>
+  {% include 'base/_paginate.html' %}
+  {% include 'crm/_menu.html' %}
 {% endblock content %}
