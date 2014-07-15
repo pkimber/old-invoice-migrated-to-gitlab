@@ -292,6 +292,9 @@ class InvoiceListView(
     paginate_by = 20
 
     model = Invoice
+    
+    def get_queryset(self):
+        return Invoice.objects.all().order_by('-pk')
 
 
 class InvoiceUpdateView(
