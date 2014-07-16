@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import factory
 
 from datetime import date
+from decimal import Decimal
 
 from crm.tests.factories import ContactFactory
 from login.tests.factories import UserFactory
@@ -11,6 +12,7 @@ from login.tests.factories import UserFactory
 from invoice.models import (
     Invoice,
     InvoiceLine,
+    InvoiceSettings,
 )
 
 
@@ -41,3 +43,11 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def user(self):
         return self.invoice.user
+
+
+class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = InvoiceSettings
+
+    vat_rate = Decimal('20')
