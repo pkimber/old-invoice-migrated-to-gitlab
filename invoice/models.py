@@ -197,6 +197,13 @@ class InvoiceLine(TimeStampedModel):
         verbose_name_plural = 'Invoice lines'
         unique_together = ('invoice', 'line_number')
 
+    def clean(self):
+        if self.price < Decimal():
+            raise ValidationError(
+                'Price must always be greater than zero. '
+                'To make a credit note, use a negative quantity.'
+            )
+
     def get_absolute_url(self):
         return reverse('invoice.detail', args=[self.invoice.pk])
 

@@ -31,6 +31,7 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
 
     price = 0
     quantity = 1
+    units = 'each'
     vat_rate = 20
 
     @factory.sequence
