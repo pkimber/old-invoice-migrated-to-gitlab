@@ -75,7 +75,7 @@ class TestCreditNote(TestCase):
         credit = self._credit_note()
         InvoicePrint().create_pdf(credit, None)
 
-    def test_print_only_negative(self):
+    def test_print_not_negative_and_positive(self):
         credit = self._credit_note()
         line = InvoiceLineFactory(
             invoice=credit,
