@@ -197,6 +197,18 @@ class InvoicePrint(MyReport):
                 "Invoice {} is not a draft invoice - cannot "
                 "create a PDF".format(invoice.invoice_number)
             )
+        is_credit = invoice.is_credit
+        for line in invoice.invoiceline_set.all():
+            if not line.is_credit == is_credit:
+                if is_credit:
+                    result.append(
+                        "All credit note lines must have a negative quantity."
+                    )
+                else:
+                    result.append(
+                        "All invoice lines must have a positive quantity."
+                    )
+                break
         if result and raise_exception:
             raise InvoiceError(
                 ', '.join(result)

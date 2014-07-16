@@ -61,10 +61,11 @@ class TestInvoice(TestCase):
             contact=self.farm,
         )
         make_invoice_line(invoice, 1, 1.3, 'hours', 300.00, 0.20)
-        make_invoice_line(invoice, 2, 2.4, 'hours', 200.23, 0.20)
+        line = make_invoice_line(invoice, 2, 2.4, 'hours', 200.23, 0.20)
         self.assertGreater(invoice.pk, 0)
         self.assertEqual(Decimal('1044.66'), invoice.gross)
         self.assertEqual(Decimal('870.55'), invoice.net)
+        self.assertFalse(line.is_credit)
 
     def test_description(self):
         invoice = make_invoice(

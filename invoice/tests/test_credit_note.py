@@ -12,12 +12,17 @@ from .factories import (
     InvoiceLineFactory,
     InvoiceSettingsFactory,
 )
-from invoice.service import InvoiceCreate
+from invoice.service import (
+    InvoiceCreate,
+    InvoicePrint,
+    InvoiceError,
+)
 
 
 class TestCreditNote(TestCase):
 
-    def _create_credit_note(self):
+    def _credit_note(self):
+        InvoiceSettingsFactory()
         credit_note = InvoiceFactory()
         credit_note.full_clean()
         line = InvoiceLineFactory(
@@ -46,14 +51,40 @@ class TestCreditNote(TestCase):
         )
 
     def test_allow_negative_quantity(self):
-        credit_note = self._create_credit_note()
+        credit_note = self._credit_note()
         self.assertEqual(Decimal('-1.01'), credit_note.net)
 
     def test_description(self):
-        credit_note = self._create_credit_note()
+        credit_note = self._credit_note()
         self.assertEqual('Credit note', credit_note.description)
 
     def test_credit_note(self):
-        InvoiceSettingsFactory()
-        credit = self._create_credit_note()
+        credit = self._credit_note()
         InvoiceCreate().create(credit.user, credit.contact, date.today())
+
+    def test_line_is_credit(self):
+        credit = self._credit_note()
+        line = InvoiceLineFactory(
+            invoice=credit,
+            price=Decimal('0.02'),
+            quantity=Decimal('-1'),
+        )
+        self.assertTrue(line.is_credit)
+
+    def test_print_only_negative(self):
+        credit = self._credit_note()
+        InvoicePrint().create_pdf(credit, None)
+
+    def test_print_only_negative(self):
+        credit = self._credit_note()
+        line = InvoiceLineFactory(
+            invoice=credit,
+            price=Decimal('2.02'),
+            quantity=Decimal('1'),
+        )
+        self.assertRaises(
+            InvoiceError,
+            InvoicePrint().create_pdf,
+            credit,
+            None,
+        )

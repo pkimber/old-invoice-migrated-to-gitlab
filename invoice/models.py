@@ -116,7 +116,15 @@ class Invoice(TimeStampedModel):
             totals['quantity'] = totals['quantity'] + line.quantity
         return result
 
-    def _gross(self):
+    @property
+    def description(self):
+        if self.is_credit:
+            return 'Credit note'
+        else:
+            return 'Invoice'
+
+    @property
+    def gross(self):
         totals = self.invoiceline_set.aggregate(
             models.Sum('net'), models.Sum('vat')
         )
@@ -124,26 +132,22 @@ class Invoice(TimeStampedModel):
             (totals['net__sum'] or Decimal()) +
             (totals['vat__sum'] or Decimal())
         )
-    gross = property(_gross)
-
-    def _has_lines(self):
-        return bool(self.invoiceline_set.count())
-    has_lines = property(_has_lines)
-
-    def _is_draft(self):
-        return not bool(self.pdf)
-    is_draft = property(_is_draft)
 
     @property
-    def description(self):
-        if self.net < Decimal():
-            return 'Credit note'
-        else:
-            return 'Invoice'
+    def has_lines(self):
+        return bool(self.invoiceline_set.count())
 
     @property
     def invoice_number(self):
         return '{:06d}'.format(self.pk)
+
+    @property
+    def is_credit(self):
+        return self.net < Decimal()
+
+    @property
+    def is_draft(self):
+        return not bool(self.pdf)
 
     @property
     def net(self):
@@ -221,22 +225,25 @@ class InvoiceLine(TimeStampedModel):
         # Call the "real" save() method.
         super(InvoiceLine, self).save(*args, **kwargs)
 
-    def _gross(self):
+    @property
+    def gross(self):
         return self.net + self.vat
-    gross = property(_gross)
 
-    def _user_can_edit(self):
+    @property
+    def is_credit(self):
+        return self.quantity < Decimal()
+
+    @property
+    def user_can_edit(self):
         return self.invoice.is_draft and not self.has_time_record
-    user_can_edit = property(_user_can_edit)
 
-    def _has_time_record(self):
+    @property
+    def has_time_record(self):
         try:
             self.timerecord
             return True
         except TimeRecord.DoesNotExist:
             return False
-    has_time_record = property(_has_time_record)
-
 
 reversion.register(InvoiceLine)
 
