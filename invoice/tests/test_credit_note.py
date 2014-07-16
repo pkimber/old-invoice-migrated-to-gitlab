@@ -56,7 +56,7 @@ class TestCreditNote(TestCase):
 
     def test_description(self):
         credit_note = self._credit_note()
-        self.assertEqual('Credit note', credit_note.description)
+        self.assertEqual('Credit Note', credit_note.description)
 
     def test_credit_note(self):
         credit = self._credit_note()

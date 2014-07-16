@@ -119,7 +119,7 @@ class Invoice(TimeStampedModel):
     @property
     def description(self):
         if self.is_credit:
-            return 'Credit note'
+            return 'Credit Note'
         else:
             return 'Invoice'
 

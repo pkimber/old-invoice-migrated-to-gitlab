@@ -163,7 +163,7 @@ class InvoicePrint(MyReport):
         buff = io.BytesIO()
         doc = platypus.SimpleDocTemplate(
             buff,
-            title='Invoice',
+            title=invoice.description,
             pagesize=A4
         )
         print_settings = self._get_print_settings()
@@ -230,7 +230,7 @@ class InvoicePrint(MyReport):
                 '%s' % invoice.invoice_date.strftime('%d/%m/%Y')
             ],
             [
-                self._bold('Invoice'),
+                self._bold(invoice.description),
                 '%s' % invoice.invoice_number
             ],
         ]
@@ -269,7 +269,7 @@ class InvoicePrint(MyReport):
                 self._text_our_vat_number(print_settings.vat_number)
             ))
 
-        heading = [platypus.Paragraph('Invoice', self.head_1)]
+        heading = [platypus.Paragraph(invoice.description, self.head_1)]
 
         # If the invoice has a logo, then the layout is different
         if header_image:

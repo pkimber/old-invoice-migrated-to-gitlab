@@ -8,7 +8,7 @@
   {% if invoice.is_draft %}
     Draft
   {% endif %}
-  Invoice {{ invoice.invoice_number }}
+  {{ invoice.description }} {{ invoice.invoice_number }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -22,4 +22,3 @@
     </div>
   </div>
 {% endblock content %}
-
