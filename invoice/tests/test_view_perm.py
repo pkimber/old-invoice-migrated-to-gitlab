@@ -21,6 +21,7 @@ from invoice.tests.scenario import (
     get_invoice_paperwork,
     get_timerecord_fence_dig_holes,
 )
+from login.tests.factories import TEST_PASSWORD
 from login.tests.scenario import (
     default_scenario_login,
     get_user_staff,
@@ -38,7 +39,7 @@ class TestViewPerm(TestCase):
         default_scenario_invoice()
         self.web = get_user_web()
         self.client.login(
-            username=self.web.username, password=self.web.username
+            username=self.web.username, password=TEST_PASSWORD
         )
 
     def test_contact_invoice_list(self):

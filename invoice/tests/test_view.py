@@ -1,7 +1,8 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 """Simple tests to make sure a view doesn't throw any exceptions"""
+
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
@@ -22,6 +23,7 @@ from invoice.tests.scenario import (
     get_invoice_paperwork,
     get_timerecord_fence_dig_holes,
 )
+from login.tests.factories import TEST_PASSWORD
 from login.tests.scenario import (
     default_scenario_login,
     get_user_staff,
@@ -168,5 +170,5 @@ class TestView(TestCase):
         staff = get_user_staff()
         self.client.login(
             username=staff.username,
-            password=staff.username,
+            password=TEST_PASSWORD,
         )
