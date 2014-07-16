@@ -38,3 +38,12 @@ class TestCreditNote(TestCase):
         )
         line.full_clean()
         self.assertEqual(Decimal('-1.01'), invoice.net)
+
+    def test_description(self):
+        invoice = InvoiceFactory()
+        line = InvoiceLineFactory(
+            invoice=invoice,
+            price=Decimal('1.01'),
+            quantity=Decimal('-1'),
+        )
+        self.assertEqual('Credit note', invoice.description)

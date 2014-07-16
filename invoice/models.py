@@ -130,23 +130,31 @@ class Invoice(TimeStampedModel):
         return bool(self.invoiceline_set.count())
     has_lines = property(_has_lines)
 
-    def _invoice_number(self):
-        return '{:06d}'.format(self.pk)
-    invoice_number = property(_invoice_number)
-
     def _is_draft(self):
         return not bool(self.pdf)
     is_draft = property(_is_draft)
 
-    def _net(self):
+    @property
+    def description(self):
+        if self.net < Decimal():
+            return 'Credit note'
+        else:
+            return 'Invoice'
+
+    @property
+    def invoice_number(self):
+        return '{:06d}'.format(self.pk)
+
+    @property
+    def net(self):
         totals = self.invoiceline_set.aggregate(models.Sum('net'))
         return totals['net__sum'] or Decimal()
-    net = property(_net)
 
-    def _vat(self):
+    @property
+    def vat(self):
         totals = self.invoiceline_set.aggregate(models.Sum('vat'))
         return totals['vat__sum'] or Decimal()
-    vat = property(_vat)
+
 
 reversion.register(Invoice)
 
