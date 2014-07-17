@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'compressor',
     'reversion',
     'south',
     'base',
@@ -161,6 +162,9 @@ LOGGING = {
 # URL where requests are redirected after login when the contrib.auth.login
 # view gets no next parameter.
 LOGIN_REDIRECT_URL = reverse_lazy('project.home.user')
+
+# django-compressor
+COMPRESS_ENABLED = False # defaults to the opposite of DEBUG
 
 # https://github.com/johnsensible/django-sendfile
 SENDFILE_BACKEND = 'sendfile.backends.development'
