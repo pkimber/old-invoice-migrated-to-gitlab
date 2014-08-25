@@ -278,6 +278,11 @@ class TimeRecord(TimeStampedModel):
                 and self.start_time >= self.end_time):
             raise ValidationError('End time must be after the start time')
 
+    @property
+    def deleted(self):
+        """No actual delete (yet), so just return 'False'."""
+        return False
+
     def delta(self):
         return self._end_date_time() - self._date_started_time()
 

@@ -1,11 +1,12 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 """ Django settings """
 from django.core.urlresolvers import reverse_lazy
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+TESTING = False
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
