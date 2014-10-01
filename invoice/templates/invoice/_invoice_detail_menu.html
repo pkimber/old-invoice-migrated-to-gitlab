@@ -2,13 +2,13 @@
   <ul>
     {% if invoice.is_draft %}
       <li>
-        <a href="{% url "invoice.line.create" invoice.pk %}">
+        <a href="{% url 'invoice.line.create' invoice.pk %}">
           <i class="fa fa-tasks"></i>
           Add invoice line
         </a>
       </li>
       <li>
-        <a href="{% url "invoice.create.pdf" invoice.pk %}">
+        <a href="{% url 'invoice.create.pdf' invoice.pk %}">
           <i class="fa fa-gbp"></i>
           Create PDF
         </a>
@@ -26,6 +26,14 @@
           Time Analysis
         </a>
       </li>
+      {% if invoice.can_set_to_draft %}
+        <li>
+          <a href="{% url 'invoice.set.to.draft' invoice.pk %}">
+            <i class="fa fa-cog"></i>
+            Set back to draft
+          </a>
+        </li>
+      {% endif %}
     {% endif %}
   </ul>
 </div>

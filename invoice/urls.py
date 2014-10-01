@@ -16,6 +16,7 @@ from .views import (
     InvoiceLineUpdateView,
     InvoiceListView,
     InvoicePdfUpdateView,
+    InvoiceSetToDraftUpdateView,
     InvoiceTimeCreateView,
     InvoiceUpdateView,
     report_invoice_time_analysis,
@@ -72,6 +73,10 @@ urlpatterns = patterns(
     url(regex=r'^invoice/(?P<pk>\d+)/report/$',
         view=report_invoice_time_analysis,
         name='invoice.report.time.analysis'
+        ),
+    url(regex=r'^invoice/(?P<pk>\d+)/set-to-draft/$',
+        view=InvoiceSetToDraftUpdateView.as_view(),
+        name='invoice.set.to.draft'
         ),
     url(regex=r'^invoice/(?P<pk>\d+)/edit/$',
         view=InvoiceUpdateView.as_view(),

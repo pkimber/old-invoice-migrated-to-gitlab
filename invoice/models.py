@@ -79,6 +79,15 @@ class Invoice(TimeStampedModel):
     def get_absolute_url(self):
         return reverse('invoice.detail', args=[self.pk])
 
+    @property
+    def can_set_to_draft(self):
+        """Can we set this invoice back to a draft state?"""
+        result = False
+        if not self.is_draft:
+            if self.invoice_date == date.today():
+                result = True
+        return result
+
     def get_next_line_number(self):
         result = self.invoiceline_set.aggregate(models.Max('line_number'))
         max_line_number = result.get('line_number__max', None)
@@ -188,9 +197,7 @@ class Invoice(TimeStampedModel):
 
     def set_to_draft(self):
         """Set the invoice back to a draft state."""
-        if self.is_draft:
-            raise InvoiceError("The invoice is already in the draft state.")
-        if self.invoice_date == date.today():
+        if self.can_set_to_draft:
             self.pdf = None
             self.save()
         else:
@@ -203,7 +210,6 @@ class Invoice(TimeStampedModel):
     def vat(self):
         totals = self.invoiceline_set.aggregate(models.Sum('vat'))
         return totals['vat__sum'] or Decimal()
-
 
 reversion.register(Invoice)
 

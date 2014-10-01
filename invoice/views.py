@@ -252,6 +252,27 @@ class InvoicePdfUpdateView(
         return HttpResponseRedirect(reverse('invoice.list'))
 
 
+class InvoiceSetToDraftUpdateView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceBlankForm
+    model = Invoice
+    template_name = 'invoice/invoice_set_to_draft_form.html'
+
+    def form_valid(self, form):
+        self.object.set_to_draft()
+        messages.info(
+            self.request,
+            "Set invoice {} to draft at {} today.".format(
+                self.object.invoice_number,
+                self.object.created.strftime("%H:%M"),
+            )
+        )
+        return HttpResponseRedirect(
+            reverse('invoice.detail', args=[self.object.pk])
+        )
+
+
 class InvoiceTimeCreateView(
         LoginRequiredMixin, StaffuserRequiredMixin, InvoiceCreateViewMixin):
 
@@ -288,11 +309,10 @@ class InvoiceTimeCreateView(
 
 class InvoiceListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
-        
-    paginate_by = 20
 
+    paginate_by = 20
     model = Invoice
-    
+
     def get_queryset(self):
         return Invoice.objects.all().order_by('-pk')
 
