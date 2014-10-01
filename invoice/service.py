@@ -7,6 +7,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
+from django.db import transaction
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -52,14 +53,15 @@ class InvoiceCreate(object):
         self.is_valid(contact, raise_exception=True)
         invoice = None
         time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
-        if time_records.count():
-            invoice = Invoice(
-                invoice_date=date.today(),
-                contact=contact,
-                user=user,
-            )
-            invoice.save()
-        self._add_time_records(user, invoice, time_records)
+        with transaction.atomic():
+            if time_records.count():
+                invoice = Invoice(
+                    invoice_date=date.today(),
+                    contact=contact,
+                    user=user,
+                )
+                invoice.save()
+            self._add_time_records(user, invoice, time_records)
         return invoice
 
     def draft(self, contact, iteration_end):
@@ -72,11 +74,13 @@ class InvoiceCreate(object):
             raise InvoiceError(
                 "Time records can only be added to a draft invoice."
             )
-        self._add_time_records(
-            user,
-            invoice,
-            TimeRecord.objects.to_invoice(invoice.contact, iteration_end)
-        )
+        self.is_valid(invoice.contact, raise_exception=True)
+        with transaction.atomic():
+            self._add_time_records(
+                user,
+                invoice,
+                TimeRecord.objects.to_invoice(invoice.contact, iteration_end)
+            )
 
     def is_valid(self, contact, raise_exception=None):
         result = []
