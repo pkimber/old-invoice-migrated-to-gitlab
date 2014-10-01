@@ -6,13 +6,21 @@ import factory
 from datetime import date
 from decimal import Decimal
 
-from crm.tests.factories import ContactFactory
+from dateutil.relativedelta import relativedelta
+
+from django.utils import timezone
+
+from crm.tests.factories import (
+    ContactFactory,
+    TicketFactory,
+)
 from login.tests.factories import UserFactory
 
 from invoice.models import (
     Invoice,
     InvoiceLine,
     InvoiceSettings,
+    TimeRecord,
 )
 
 
@@ -37,6 +45,10 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
     vat_rate = 20
 
     @factory.sequence
+    def description(n):
+        return 'description_{}'.format(n)
+
+    @factory.sequence
     def line_number(n):
         return n
 
@@ -51,3 +63,22 @@ class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
         model = InvoiceSettings
 
     vat_rate = Decimal('20')
+
+
+class TimeRecordFactory(factory.django.DjangoModelFactory):
+
+    billable = True
+    date_started = date.today()
+    start_time = timezone.now()
+    ticket = factory.SubFactory(TicketFactory)
+
+    class Meta:
+        model = TimeRecord
+
+    @factory.lazy_attribute
+    def end_time(self):
+        return self.start_time + relativedelta(hours=1)
+
+    @factory.lazy_attribute
+    def user(self):
+        return self.ticket.user

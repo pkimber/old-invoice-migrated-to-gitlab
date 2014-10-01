@@ -10,7 +10,10 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db import models
+from django.db import (
+    models,
+    transaction,
+)
 from django.utils.timesince import timeuntil
 
 import reversion
@@ -166,6 +169,23 @@ class Invoice(TimeStampedModel):
         totals = self.invoiceline_set.aggregate(models.Sum('net'))
         return totals['net__sum'] or Decimal()
 
+    def remove_time_lines(self):
+        if not self.is_draft:
+            raise InvoiceError(
+                "Time records can only be removed from a draft invoice."
+            )
+        pks = [i.pk for i in self.invoiceline_set.all()]
+        with transaction.atomic():
+            for pk in pks:
+                line = InvoiceLine.objects.get(pk=pk)
+                try:
+                    time_record = line.timerecord
+                    time_record.invoice_line = None
+                    time_record.save()
+                    line.delete()
+                except TimeRecord.DoesNotExist:
+                    pass
+
     def set_to_draft(self):
         """Set the invoice back to a draft state."""
         if self.is_draft:
@@ -233,6 +253,11 @@ class InvoiceLine(TimeStampedModel):
         verbose_name = 'Invoice line'
         verbose_name_plural = 'Invoice lines'
         unique_together = ('invoice', 'line_number')
+
+    def __str__(self):
+        return "{} {} {} @{}".format(
+            self.line_number, self.quantity, self.description, self.price
+        )
 
     def clean(self):
         if self.price < Decimal():
