@@ -16,23 +16,18 @@ from invoice.tests.factories import (
 
 class TestInvoiceCorrection(TestCase):
 
-    def create(self, invoice_date=None):
-        """ Create a simple invoice with two lines """
+    def test_is_not_draft(self):
         InvoiceSettingsFactory()
-        if invoice_date == None:
-            invoice_date = date.today()
-        invoice = InvoiceFactory(invoice_date=invoice_date)
-        InvoiceLineFactory(invoice=invoice)
+        invoice = InvoiceFactory()
         InvoiceLineFactory(invoice=invoice)
         InvoicePrint().create_pdf(invoice, None)
-        return invoice
-
-    def test_is_draft(self):
-        invoice = self.create()
         self.assertFalse(invoice.is_draft)
 
     def test_set_is_draft(self):
-        invoice = self.create()
+        InvoiceSettingsFactory()
+        invoice = InvoiceFactory()
+        InvoiceLineFactory(invoice=invoice)
+        InvoicePrint().create_pdf(invoice, None)
         self.assertFalse(invoice.is_draft)
         invoice.set_to_draft()
         self.assertTrue(invoice.is_draft)
@@ -40,7 +35,12 @@ class TestInvoiceCorrection(TestCase):
     def test_set_is_draft_too_late(self):
         """invoice can only be set back to draft on the day it is created."""
         InvoiceSettingsFactory()
-        invoice = self.create(date.today() + relativedelta(days=-1))
+        invoice = InvoiceFactory(
+            invoice_date=date.today() + relativedelta(days=-1)
+        )
+        InvoiceLineFactory(invoice=invoice)
+        InvoiceLineFactory(invoice=invoice)
+        InvoicePrint().create_pdf(invoice, None)
         self.assertFalse(invoice.is_draft)
         with self.assertRaises(InvoiceError):
             invoice.set_to_draft()
