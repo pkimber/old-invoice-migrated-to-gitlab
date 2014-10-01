@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import io
 
-from datetime import datetime
+from datetime import date
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
@@ -38,7 +38,7 @@ class InvoiceCreate(object):
         for time_record in time_records:
             if not invoice:
                 invoice = Invoice(
-                    invoice_date=datetime.today(),
+                    invoice_date=date.today(),
                     contact=contact,
                     user=user,
                 )
@@ -63,6 +63,12 @@ class InvoiceCreate(object):
     def draft(self, contact, iteration_end):
         """Return a queryset with time records selected to invoice"""
         return self._get_time_records(contact, iteration_end)
+
+    def refresh_lines(self, user, invoice, iteration_end):
+        """Add invoice lines to a previously created (draft) invoice."""
+        pass
+
+
 
     def is_valid(self, contact, raise_exception=None):
         result = []

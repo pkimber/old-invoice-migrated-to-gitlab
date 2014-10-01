@@ -7,7 +7,10 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase
 
 from invoice.models import InvoiceError
-from invoice.service import InvoicePrint
+from invoice.service import (
+    InvoiceCreate,
+    InvoicePrint,
+)
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -19,15 +22,21 @@ class TestInvoiceCorrection(TestCase):
 
     def test_is_not_draft(self):
         InvoiceSettingsFactory()
-        invoice = InvoiceFactory()
-        InvoiceLineFactory(invoice=invoice)
+        tr = TimeRecordFactory()
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
+        self.assertTrue(invoice.is_draft)
         InvoicePrint().create_pdf(invoice, None)
         self.assertFalse(invoice.is_draft)
 
     def test_set_is_draft(self):
         InvoiceSettingsFactory()
-        invoice = InvoiceFactory()
-        InvoiceLineFactory(invoice=invoice)
+        tr = TimeRecordFactory()
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
+        self.assertTrue(invoice.is_draft)
         InvoicePrint().create_pdf(invoice, None)
         self.assertFalse(invoice.is_draft)
         invoice.set_to_draft()
@@ -36,11 +45,14 @@ class TestInvoiceCorrection(TestCase):
     def test_set_is_draft_too_late(self):
         """invoice can only be set back to draft on the day it is created."""
         InvoiceSettingsFactory()
-        invoice = InvoiceFactory(
-            invoice_date=date.today() + relativedelta(days=-1)
+        tr = TimeRecordFactory()
+        TimeRecordFactory(ticket = tr.ticket)
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
         )
-        InvoiceLineFactory(invoice=invoice)
-        InvoiceLineFactory(invoice=invoice)
+        invoice.invoice_date=date.today() + relativedelta(days=-1)
+        invoice.save()
+        self.assertTrue(invoice.is_draft)
         InvoicePrint().create_pdf(invoice, None)
         self.assertFalse(invoice.is_draft)
         with self.assertRaises(InvoiceError):
@@ -49,12 +61,12 @@ class TestInvoiceCorrection(TestCase):
     def test_remove_time_lines(self):
         """Remove all lines (because they are all linked to time records)."""
         InvoiceSettingsFactory()
-        invoice = InvoiceFactory()
-        # two invoice lines with time records
-        line_1 = InvoiceLineFactory(invoice=invoice)
-        TimeRecordFactory(invoice_line=line_1)
-        line_2 = InvoiceLineFactory(invoice=invoice)
-        TimeRecordFactory(invoice_line=line_2)
+        tr = TimeRecordFactory()
+        TimeRecordFactory(ticket = tr.ticket)
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
+        self.assertTrue(invoice.is_draft)
         InvoicePrint().create_pdf(invoice, None)
         self.assertTrue(invoice.has_lines)
         invoice.set_to_draft()
@@ -64,16 +76,17 @@ class TestInvoiceCorrection(TestCase):
     def test_remove_time_lines_not_extra(self):
         """Remove all but one line.
 
-        Because it is not linked to a time record.
+        The extra line is not removed because it isn't linked to a time record.
 
         """
         InvoiceSettingsFactory()
-        invoice = InvoiceFactory()
-        # two invoice lines with time records
-        TimeRecordFactory(invoice_line=InvoiceLineFactory(invoice=invoice))
-        TimeRecordFactory(invoice_line=InvoiceLineFactory(invoice=invoice))
-        # an extra line which is not linked to a time record.
+        tr = TimeRecordFactory()
+        TimeRecordFactory(ticket = tr.ticket)
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
         extra_line = InvoiceLineFactory(invoice=invoice)
+        self.assertTrue(invoice.is_draft)
         InvoicePrint().create_pdf(invoice, None)
         self.assertTrue(invoice.has_lines)
         invoice.set_to_draft()
