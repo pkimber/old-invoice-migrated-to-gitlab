@@ -10,14 +10,16 @@ from decimal import Decimal
 from django.test import TestCase
 
 from invoice.models import Invoice
-from invoice.tests.model_maker import make_invoice
-from invoice.tests.model_maker import make_invoice_line
 from crm.tests.scenario import (
     default_scenario_crm,
     get_contact_farm,
 )
 from invoice.service import (
     InvoicePrint,
+)
+from invoice.tests.factories import (
+    InvoiceFactory,
+    InvoiceLineFactory,
 )
 from invoice.tests.scenario import (
     default_scenario_invoice,
@@ -44,7 +46,7 @@ class TestInvoice(TestCase):
 
     def test_create(self):
         """ Create a simple invoice """
-        invoice = Invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
@@ -55,20 +57,32 @@ class TestInvoice(TestCase):
 
     def test_create_with_lines(self):
         """ Create a simple invoice with lines """
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
         )
-        make_invoice_line(invoice, 1, 1.3, 'hours', 300.00, 0.20)
-        line = make_invoice_line(invoice, 2, 2.4, 'hours', 200.23, 0.20)
+        line = InvoiceLineFactory(
+            invoice=invoice,
+            quantity=Decimal('1.3'),
+            units='hours',
+            price=Decimal('300.00'),
+            vat_rate=Decimal('0.20')
+        )
+        line = InvoiceLineFactory(
+            invoice=invoice,
+            quantity=Decimal('2.4'),
+            units='hours',
+            price=Decimal('200.23'),
+            vat_rate=Decimal('0.20'),
+        )
         self.assertGreater(invoice.pk, 0)
         self.assertEqual(Decimal('1044.66'), invoice.gross)
         self.assertEqual(Decimal('870.55'), invoice.net)
         self.assertFalse(line.is_credit)
 
     def test_description(self):
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
@@ -77,7 +91,7 @@ class TestInvoice(TestCase):
 
     def test_get_first_line_number(self):
         """get the number for the first invoice line"""
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
@@ -86,26 +100,39 @@ class TestInvoice(TestCase):
 
     def test_get_next_line_number(self):
         """get the number for the next invoice line"""
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
         )
-        make_invoice_line(invoice, 2, 1.3, 'hours', 300.00, 0.20)
+        InvoiceLineFactory(
+            invoice=invoice,
+            line_number=2,
+            quantity=Decimal('1.3'),
+            units='hours',
+            price=Decimal('300.00'),
+            vat_rate=Decimal('0.20'),
+        )
         self.assertEqual(3, invoice.get_next_line_number())
 
     def test_has_lines(self):
         """does the invoice have any lines"""
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
         )
-        make_invoice_line(invoice, 2, 1.3, 'hours', 300.00, 0.20)
+        InvoiceLineFactory(
+            invoice=invoice,
+            quantity=Decimal('1.3'),
+            units='hours',
+            price=Decimal('300.00'),
+            vat_rate=Decimal('0.20'),
+        )
         self.assertTrue(invoice.has_lines)
 
     def test_has_lines_not(self):
-        invoice = make_invoice(
+        invoice = InvoiceFactory(
             user=get_user_staff(),
             invoice_date=date.today(),
             contact=self.farm,
