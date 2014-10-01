@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import io
-import os
 
 from datetime import datetime
 from decimal import Decimal
@@ -12,7 +11,6 @@ from django.core.files.base import ContentFile
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab import platypus
-from reportlab.lib.styles import getSampleStyleSheet
 
 from crm.models import Contact
 from .models import (

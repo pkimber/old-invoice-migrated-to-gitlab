@@ -23,6 +23,7 @@ pip-log.txt
 MANIFEST
 
 # Unit test / coverage reports
+.cache
 .coverage
 .tox
 *.pdf

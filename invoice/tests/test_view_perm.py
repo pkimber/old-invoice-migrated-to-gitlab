@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
@@ -134,7 +134,7 @@ class TestViewPerm(TestCase):
         self._assert_get_perm_denied(url)
 
     def test_user_timerecord_list(self):
-        fence = get_ticket_fence_for_farm()
+        get_ticket_fence_for_farm()
         url = reverse('invoice.time.user.list')
         self._assert_get_staff_only(url)
 

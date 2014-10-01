@@ -1,11 +1,9 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 """
 Test report.
 """
-from datetime import datetime
-from datetime import time
 from decimal import Decimal
 
 from django.test import TestCase
@@ -16,7 +14,6 @@ from login.tests.scenario import (
     user_contractor,
 )
 
-from invoice.models import Invoice
 from invoice.tests.scenario import (
     default_scenario_invoice,
     get_invoice_time_analysis,

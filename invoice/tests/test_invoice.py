@@ -9,7 +9,6 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from invoice.models import Invoice
 from crm.tests.scenario import (
     default_scenario_crm,
     get_contact_farm,
@@ -26,7 +25,6 @@ from invoice.tests.scenario import (
     get_invoice_line_paperwork_has_time,
     get_invoice_line_paperwork_no_time,
     get_invoice_paperwork,
-    invoice_settings,
 )
 from login.tests.scenario import (
     default_scenario_login,

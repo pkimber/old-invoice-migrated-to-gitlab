@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
+import os
+
 from decimal import Decimal
 
 from reportlab import platypus
-from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas

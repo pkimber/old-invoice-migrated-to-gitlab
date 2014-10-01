@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 from datetime import datetime
 from decimal import Decimal
 
@@ -10,10 +10,8 @@ from reportlab.lib.pagesizes import A4
 
 from crm.models import Ticket
 
-from .pdf_utils import (
-    MyReport,
-    NumberedCanvas,
-)
+from .pdf_utils import MyReport
+from .service import InvoiceError
 
 
 class ReportInvoiceTimeAnalysis(MyReport):

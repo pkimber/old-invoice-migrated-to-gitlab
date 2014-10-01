@@ -77,7 +77,7 @@ class TestCreditNote(TestCase):
 
     def test_print_not_negative_and_positive(self):
         credit = self._credit_note()
-        line = InvoiceLineFactory(
+        InvoiceLineFactory(
             invoice=credit,
             price=Decimal('2.02'),
             quantity=Decimal('1'),

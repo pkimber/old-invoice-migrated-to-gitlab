@@ -1,9 +1,5 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
-from datetime import datetime
-from datetime import time
-from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 

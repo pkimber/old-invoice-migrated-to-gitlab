@@ -1,12 +1,11 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
 from datetime import datetime
 from datetime import time
 from decimal import Decimal
 
 from crm.tests.scenario import (
-    get_contact_farm,
     get_contact_merchant,
     get_contact_smallholding,
     get_ticket_fence_for_farm,
