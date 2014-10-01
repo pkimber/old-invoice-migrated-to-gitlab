@@ -298,6 +298,27 @@ class InvoiceLine(TimeStampedModel):
 reversion.register(InvoiceLine)
 
 
+class TimeRecordManager(models.Manager):
+
+    def to_invoice(self, contact, iteration_end):
+        """
+        Find time records:
+        - before iteration ended
+        - which have not been included on a previous invoice
+        - which are billable
+        """
+        return self.model.objects.filter(
+            ticket__contact=contact,
+            date_started__lte=iteration_end,
+            invoice_line__isnull=True,
+            billable=True,
+        ).order_by(
+            'ticket__pk',
+            'date_started',
+            'start_time',
+        )
+
+
 class TimeRecord(TimeStampedModel):
     """Simple time recording"""
     ticket = models.ForeignKey(Ticket)
@@ -309,6 +330,7 @@ class TimeRecord(TimeStampedModel):
     end_time = models.TimeField(blank=True, null=True)
     billable = models.BooleanField()
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
+    objects = TimeRecordManager()
 
     class Meta:
         ordering = ['-date_started', '-start_time']
@@ -378,6 +400,5 @@ class TimeRecord(TimeStampedModel):
     def _user_can_edit(self):
         return not self.has_invoice_line
     user_can_edit = property(_user_can_edit)
-
 
 reversion.register(TimeRecord)

@@ -29,46 +29,54 @@ from .pdf_utils import (
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
-    def create(self, user, contact, iteration_end):
-        """ Create invoices from time records """
-        self.is_valid(contact, raise_exception=True)
-        invoice = None
+    def _add_time_records(self, user, invoice, time_records):
+        """Add time records to a draft invoice."""
         print_settings = self._get_print_settings()
-        time_records = self._get_time_records(contact, iteration_end)
-        for time_record in time_records:
-            if not invoice:
-                invoice = Invoice(
-                    invoice_date=date.today(),
-                    contact=contact,
-                    user=user,
-                )
-                invoice.save()
+        for tr in time_records:
             invoice_line = InvoiceLine(
                 user=user,
                 invoice=invoice,
                 line_number=invoice.get_next_line_number(),
-                quantity=time_record.invoice_quantity,
-                price=contact.hourly_rate,
+                quantity=tr.invoice_quantity,
+                price=invoice.contact.hourly_rate,
                 units='hours',
                 vat_rate=print_settings.vat_rate
             )
             invoice_line.save()
             # link time record to invoice line
-            time_record.invoice_line = invoice_line
-            time_record.save()
-        if invoice:
+            tr.invoice_line = invoice_line
+            tr.save()
+
+    def create(self, user, contact, iteration_end):
+        """ Create invoices from time records """
+        self.is_valid(contact, raise_exception=True)
+        invoice = None
+        time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
+        if time_records.count():
+            invoice = Invoice(
+                invoice_date=date.today(),
+                contact=contact,
+                user=user,
+            )
             invoice.save()
+        self._add_time_records(user, invoice, time_records)
         return invoice
 
     def draft(self, contact, iteration_end):
         """Return a queryset with time records selected to invoice"""
-        return self._get_time_records(contact, iteration_end)
+        return TimeRecord.objects.to_invoice(contact, iteration_end)
 
-    def refresh_lines(self, user, invoice, iteration_end):
+    def refresh(self, user, invoice, iteration_end):
         """Add invoice lines to a previously created (draft) invoice."""
-        pass
-
-
+        if not invoice.is_draft:
+            raise InvoiceError(
+                "Time records can only be added to a draft invoice."
+            )
+        self._add_time_records(
+            user,
+            invoice,
+            TimeRecord.objects.to_invoice(invoice.contact, iteration_end)
+        )
 
     def is_valid(self, contact, raise_exception=None):
         result = []
@@ -97,24 +105,6 @@ class InvoiceCreate(object):
             raise InvoiceError(
                 "invoice print settings have not been set-up in admin"
             )
-
-    def _get_time_records(self, contact, iteration_end):
-        """
-        Find time records:
-        - before iteration ended
-        - which have not been included on a previous invoice
-        - which are billable
-        """
-        return TimeRecord.objects.filter(
-            ticket__contact=contact,
-            date_started__lte=iteration_end,
-            invoice_line__isnull=True,
-            billable=True,
-        ).order_by(
-            'ticket__pk',
-            'date_started',
-            'start_time',
-        )
 
 
 class InvoiceCreateBatch(object):

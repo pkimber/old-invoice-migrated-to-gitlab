@@ -62,7 +62,7 @@ class TestInvoiceCorrection(TestCase):
         """Remove all lines (because they are all linked to time records)."""
         InvoiceSettingsFactory()
         tr = TimeRecordFactory()
-        TimeRecordFactory(ticket = tr.ticket)
+        TimeRecordFactory(ticket=tr.ticket)
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()
         )
@@ -81,7 +81,7 @@ class TestInvoiceCorrection(TestCase):
         """
         InvoiceSettingsFactory()
         tr = TimeRecordFactory()
-        TimeRecordFactory(ticket = tr.ticket)
+        TimeRecordFactory(ticket=tr.ticket)
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()
         )
@@ -95,3 +95,29 @@ class TestInvoiceCorrection(TestCase):
             [extra_line.pk,],
             [i.pk for i in invoice.invoiceline_set.all()]
         )
+
+    def test_refresh(self):
+        """Create a draft invoice, and then add more time records to it."""
+        InvoiceSettingsFactory()
+        tr = TimeRecordFactory()
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
+        self.assertEqual(1, invoice.invoiceline_set.count())
+        # create a couple more time records which can be added
+        TimeRecordFactory(ticket=tr.ticket)
+        TimeRecordFactory(ticket=tr.ticket)
+        InvoiceCreate().refresh(tr.user, invoice, date.today())
+        self.assertEqual(3, invoice.invoiceline_set.count())
+
+    def test_refresh_draft_only(self):
+        """Only draft invoices can be refreshed."""
+        InvoiceSettingsFactory()
+        tr = TimeRecordFactory()
+        invoice = InvoiceCreate().create(
+            tr.user, tr.ticket.contact, date.today()
+        )
+        self.assertEqual(1, invoice.invoiceline_set.count())
+        InvoicePrint().create_pdf(invoice, None)
+        with self.assertRaises(InvoiceError):
+            InvoiceCreate().refresh(tr.user, invoice, date.today())
