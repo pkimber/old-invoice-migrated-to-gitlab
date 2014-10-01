@@ -12,10 +12,10 @@ from .factories import (
     InvoiceLineFactory,
     InvoiceSettingsFactory,
 )
+from invoice.models import InvoiceError
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
-    InvoiceError,
 )
 
 

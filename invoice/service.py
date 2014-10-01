@@ -15,6 +15,7 @@ from reportlab import platypus
 from crm.models import Contact
 from .models import (
     Invoice,
+    InvoiceError,
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
@@ -23,16 +24,6 @@ from .pdf_utils import (
     MyReport,
     NumberedCanvas,
 )
-
-
-class InvoiceError(Exception):
-
-    def __init__(self, value):
-        Exception.__init__(self)
-        self.value = value
-
-    def __str__(self):
-        return repr('%s, %s' % (self.__class__.__name__, self.value))
 
 
 class InvoiceCreate(object):

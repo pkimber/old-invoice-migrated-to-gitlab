@@ -6,11 +6,9 @@ from datetime import datetime
 from django.test import TestCase
 
 from invoice.models import Invoice
-from invoice.service import (
-    InvoiceError,
-    InvoicePrint,
-)
+from invoice.models import InvoiceError
 from invoice.service import InvoiceCreate
+from invoice.service import InvoicePrint
 from invoice.tests.model_maker import make_invoice
 from invoice.tests.scenario import default_scenario_invoice
 from crm.tests.scenario import (

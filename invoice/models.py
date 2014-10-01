@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import (
+    date,
+    datetime,
+)
 from decimal import Decimal
 
 from django.conf import settings
@@ -21,6 +24,16 @@ from crm.models import (
     Contact,
     Ticket,
 )
+
+
+class InvoiceError(Exception):
+
+    def __init__(self, value):
+        Exception.__init__(self)
+        self.value = value
+
+    def __str__(self):
+        return repr('%s, %s' % (self.__class__.__name__, self.value))
 
 
 class Invoice(TimeStampedModel):
@@ -152,6 +165,19 @@ class Invoice(TimeStampedModel):
     def net(self):
         totals = self.invoiceline_set.aggregate(models.Sum('net'))
         return totals['net__sum'] or Decimal()
+
+    def set_to_draft(self):
+        """Set the invoice back to a draft state."""
+        if self.is_draft:
+            raise InvoiceError("The invoice is already in the draft state.")
+        if self.invoice_date == date.today():
+            self.pdf = None
+            self.save()
+        else:
+            raise InvoiceError(
+                "You can only set an invoice back to draft "
+                "on the day it was created."
+            )
 
     @property
     def vat(self):
