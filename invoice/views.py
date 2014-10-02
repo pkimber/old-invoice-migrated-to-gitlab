@@ -269,7 +269,7 @@ class InvoiceRefreshTimeRecordsUpdateView(
         )
         messages.info(
             self.request,
-            "Refresh time for invoice {} at {} today.".format(
+            "Refreshed time for invoice {} at {} today.".format(
                 self.object.invoice_number,
                 self.object.created.strftime("%H:%M"),
             )
