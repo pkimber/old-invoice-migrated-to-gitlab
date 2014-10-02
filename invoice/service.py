@@ -81,6 +81,7 @@ class InvoiceCreate(object):
                 invoice,
                 TimeRecord.objects.to_invoice(invoice.contact, iteration_end)
             )
+        return invoice
 
     def is_valid(self, contact, raise_exception=None):
         result = []

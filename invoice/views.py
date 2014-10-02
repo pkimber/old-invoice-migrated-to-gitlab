@@ -252,6 +252,53 @@ class InvoicePdfUpdateView(
         return HttpResponseRedirect(reverse('invoice.list'))
 
 
+class InvoiceRefreshTimeRecordsUpdateView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceBlankForm
+    model = Invoice
+    template_name = 'invoice/invoice_refresh_time_records_form.html'
+
+    def form_valid(self, form):
+        invoice_create = InvoiceCreate()
+        self.object = invoice_create.refresh(
+            self.request.user,
+            self.object,
+            datetime.today(),
+        )
+        messages.info(
+            self.request,
+            "Refresh time for invoice {} at {} today.".format(
+                self.object.invoice_number,
+                self.object.created.strftime("%H:%M"),
+            )
+        )
+        return HttpResponseRedirect(
+            reverse('invoice.detail', args=[self.object.pk])
+        )
+
+
+class InvoiceRemoveTimeRecordsUpdateView(
+        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceBlankForm
+    model = Invoice
+    template_name = 'invoice/invoice_remove_time_records_form.html'
+
+    def form_valid(self, form):
+        self.object.remove_time_lines()
+        messages.info(
+            self.request,
+            "Removed time records from invoice {} at {} today.".format(
+                self.object.invoice_number,
+                self.object.created.strftime("%H:%M"),
+            )
+        )
+        return HttpResponseRedirect(
+            reverse('invoice.detail', args=[self.object.pk])
+        )
+
+
 class InvoiceSetToDraftUpdateView(
         LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
 

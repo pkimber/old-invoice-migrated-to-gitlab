@@ -4,13 +4,25 @@
       <li>
         <a href="{% url 'invoice.line.create' invoice.pk %}">
           <i class="fa fa-tasks"></i>
-          Add invoice line
+          Add line
         </a>
       </li>
       <li>
         <a href="{% url 'invoice.create.pdf' invoice.pk %}">
           <i class="fa fa-gbp"></i>
           Create PDF
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'invoice.refresh.time.records' invoice.pk %}">
+          <i class="fa fa-cog"></i>
+          Refresh time
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'invoice.remove.time.records' invoice.pk %}">
+          <i class="fa fa-cog"></i>
+          Remove time
         </a>
       </li>
     {% else %}
