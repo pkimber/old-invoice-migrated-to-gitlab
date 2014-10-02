@@ -12,7 +12,6 @@ from invoice.service import (
     InvoicePrint,
 )
 from invoice.tests.factories import (
-    InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
