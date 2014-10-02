@@ -96,9 +96,7 @@ class Invoice(TimeStampedModel):
         while(True):
             try:
                 self.invoiceline_set.get(line_number=self.line_number)
-                print(' {} +'.format(self.line_number))
             except InvoiceLine.DoesNotExist:
-                print(' {} *'.format(self.line_number))
                 break
             self.line_number = self.line_number + 1
         return self.line_number

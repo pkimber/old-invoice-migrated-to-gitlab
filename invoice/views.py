@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from datetime import date
-from datetime import datetime
 from datetime import timedelta
 
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -37,6 +37,7 @@ from crm.views import (
 
 from .forms import (
     InvoiceBlankForm,
+    InvoiceBlankTodayForm,
     InvoiceDraftCreateForm,
     InvoiceLineForm,
     InvoiceUpdateForm,
@@ -88,7 +89,7 @@ class ContactInvoiceListView(
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = get_object_or_404(Contact, slug=slug)
+        contact = Contact.objects.get(slug=slug)
         self._check_perm(contact)
         return contact
 
@@ -114,7 +115,7 @@ class ContactTimeRecordListView(
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = get_object_or_404(Contact, slug=slug)
+        contact = Contact.objects.get(slug=slug)
         self._check_perm(contact)
         return contact
 
@@ -143,7 +144,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = get_object_or_404(Contact, slug=slug)
+        contact = Contact.objects.get(slug=slug)
         return contact
 
     def _check_invoice_settings(self, contact):
@@ -256,24 +257,35 @@ class InvoicePdfUpdateView(
 class InvoiceRefreshTimeRecordsUpdateView(
         LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
 
-    form_class = InvoiceBlankForm
+    form_class = InvoiceBlankTodayForm
     model = Invoice
     template_name = 'invoice/invoice_refresh_time_records_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(InvoiceRefreshTimeRecordsUpdateView, self).get_context_data(**kwargs)
+        context.update(dict(
+            timerecords=InvoiceCreate().draft(
+                self.object.contact, date.today()
+            ),
+        ))
+        return context
+
     def form_valid(self, form):
+        iteration_end = form.cleaned_data['iteration_end']
         invoice_create = InvoiceCreate()
         self.object = invoice_create.refresh(
             self.request.user,
             self.object,
-            datetime.today(),
+            iteration_end,
         )
-        messages.info(
-            self.request,
-            "Refreshed time for invoice {} at {} today.".format(
-                self.object.invoice_number,
-                self.object.created.strftime("%H:%M"),
+        if self.object:
+            messages.info(
+                self.request,
+                "Refreshed time for invoice {} at {} today.".format(
+                    self.object.invoice_number,
+                    self.object.created.strftime("%H:%M"),
+                )
             )
-        )
         return HttpResponseRedirect(
             reverse('invoice.detail', args=[self.object.pk])
         )
@@ -324,35 +336,47 @@ class InvoiceSetToDraftUpdateView(
 class InvoiceTimeCreateView(
         LoginRequiredMixin, StaffuserRequiredMixin, InvoiceCreateViewMixin):
 
-    form_class = InvoiceBlankForm
+    form_class = InvoiceBlankTodayForm
     template_name = 'invoice/invoice_create_time_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(InvoiceTimeCreateView, self).get_context_data(**kwargs)
         context.update(dict(
             timerecords=InvoiceCreate().draft(
-                self._get_contact(), datetime.today()
+                self._get_contact(), date.today()
             ),
         ))
         return context
 
     def form_valid(self, form):
+        iteration_end = form.cleaned_data['iteration_end']
         invoice_create = InvoiceCreate()
         self.object = invoice_create.create(
             self.request.user,
             self._get_contact(),
-            datetime.today(),
+            iteration_end,
         )
-        #InvoicePrint().create_pdf(self.object, header_image=None)
-        messages.info(
-            self.request,
-            "Draft invoice {} for {} created at {} today.".format(
-                self.object.invoice_number,
-                self.object.contact.name,
-                self.object.created.strftime("%H:%M"),
+        if self.object:
+            messages.info(
+                self.request,
+                "Draft invoice {} for {} created at {} today.".format(
+                    self.object.invoice_number,
+                    self.object.contact.name,
+                    self.object.created.strftime("%H:%M"),
+                )
             )
-        )
-        return HttpResponseRedirect(reverse('invoice.list'))
+            return HttpResponseRedirect(reverse('invoice.list'))
+        else:
+            messages.warning(
+                self.request,
+                (
+                    "Could not create the invoice.  Are there pending time "
+                    "records dated on (or before) {}?".format(
+                        iteration_end.strftime('%d %B %Y')
+                    )
+                )
+            )
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 class InvoiceListView(
@@ -394,7 +418,7 @@ class TimeRecordCreateView(
     def get_initial(self):
         return dict(
             date_started=date.today(),
-            start_time=datetime.today().time(),
+            start_time=timezone.localtime(timezone.now()).time(),
         )
 
     def form_valid(self, form):
@@ -408,15 +432,7 @@ class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     paginate_by = 20
-
-    def get_queryset(self):
-        some_day_last_week = datetime.now().date() - timedelta(days=7)
-        return TimeRecord.objects.filter(
-            date_started__gt=some_day_last_week,
-        ).order_by(
-            '-date_started',
-            '-start_time',
-        )
+    model = TimeRecord
 
 
 class TicketTimeRecordListView(

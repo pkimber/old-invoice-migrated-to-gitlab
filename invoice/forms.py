@@ -1,6 +1,8 @@
 # -*- encoding: utf-8 -*-
-
 from __future__ import unicode_literals
+
+from datetime import date
+
 from django import forms
 
 from base.form_utils import (
@@ -27,6 +29,21 @@ class InvoiceBlankForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = ()
+
+
+class InvoiceBlankTodayForm(RequiredFieldForm):
+
+    def __init__(self, *args, **kwargs):
+        super(InvoiceBlankTodayForm, self).__init__(*args, **kwargs)
+        iteration_end = self.fields['iteration_end']
+        iteration_end.initial = date.today()
+
+
+    class Meta:
+        model = Invoice
+        fields = ()
+
+    iteration_end = forms.DateField()
 
 
 class InvoiceLineForm(forms.ModelForm):
