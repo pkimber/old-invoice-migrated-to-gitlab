@@ -89,12 +89,19 @@ class Invoice(TimeStampedModel):
         return result
 
     def get_next_line_number(self):
-        result = self.invoiceline_set.aggregate(models.Max('line_number'))
-        max_line_number = result.get('line_number__max', None)
-        if max_line_number:
-            return max_line_number + 1
-        else:
-            return 1
+        try:
+            self.line_number = self.line_number
+        except AttributeError:
+            self.line_number = 1
+        while(True):
+            try:
+                self.invoiceline_set.get(line_number=self.line_number)
+                print(' {} +'.format(self.line_number))
+            except InvoiceLine.DoesNotExist:
+                print(' {} *'.format(self.line_number))
+                break
+            self.line_number = self.line_number + 1
+        return self.line_number
 
     def time_analysis(self):
         """Time analysis by user and ticket for an invoice.

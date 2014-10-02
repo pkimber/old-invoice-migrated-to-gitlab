@@ -89,29 +89,33 @@ class TestInvoice(TestCase):
 
     def test_get_first_line_number(self):
         """get the number for the first invoice line"""
-        invoice = InvoiceFactory(
-            user=get_user_staff(),
-            invoice_date=date.today(),
-            contact=self.farm,
-        )
+        invoice = InvoiceFactory()
         self.assertEqual(1, invoice.get_next_line_number())
 
     def test_get_next_line_number(self):
         """get the number for the next invoice line"""
-        invoice = InvoiceFactory(
-            user=get_user_staff(),
-            invoice_date=date.today(),
-            contact=self.farm,
-        )
-        InvoiceLineFactory(
-            invoice=invoice,
-            line_number=2,
-            quantity=Decimal('1.3'),
-            units='hours',
-            price=Decimal('300.00'),
-            vat_rate=Decimal('0.20'),
-        )
+        invoice = InvoiceFactory()
+        InvoiceLineFactory(invoice=invoice, line_number=1)
+        InvoiceLineFactory(invoice=invoice, line_number=2)
         self.assertEqual(3, invoice.get_next_line_number())
+
+    def test_get_next_line_number_fill_gap(self):
+        """get the number for the next invoice line"""
+        invoice = InvoiceFactory()
+        InvoiceLineFactory(invoice=invoice, line_number=1)
+        InvoiceLineFactory(invoice=invoice, line_number=2)
+        InvoiceLineFactory(invoice=invoice, line_number=4)
+        self.assertEqual(3, invoice.get_next_line_number())
+
+    def test_get_next_line_number_two_invoices(self):
+        """get the number for the next invoice line"""
+        invoice_1 = InvoiceFactory()
+        InvoiceLineFactory(invoice=invoice_1, line_number=1)
+        InvoiceLineFactory(invoice=invoice_1, line_number=2)
+        invoice_2 = InvoiceFactory()
+        InvoiceLineFactory(invoice=invoice_2, line_number=1)
+        self.assertEqual(3, invoice_1.get_next_line_number())
+        self.assertEqual(2, invoice_2.get_next_line_number())
 
     def test_has_lines(self):
         """does the invoice have any lines"""
