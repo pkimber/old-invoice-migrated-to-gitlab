@@ -21,6 +21,8 @@
         {% if not timerecord_list %}
           No time records for {{ contact.name }}
         {% else %}
+          {% include 'invoice/_contact_timerecord_menu.html' %}
+          {% include 'base/_paginate.html' %}
           <table class="pure-table pure-table-bordered">
             <thead>
               <tr>
@@ -67,18 +69,8 @@
               {% endfor %}
             </tbody>
           </table>
-          {% if user.is_staff %}
-            <div class="pure-menu pure-menu-open pure-menu-horizontal">
-              <ul>
-                <li>
-                  <a href="{% url "invoice.create.time" contact.slug %}">
-                    <i class="fa fa-gbp"></i>
-                    Draft invoice
-                  </a>
-                </li>
-              </ul>
-            </div>
-          {% endif %}
+          {% include 'base/_paginate.html' %}
+          {% include 'invoice/_contact_timerecord_menu.html' %}
         {% endif %}
       </div>
     </div>

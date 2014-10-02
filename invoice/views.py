@@ -109,6 +109,7 @@ class ContactInvoiceListView(
 class ContactTimeRecordListView(
         LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
 
+    paginate_by = 20
     template_name = 'invoice/contact_timerecord_list.html'
 
     def _get_contact(self):
@@ -405,7 +406,7 @@ class TimeRecordCreateView(
 
 class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
-        
+
     paginate_by = 20
 
     def get_queryset(self):
@@ -470,7 +471,7 @@ class TimeRecordUpdateView(
 
 class UserTimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
-        
+
     paginate_by = 20
 
     def get_queryset(self):
