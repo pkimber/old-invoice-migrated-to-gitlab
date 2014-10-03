@@ -67,7 +67,7 @@
           </td>
           <td>
             {% if line.description %}
-              {{ line.description }}
+              {{ line.description|linebreaksbr }}
             {% else %}
               Time
             {% endif %}
