@@ -52,7 +52,10 @@ from .service import (
     InvoiceCreate,
     InvoicePrint,
 )
-from .report import ReportInvoiceTimeAnalysis
+from .report import (
+    ReportInvoiceTimeAnalysis,
+    ReportInvoiceTimeAnalysisCSV,
+)
 
 
 @login_required
@@ -78,6 +81,19 @@ def report_invoice_time_analysis(request, pk):
         file_name
     )
     report = ReportInvoiceTimeAnalysis()
+    report.report(invoice, request.user, response)
+    return response
+
+@login_required
+def report_invoice_time_analysis_csv(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+    check_perm(request.user, invoice.contact)
+    response = HttpResponse(content_type='text/csv')
+    file_name = 'invoice_{}_time_analysis.csv'.format(invoice.pk)
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+        file_name
+    )
+    report = ReportInvoiceTimeAnalysisCSV()
     report.report(invoice, request.user, response)
     return response
 

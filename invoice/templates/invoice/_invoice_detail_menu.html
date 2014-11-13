@@ -35,7 +35,13 @@
       <li>
         <a href="{% url 'invoice.report.time.analysis' invoice.pk %}">
           <i class="fa fa-cloud-download"></i>
-          Time Analysis
+          Time Analysis PDF
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'invoice.report.time.analysis_csv' invoice.pk %}">
+          <i class="fa fa-cloud-download"></i>
+          Time Analysis CSV
         </a>
       </li>
       {% if invoice.can_set_to_draft %}

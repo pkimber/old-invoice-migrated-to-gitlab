@@ -118,3 +118,120 @@ class ReportInvoiceTimeAnalysis(MyReport):
             style=style,
         )
 
+
+import csv
+from django.utils import formats
+
+class ReportInvoiceTimeAnalysisCSV(MyReport):
+
+    def report(self, invoice, user, response):
+        self._is_valid(invoice, raise_exception=True)
+        csv_writer = csv.writer(response, dialect='excel')
+        rows = self._produce_csv_rows(invoice)
+        for row in rows:
+            csv_writer.writerow(row)
+
+    def _get_ticket_description(self, pk):
+        if pk:
+            ticket = Ticket.objects.get(pk=pk)
+            result = ticket.title
+        else:
+            result = ''
+        return result
+
+    def _is_valid(self, invoice, raise_exception=None):
+        result = []
+        if not invoice.has_lines:
+            result.append(
+                "Invoice {} has no lines - cannot create "
+                "CSV".format(invoice.invoice_number)
+            )
+        if invoice.is_draft:
+            result.append(
+                "Invoice {} is a draft invoice - cannot "
+                "create the report".format(invoice.invoice_number)
+            )
+        if result and raise_exception:
+            raise InvoiceError(
+                ', '.join(result)
+            )
+        else:
+            return result
+
+    def _produce_csv_rows(self, invoice):
+        """ Create rows for analysis csv """
+        rows = []
+
+        # invoice line header
+        rows.append([
+            'Invoice Number',
+            'Invoice Date',
+            'Client Number',
+            'Client Name',
+            "Client Address",
+            "Client Rate",
+            'User',
+            'Ticket No',
+            'Ticket Description',
+            'Start Date',
+            'End Date',
+            'Hours',
+            'Net',
+        ])
+
+        analysis = invoice.time_analysis()
+        for user, tickets in analysis.items():
+            total_net = Decimal()
+            total_quantity = Decimal()
+            for ticket_pk, totals in tickets.items():
+                start_date = ""
+                end_date = ""
+                ticket_title = ""
+
+                if ticket_pk:
+                    ticket = Ticket.objects.get(pk=ticket_pk)
+                    ticket_title = ticket.title
+                    for rec in ticket.timerecord_set.all():
+                        if start_date == "" or start_date > rec.date_started:
+                            start_date = rec.date_started
+                        if end_date == "" or end_date < rec.date_started:
+                            end_date = rec.date_started 
+                net = totals['net']
+                total_net = total_net + net
+                quantity = totals['quantity']
+                total_quantity = total_quantity + quantity
+
+                rows.append([
+                    invoice.invoice_number,
+                    invoice.invoice_date,
+                    invoice.contact.pk,
+                    invoice.contact.name,
+                    invoice.contact.address,
+                    invoice.contact.hourly_rate,
+                    user,
+                    ticket_pk,
+                    ticket_title,
+                    start_date,
+                    end_date,
+                    quantity,
+                    net,
+                ])
+            rows.append([
+                invoice.invoice_number,
+                invoice.invoice_date,
+                invoice.contact.pk,
+                invoice.contact.name,
+                invoice.contact.address,
+                invoice.contact.hourly_rate,
+                user,
+                None,
+                "Total",
+                None,
+                None,
+                total_quantity,
+                total_net,
+            ])
+
+        return rows
+
+

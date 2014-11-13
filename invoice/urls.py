@@ -22,6 +22,7 @@ from .views import (
     InvoiceTimeCreateView,
     InvoiceUpdateView,
     report_invoice_time_analysis,
+    report_invoice_time_analysis_csv,
     TicketTimeRecordListView,
     TimeRecordCreateView,
     TimeRecordListView,
@@ -83,6 +84,10 @@ urlpatterns = patterns(
     url(regex=r'^invoice/(?P<pk>\d+)/report/$',
         view=report_invoice_time_analysis,
         name='invoice.report.time.analysis'
+        ),
+    url(regex=r'^invoice/(?P<pk>\d+)/csv/$',
+        view=report_invoice_time_analysis_csv,
+        name='invoice.report.time.analysis_csv'
         ),
     url(regex=r'^invoice/(?P<pk>\d+)/set-to-draft/$',
         view=InvoiceSetToDraftUpdateView.as_view(),
