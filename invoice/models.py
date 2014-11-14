@@ -339,7 +339,7 @@ class TimeRecord(TimeStampedModel):
     date_started = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField(blank=True, null=True)
-    billable = models.BooleanField()
+    billable = models.BooleanField(default=False)
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
     objects = TimeRecordManager()
 
