@@ -12,6 +12,9 @@ from crm.models import Ticket
 
 from .pdf_utils import MyReport
 from .service import InvoiceError
+import csv
+from django.utils import formats
+
 
 
 class ReportInvoiceTimeAnalysis(MyReport):
@@ -65,6 +68,15 @@ class ReportInvoiceTimeAnalysis(MyReport):
         else:
             return result
 
+    def _format_time(self, user, time_in_hours):
+        if not user:
+            return "{}".format(time_in_hours)
+
+        seconds = int(float(time_in_hours * 3600) + 0.5)
+        hours = seconds // 3600
+        minutes = seconds % 3600 // 60
+        return "{:0>2}:{:0>2}:{:0>2}".format(hours, minutes, seconds % 60)
+
     def _table_lines(self, invoice):
         """ Create a table for the invoice lines """
         # invoice line header
@@ -80,26 +92,33 @@ class ReportInvoiceTimeAnalysis(MyReport):
             first_loop = True
             total_net = Decimal()
             total_quantity = Decimal()
+
             for ticket_pk, totals in tickets.items():
                 net = totals['net']
                 total_net = total_net + net
                 quantity = totals['quantity']
                 total_quantity = total_quantity + quantity
                 if first_loop:
-                    user_name = self._para(user)
+                    if user:
+                        user_name = self._para(user)
+                    else:
+                        user_name = "Miscellaneous"
+
                     first_loop = False
                 else:
                     user_name = ''
+
                 lines.append([
                     user_name,
                     self._para(self._get_ticket_description(ticket_pk)),
-                    quantity,
+                    self._format_time(user, quantity),
                     net,
                 ])
+
             lines.append([
                 None,
                 None,
-                self._bold(total_quantity),
+                self._bold(self._format_time(user, total_quantity)),
                 self._bold(total_net),
             ])
         # initial styles
@@ -109,7 +128,7 @@ class ReportInvoiceTimeAnalysis(MyReport):
             ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
         ]
         # column widths
-        column_widths = [100, 230, 50, 50]
+        column_widths = [95, 230, 55, 50]
         # draw the table
         return platypus.Table(
             data + lines,
@@ -118,9 +137,6 @@ class ReportInvoiceTimeAnalysis(MyReport):
             style=style,
         )
 
-
-import csv
-from django.utils import formats
 
 class ReportInvoiceTimeAnalysisCSV(MyReport):
 
@@ -168,7 +184,6 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
             'Invoice Date',
             'Client Number',
             'Client Name',
-            "Client Address",
             "Client Rate",
             'User',
             'Ticket No',
@@ -206,7 +221,6 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
                     invoice.invoice_date,
                     invoice.contact.pk,
                     invoice.contact.name,
-                    invoice.contact.address,
                     invoice.contact.hourly_rate,
                     user,
                     ticket_pk,
@@ -221,7 +235,6 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
                 invoice.invoice_date,
                 invoice.contact.pk,
                 invoice.contact.name,
-                invoice.contact.address,
                 invoice.contact.hourly_rate,
                 user,
                 None,

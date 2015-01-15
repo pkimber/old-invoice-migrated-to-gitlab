@@ -126,8 +126,21 @@ class Invoice(TimeStampedModel):
         qs = self.invoiceline_set.all()
         for line in qs:
             user_name = ''
+            quantity = line.quantity
             if line.has_time_record:
                 user_name = line.timerecord.user.username
+                # line.quantity does not have sufficient precision
+                tx = (datetime.combine(
+                        line.timerecord.date_started,
+                        line.timerecord.end_time
+                    )
+                    - datetime.combine(
+                        line.timerecord.date_started,
+                        line.timerecord.start_time
+                    )
+                )
+                quantity = Decimal((tx.seconds / 3600))
+
             if not user_name in result:
                 result[user_name] = {}
             tickets = result[user_name]
@@ -142,7 +155,7 @@ class Invoice(TimeStampedModel):
                 )
             totals = tickets[pk]
             totals['net'] = totals['net'] + line.net
-            totals['quantity'] = totals['quantity'] + line.quantity
+            totals['quantity'] = totals['quantity'] + quantity
         return result
 
     @property
