@@ -12,6 +12,7 @@ from reportlab.pdfgen import canvas
 
 
 class MyReport(object):
+    """Copy of this class in 'booking'.  Where can I put the shared code?"""
 
     def __init__(self):
         # Use the sample style sheet.
