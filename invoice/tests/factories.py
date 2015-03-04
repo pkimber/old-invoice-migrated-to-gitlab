@@ -73,6 +73,10 @@ class TimeRecordFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = TimeRecord
 
+    @factory.sequence
+    def title(n):
+        return "Time record {}".format(n)
+
     @factory.lazy_attribute
     def end_time(self):
         return self.start_time + relativedelta(hours=1)

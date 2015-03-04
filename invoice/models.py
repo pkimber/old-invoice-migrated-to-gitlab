@@ -360,17 +360,26 @@ class TimeRecord(TimeStampedModel):
         verbose_name_plural = 'Time records'
 
     def __str__(self):
-        return "{}: {}: {}: {}".format(
+        return "Ticket {}, {}: {} from {} to {}".format(
+            self.ticket.pk,
             self.title,
             self.date_started,
-            self.start_time,
-            self.end_time
+            self.start_time.strftime('%H:%M:%S') if self.start_time else '',
+            self.end_time.strftime('%H:%M:%S') if self.end_time else '',
         )
 
     def clean(self):
         if (self.start_time and self.end_time
                 and self.start_time >= self.end_time):
             raise ValidationError('End time must be after the start time')
+
+    def can_invoice(self):
+        """Check the time record is set-up correctly for invoicing."""
+        if self.date_started and self.start_time and self.end_time:
+            result = True
+        else:
+            result = False
+        return result
 
     @property
     def deleted(self):
@@ -387,7 +396,10 @@ class TimeRecord(TimeStampedModel):
             return ''
 
     def get_absolute_url(self):
-        return reverse('invoice.time.ticket.list', args=[self.ticket.pk])
+        return reverse(
+            'invoice.time.ticket.list',
+            kwargs={'pk': self.ticket.pk}
+        )
 
     def get_summary_description(self):
         return filter(None, (

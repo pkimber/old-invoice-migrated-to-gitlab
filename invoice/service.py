@@ -50,9 +50,9 @@ class InvoiceCreate(object):
 
     def create(self, user, contact, iteration_end):
         """ Create invoices from time records """
-        self.is_valid(contact, raise_exception=True)
         invoice = None
         time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
+        self.is_valid(contact, time_records, raise_exception=True)
         with transaction.atomic():
             if time_records.count():
                 invoice = Invoice(
@@ -74,16 +74,16 @@ class InvoiceCreate(object):
             raise InvoiceError(
                 "Time records can only be added to a draft invoice."
             )
-        self.is_valid(invoice.contact, raise_exception=True)
+        time_records = TimeRecord.objects.to_invoice(
+            invoice.contact,
+            iteration_end,
+        )
+        self.is_valid(invoice.contact, time_records, raise_exception=True)
         with transaction.atomic():
-            self._add_time_records(
-                user,
-                invoice,
-                TimeRecord.objects.to_invoice(invoice.contact, iteration_end)
-            )
+            self._add_time_records(user, invoice, time_records)
         return invoice
 
-    def is_valid(self, contact, raise_exception=None):
+    def is_valid(self, contact, time_records, raise_exception=None):
         result = []
         try:
             InvoiceSettings.objects.get()
@@ -96,6 +96,13 @@ class InvoiceCreate(object):
                 "Cannot create invoice - no hourly rate for "
                 "'{}' ('{}')".format(contact.name, contact.slug)
             )
+        for tr in time_records:
+            if not tr.can_invoice():
+                result.append(
+                    "Cannot create invoice.  Time record '{}' does "
+                    "not have a start date/time or end time.".format(tr)
+                )
+                break
         if result and raise_exception:
             raise InvoiceError(
                 ', '.join(result)
