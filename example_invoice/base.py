@@ -115,9 +115,10 @@ INSTALLED_APPS = (
     'reversion',
     'base',
     'crm',
-    'invoice',
     'example',
+    'invoice',
     'login',
+    'mail',
 )
 
 # A sample logging configuration. The only tangible logging

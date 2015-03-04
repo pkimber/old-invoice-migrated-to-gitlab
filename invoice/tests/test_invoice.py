@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
 """
 Test invoice.
 """
@@ -13,9 +11,7 @@ from crm.tests.scenario import (
     default_scenario_crm,
     get_contact_farm,
 )
-from invoice.service import (
-    InvoicePrint,
-)
+from invoice.service import InvoicePrint
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
