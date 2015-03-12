@@ -31,7 +31,7 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.1.15',
+    version='0.1.16',
     description='invoice',
     author='Patrick Kimber',
     author_email='code@pkimber.net',
