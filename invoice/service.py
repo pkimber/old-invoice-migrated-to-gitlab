@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
 import io
 
 from datetime import date
@@ -48,42 +46,7 @@ class InvoiceCreate(object):
             tr.invoice_line = invoice_line
             tr.save()
 
-    def create(self, user, contact, iteration_end):
-        """ Create invoices from time records """
-        invoice = None
-        time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
-        self.is_valid(contact, time_records, raise_exception=True)
-        with transaction.atomic():
-            if time_records.count():
-                invoice = Invoice(
-                    invoice_date=date.today(),
-                    contact=contact,
-                    user=user,
-                )
-                invoice.save()
-            self._add_time_records(user, invoice, time_records)
-        return invoice
-
-    def draft(self, contact, iteration_end):
-        """Return a queryset with time records selected to invoice"""
-        return TimeRecord.objects.to_invoice(contact, iteration_end)
-
-    def refresh(self, user, invoice, iteration_end):
-        """Add invoice lines to a previously created (draft) invoice."""
-        if not invoice.is_draft:
-            raise InvoiceError(
-                "Time records can only be added to a draft invoice."
-            )
-        time_records = TimeRecord.objects.to_invoice(
-            invoice.contact,
-            iteration_end,
-        )
-        self.is_valid(invoice.contact, time_records, raise_exception=True)
-        with transaction.atomic():
-            self._add_time_records(user, invoice, time_records)
-        return invoice
-
-    def is_valid(self, contact, time_records, raise_exception=None):
+    def _is_valid(self, contact, time_records, raise_exception=None):
         result = []
         try:
             InvoiceSettings.objects.get()
@@ -117,6 +80,46 @@ class InvoiceCreate(object):
             raise InvoiceError(
                 "invoice print settings have not been set-up in admin"
             )
+
+    def create(self, user, contact, iteration_end):
+        """ Create invoices from time records """
+        invoice = None
+        time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
+        self._is_valid(contact, time_records, raise_exception=True)
+        with transaction.atomic():
+            if time_records.count():
+                invoice = Invoice(
+                    invoice_date=date.today(),
+                    contact=contact,
+                    user=user,
+                )
+                invoice.save()
+            self._add_time_records(user, invoice, time_records)
+        return invoice
+
+    def draft(self, contact, iteration_end):
+        """Return a queryset with time records selected to invoice"""
+        return TimeRecord.objects.to_invoice(contact, iteration_end)
+
+    def is_valid(self, contact, raise_exception=None):
+        iteration_end = date.today()
+        time_records = TimeRecord.objects.to_invoice(contact, iteration_end)
+        return self._is_valid(contact, time_records, raise_exception)
+
+    def refresh(self, user, invoice, iteration_end):
+        """Add invoice lines to a previously created (draft) invoice."""
+        if not invoice.is_draft:
+            raise InvoiceError(
+                "Time records can only be added to a draft invoice."
+            )
+        time_records = TimeRecord.objects.to_invoice(
+            invoice.contact,
+            iteration_end,
+        )
+        self._is_valid(invoice.contact, time_records, raise_exception=True)
+        with transaction.atomic():
+            self._add_time_records(user, invoice, time_records)
+        return invoice
 
 
 class InvoiceCreateBatch(object):
