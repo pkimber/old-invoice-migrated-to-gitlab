@@ -199,18 +199,11 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
             total_net = Decimal()
             total_quantity = Decimal()
             for ticket_pk, totals in tickets.items():
-                start_date = ""
-                end_date = ""
                 ticket_title = ""
 
                 if ticket_pk:
                     ticket = Ticket.objects.get(pk=ticket_pk)
                     ticket_title = ticket.title
-                    for rec in ticket.timerecord_set.all():
-                        if start_date == "" or start_date > rec.date_started:
-                            start_date = rec.date_started
-                        if end_date == "" or end_date < rec.date_started:
-                            end_date = rec.date_started 
                 net = totals['net']
                 total_net = total_net + net
                 quantity = totals['quantity']
@@ -225,8 +218,8 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
                     user,
                     ticket_pk,
                     ticket_title,
-                    start_date,
-                    end_date,
+                    totals['start_date'],
+                    totals['end_date'],
                     quantity,
                     net,
                 ])

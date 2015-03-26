@@ -144,14 +144,26 @@ class Invoice(TimeStampedModel):
             tickets = result[user_name]
             if line.has_time_record:
                 pk = line.timerecord.ticket.pk
+                start_date = line.timerecord.date_started
+                end_date = line.timerecord.date_started
             else:
                 pk = 0
+                start_date = line.created
+                end_date = line.created
             if not pk in tickets:
                 tickets[pk] = dict(
+                    start_date=start_date,
+                    end_date=end_date,
                     quantity=Decimal(),
                     net=Decimal(),
                 )
             totals = tickets[pk]
+            if totals['start_date'] > start_date:
+                totals['start_date'] = start_date
+
+            if totals['end_date'] < end_date:
+                totals['end_date'] = end_date
+
             totals['net'] = totals['net'] + line.net
             totals['quantity'] = totals['quantity'] + quantity
         return result
