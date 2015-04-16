@@ -12,6 +12,17 @@ class Command(BaseCommand):
     help = "Export ticket time to a CSV file"
 
     def handle(self, *args, **options):
+        """Export ticket time to a CSV file.
+
+        Columns:
+
+        - ticket number
+        - user name
+        - billable - True or False
+        - date started
+        - minutes
+
+        """
         tickets = (
             732,
             746,
