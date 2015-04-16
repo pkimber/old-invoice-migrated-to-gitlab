@@ -355,6 +355,7 @@ class TimeRecordManager(models.Manager):
 
 class TimeRecord(TimeStampedModel):
     """Simple time recording"""
+
     ticket = models.ForeignKey(Ticket)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     title = models.CharField(max_length=100)

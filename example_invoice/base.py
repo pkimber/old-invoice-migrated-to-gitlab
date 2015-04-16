@@ -91,7 +91,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'example_invoice.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'example.wsgi.application'
+WSGI_APPLICATION = 'example_invoice.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -113,7 +113,7 @@ INSTALLED_APPS = (
     'reversion',
     'base',
     'crm',
-    'example',
+    'example_invoice',
     'invoice',
     'login',
     'mail',
