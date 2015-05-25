@@ -7,7 +7,7 @@ from login.tests.factories import (
     TEST_PASSWORD,
     UserFactory,
 )
-
+from .factories import InvoiceSettingsFactory
 
 class TestViewInvoice(TestCase):
 
@@ -18,6 +18,7 @@ class TestViewInvoice(TestCase):
       )
 
     def test_post(self):
+        InvoiceSettingsFactory()
         contact = ContactFactory()
         url = reverse('invoice.create.draft', kwargs={'slug': contact.slug})
         response = self.client.post(url)

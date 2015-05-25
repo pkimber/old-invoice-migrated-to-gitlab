@@ -27,6 +27,15 @@ from crm.models import (
 )
 
 
+def default_vat_code():
+    return VatCode.objects.get(slug=VatCode.STANDARD).pk
+
+
+def legacy_vat_code():
+    """For records which were created before we introduced VAT codes."""
+    return VatCode.objects.get(slug=VatCode.LEGACY).pk
+
+
 class InvoiceError(Exception):
 
     def __init__(self, value):
@@ -58,6 +67,7 @@ class Invoice(TimeStampedModel):
     - total charge made, excluding VAT;
     - rate of any cash discount offered; and
     - total amount of VAT charged, shown in sterling.
+
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
@@ -242,11 +252,47 @@ class Invoice(TimeStampedModel):
 reversion.register(Invoice)
 
 
+class VatCode(TimeStampedModel):
+    """VAT code and rates.
+
+    https://www.gov.uk/rates-of-vat-on-different-goods-and-services
+
+    VAT rates for goods and services
+    Rate            % of VAT    What the rate applies to
+    Standard        20%         Most goods and services
+    Reduced rate    5%          Some goods and services, eg home energy
+    Zero rate       0%          Zero-rated goods and services, eg most food
+
+    https://www.gov.uk/rates-of-vat-on-different-goods-and-services
+
+    No VAT is charged on goods or services that are:
+    - exempt from VAT
+    - outside the scope of the UK VAT system
+
+    """
+
+    LEGACY  = 'L'
+    STANDARD  = 'S'
+
+    slug = models.SlugField(max_length=10)
+    description = models.CharField(max_length=100)
+    rate = models.DecimalField(max_digits=5, decimal_places=3)
+    deleted = models.BooleanField(default=False)
+
+reversion.register(VatCode)
+
+
 class InvoiceSettings(SingletonModel):
-    vat_rate = models.DecimalField(
-        max_digits=8, decimal_places=2,
-        help_text="e.g. 0.175 to charge VAT at 17.5 percent",
+
+    vat_standard = models.ForeignKey(
+        VatCode,
+        default=default_vat_code,
+        related_name='+'
     )
+    #vat_rate = models.DecimalField(
+    #    max_digits=8, decimal_places=2,
+    #    help_text="e.g. 0.175 to charge VAT at 17.5 percent",
+    #)
     vat_number = models.CharField(max_length=12, blank=True)
     name_and_address = models.TextField()
     phone_number = models.CharField(max_length=100)
@@ -279,7 +325,16 @@ class InvoiceLine(TimeStampedModel):
     units = models.CharField(max_length=5)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     net = models.DecimalField(max_digits=8, decimal_places=2)
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=3)
+    vat_code = models.ForeignKey(
+        VatCode,
+        #default=legacy_vat_code,
+        related_name='+'
+    )
+    vat_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=3,
+        help_text='VAT rate when the line was saved.',
+    )
     vat = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
@@ -304,6 +359,7 @@ class InvoiceLine(TimeStampedModel):
         return reverse('invoice.detail', args=[self.invoice.pk])
 
     def save(self, *args, **kwargs):
+        self.vat_rate = self.vat_code.rate
         self.net = self.price * self.quantity
         self.vat = self.price * self.quantity * self.vat_rate
         # Call the "real" save() method.

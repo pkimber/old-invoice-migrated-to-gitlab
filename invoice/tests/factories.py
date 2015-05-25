@@ -19,6 +19,7 @@ from invoice.models import (
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
+    VatCode,
 )
 
 
@@ -37,10 +38,10 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = InvoiceLine
 
+    invoice = factory.SubFactory(InvoiceFactory)
     price = 0
     quantity = 1
     units = 'each'
-    vat_rate = 20
 
     @factory.sequence
     def description(n):
@@ -54,13 +55,19 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
     def user(self):
         return self.invoice.user
 
+    @factory.lazy_attribute
+    def vat_code(self):
+        return VatCode.objects.get(slug=VatCode.STANDARD)
+
 
 class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = InvoiceSettings
 
-    vat_rate = Decimal('20')
+    @factory.lazy_attribute
+    def vat_standard(self):
+        return VatCode.objects.get(slug=VatCode.STANDARD)
 
 
 class TimeRecordFactory(factory.django.DjangoModelFactory):

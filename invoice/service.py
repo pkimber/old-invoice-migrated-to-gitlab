@@ -25,12 +25,21 @@ from .pdf_utils import (
 )
 
 
+def get_invoice_settings():
+    try:
+        return InvoiceSettings.objects.get()
+    except InvoiceSettings.DoesNotExist:
+        raise InvoiceError(
+            "invoice settings have not been set-up in admin"
+        )
+
+
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
     def _add_time_records(self, user, invoice, time_records):
         """Add time records to a draft invoice."""
-        print_settings = self._get_print_settings()
+        invoice_settings = get_invoice_settings()
         for tr in time_records:
             invoice_line = InvoiceLine(
                 user=user,
@@ -39,7 +48,7 @@ class InvoiceCreate(object):
                 quantity=tr.invoice_quantity,
                 price=invoice.contact.hourly_rate,
                 units='hours',
-                vat_rate=print_settings.vat_rate
+                vat_code=invoice_settings.vat_standard,
             )
             invoice_line.save()
             # link time record to invoice line
@@ -48,17 +57,14 @@ class InvoiceCreate(object):
 
     def _is_valid(self, contact, time_records, raise_exception=None):
         result = []
-        try:
-            InvoiceSettings.objects.get()
-        except InvoiceSettings.DoesNotExist:
-            result.append(
-                'Invoice print settings have not been set-up in admin'
-            )
+        get_invoice_settings()
         if not contact.hourly_rate:
             result.append(
                 "Cannot create invoice - no hourly rate for "
                 "'{}' ('{}')".format(contact.name, contact.slug)
             )
+        #if not time_records.count():
+        #    result.append("Cannot create invoice.  There are no time records.")
         for tr in time_records:
             if not tr.can_invoice():
                 result.append(
@@ -72,14 +78,6 @@ class InvoiceCreate(object):
             )
         else:
             return result
-
-    def _get_print_settings(self):
-        try:
-            return InvoiceSettings.objects.get()
-        except InvoiceSettings.DoesNotExist:
-            raise InvoiceError(
-                "invoice print settings have not been set-up in admin"
-            )
 
     def create(self, user, contact, iteration_end):
         """ Create invoices from time records """
@@ -149,14 +147,6 @@ class InvoicePrint(MyReport):
             )
         return style
 
-    def _get_print_settings(self):
-        try:
-            return InvoiceSettings.objects.get()
-        except InvoiceSettings.DoesNotExist:
-            raise InvoiceError(
-                "invoice print settings have not been set-up in admin"
-            )
-
     def create_pdf(self, invoice, header_image):
         self.is_valid(invoice, raise_exception=True)
         # Create the document template
@@ -166,16 +156,16 @@ class InvoicePrint(MyReport):
             title=invoice.description,
             pagesize=A4
         )
-        print_settings = self._get_print_settings()
+        invoice_settings = get_invoice_settings()
         # Container for the 'Flowable' objects
         elements = []
         elements.append(
-            self._table_header(invoice, print_settings, header_image)
+            self._table_header(invoice, invoice_settings, header_image)
         )
         elements.append(platypus.Spacer(1, 12))
         elements.append(self._table_lines(invoice))
         elements.append(self._table_totals(invoice))
-        for text in self._text_footer(print_settings.footer):
+        for text in self._text_footer(invoice_settings.footer):
             elements.append(self._para(text))
         # write the document to disk
         doc.build(elements, canvasmaker=NumberedCanvas)
@@ -244,33 +234,29 @@ class InvoicePrint(MyReport):
             ]
         )
 
-    def _table_header(self, invoice, print_settings, header_image):
+    def _table_header(self, invoice, invoice_settings, header_image):
         """
         Create a table for the top section of the invoice (before the project
         description and invoice detail)
         """
         left = []
         right = []
-
         # left hand content
         left.append(self._para(self._text_invoice_address(invoice)))
         left.append(platypus.Spacer(1, 12))
         left.append(self._table_invoice_detail(invoice))
-
         # right hand content
         if header_image:
             right.append(self._image(header_image))
         right.append(self._para(
-            self._text_our_address(print_settings.name_and_address)
+            self._text_our_address(invoice_settings.name_and_address)
         ))
-        right.append(self._bold(print_settings.phone_number))
-        if print_settings.vat_number:
+        right.append(self._bold(invoice_settings.phone_number))
+        if invoice_settings.vat_number:
             right.append(self._para(
-                self._text_our_vat_number(print_settings.vat_number)
+                self._text_our_vat_number(invoice_settings.vat_number)
             ))
-
         heading = [platypus.Paragraph(invoice.description, self.head_1)]
-
         # If the invoice has a logo, then the layout is different
         if header_image:
             data = [
