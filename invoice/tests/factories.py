@@ -2,7 +2,6 @@
 import factory
 
 from datetime import date
-from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 

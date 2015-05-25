@@ -4,39 +4,19 @@ from datetime import date
 from django.test import TestCase
 
 from invoice.models import Invoice
-from invoice.service import (
-    InvoiceCreateBatch,
-)
+from invoice.service import InvoiceCreateBatch
 from crm.tests.factories import (
     ContactFactory,
     TicketFactory,
 )
-from crm.tests.scenario import (
-    default_scenario_crm,
-    get_contact_farm,
-)
 from invoice.tests.factories import (
-    InvoiceFactory,
-    InvoiceLineFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
 )
-#from invoice.tests.scenario import default_scenario_invoice
 from login.tests.factories import UserFactory
-from login.tests.scenario import (
-    default_scenario_login,
-    get_user_staff,
-    user_contractor,
-)
 
 
 class TestInvoiceCreateBatch(TestCase):
-
-    #def setUp(self):
-    #    user_contractor()
-    #    default_scenario_login()
-    #    default_scenario_crm()
-    #    default_scenario_invoice()
 
     def test_create_invoices(self):
         """Create an invoice"""
@@ -76,8 +56,6 @@ class TestInvoiceCreateBatch(TestCase):
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2012, 7, 1))
-        #TimeRecordFactory(ticket=ticket, date_started=date(2012, 8, 1))
-        #TimeRecordFactory(ticket=ticket)
         user = UserFactory()
         InvoiceCreateBatch().create(user, date(2012, 9, 30))
         self.assertEquals(

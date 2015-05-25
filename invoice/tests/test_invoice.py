@@ -2,16 +2,10 @@
 """
 Test invoice.
 """
-from datetime import date
 from decimal import Decimal
 
 from django.test import TestCase
 
-from crm.tests.factories import ContactFactory
-from crm.tests.scenario import (
-    default_scenario_crm,
-    get_contact_farm,
-)
 from invoice.models import InvoiceLine
 from invoice.service import InvoicePrint
 from invoice.tests.factories import (
@@ -19,18 +13,6 @@ from invoice.tests.factories import (
     InvoiceLineFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
-)
-#from invoice.tests.scenario import (
-#    default_scenario_invoice,
-#    get_invoice_line_paperwork_has_time,
-#    get_invoice_line_paperwork_no_time,
-#    get_invoice_paperwork,
-#)
-from login.tests.factories import UserFactory
-from login.tests.scenario import (
-    default_scenario_login,
-    get_user_staff,
-    user_contractor,
 )
 
 
@@ -51,14 +33,12 @@ class TestInvoice(TestCase):
             quantity=Decimal('1.3'),
             units='hours',
             price=Decimal('300.00'),
-            #vat_rate=Decimal('0.20')
         )
         line = InvoiceLineFactory(
             invoice=invoice,
             quantity=Decimal('2.4'),
             units='hours',
             price=Decimal('200.23'),
-            #vat_rate=Decimal('0.20'),
         )
         self.assertGreater(invoice.pk, 0)
         self.assertEqual(Decimal('870.55'), invoice.net)
@@ -107,7 +87,6 @@ class TestInvoice(TestCase):
             quantity=Decimal('1.3'),
             units='hours',
             price=Decimal('300.00'),
-            #vat_rate=Decimal('0.20'),
         )
         self.assertTrue(invoice.has_lines)
 
@@ -120,19 +99,16 @@ class TestInvoice(TestCase):
         self.assertTrue(line.user_can_edit)
 
     def test_user_can_edit_has_time(self):
-        #line = get_invoice_line_paperwork_has_time()
         line = InvoiceLineFactory()
-        time_record = TimeRecordFactory(invoice_line=line)
+        TimeRecordFactory(invoice_line=line)
         self.assertFalse(line.user_can_edit)
 
     def test_user_can_edit_invoice(self):
         InvoiceSettingsFactory()
         invoice = InvoiceFactory()
         line = InvoiceLineFactory(invoice=invoice)
-        time_record = TimeRecordFactory(invoice_line=line)
-        #invoice = get_invoice_paperwork()
+        TimeRecordFactory(invoice_line=line)
         InvoicePrint().create_pdf(invoice, None)
-        #line = get_invoice_line_paperwork_no_time()
         # refresh
         line = InvoiceLine.objects.get(pk=line.pk)
         self.assertFalse(line.user_can_edit)

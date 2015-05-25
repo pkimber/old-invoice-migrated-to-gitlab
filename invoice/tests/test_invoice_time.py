@@ -29,7 +29,7 @@ class TestInvoice(TestCase):
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
-        tr2 = TimeRecordFactory(ticket=ticket)
+        TimeRecordFactory(ticket=ticket)
         invoice = InvoiceCreate().create(
             tr1.user, contact, date.today()
         )
@@ -43,8 +43,8 @@ class TestInvoice(TestCase):
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
-        tr2 = TimeRecordFactory(ticket=ticket, end_time=None)
-        tr3 = TimeRecordFactory(ticket=ticket)
+        TimeRecordFactory(ticket=ticket, end_time=None)
+        TimeRecordFactory(ticket=ticket)
         with self.assertRaises(InvoiceError) as ex:
             InvoiceCreate().create(tr1.user, contact, date.today())
         message = str(ex.exception)

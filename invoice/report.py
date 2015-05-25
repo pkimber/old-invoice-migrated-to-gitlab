@@ -1,19 +1,18 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
+import csv
 
-from datetime import datetime
 from decimal import Decimal
 
 from reportlab import platypus
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 
+from django.utils import timezone
+
 from crm.models import Ticket
 
 from .pdf_utils import MyReport
 from .service import InvoiceError
-import csv
-from django.utils import formats
 
 
 
@@ -37,7 +36,7 @@ class ReportInvoiceTimeAnalysis(MyReport):
         elements.append(platypus.Spacer(1, 12))
         elements.append(self._table_lines(invoice))
         elements.append(self._para(
-            'Printed {} by {}'.format(datetime.today(), user.username)
+            'Printed {} by {}'.format(timezone.now(), user.username)
         ))
         doc.build(elements)
 
