@@ -5,15 +5,16 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from .factories import (
-    InvoiceFactory,
-    InvoiceLineFactory,
-    InvoiceSettingsFactory,
-)
+from finance.tests.factories import VatSettingsFactory
 from invoice.models import InvoiceError
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
+)
+from .factories import (
+    InvoiceFactory,
+    InvoiceLineFactory,
+    InvoiceSettingsFactory,
 )
 
 
@@ -21,6 +22,7 @@ class TestCreditNote(TestCase):
 
     def _credit_note(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         credit_note = InvoiceFactory()
         credit_note.full_clean()
         line = InvoiceLineFactory(

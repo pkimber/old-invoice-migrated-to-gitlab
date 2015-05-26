@@ -12,13 +12,15 @@ from crm.tests.factories import (
     TicketFactory,
 )
 from login.tests.factories import UserFactory
-
+from finance.models import (
+    VatCode,
+    VatSettings,
+)
 from invoice.models import (
     Invoice,
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
-    VatCode,
 )
 
 
@@ -63,10 +65,6 @@ class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = InvoiceSettings
-
-    @factory.lazy_attribute
-    def vat_standard(self):
-        return VatCode.objects.get(slug=VatCode.STANDARD)
 
 
 class TimeRecordFactory(factory.django.DjangoModelFactory):

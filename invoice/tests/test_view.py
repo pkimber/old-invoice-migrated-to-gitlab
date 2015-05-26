@@ -9,6 +9,7 @@ from crm.tests.factories import (
     ContactFactory,
     TicketFactory,
 )
+from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
@@ -26,6 +27,7 @@ class TestView(PermTestCase):
 
     def setUp(self):
         self.setup_users()
+        VatSettingsFactory()
 
     def test_contact_invoice_list(self):
         contact = ContactFactory()

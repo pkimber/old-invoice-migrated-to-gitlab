@@ -25,15 +25,10 @@ from crm.models import (
     Contact,
     Ticket,
 )
-
-
-def default_vat_code():
-    return VatCode.objects.get(slug=VatCode.STANDARD).pk
-
-
-def legacy_vat_code():
-    """For records which were created before we introduced VAT codes."""
-    return VatCode.objects.get(slug=VatCode.LEGACY).pk
+from finance.models import (
+    legacy_vat_code,
+    VatCode,
+)
 
 
 class InvoiceError(Exception):
@@ -148,7 +143,6 @@ class Invoice(TimeStampedModel):
                     )
                 )
                 quantity = Decimal((tx.seconds / 3600))
-
             if not user_name in result:
                 result[user_name] = {}
             tickets = result[user_name]
@@ -170,10 +164,8 @@ class Invoice(TimeStampedModel):
             totals = tickets[pk]
             if totals['start_date'] > start_date:
                 totals['start_date'] = start_date
-
             if totals['end_date'] < end_date:
                 totals['end_date'] = end_date
-
             totals['net'] = totals['net'] + line.net
             totals['quantity'] = totals['quantity'] + quantity
         return result
@@ -252,51 +244,23 @@ class Invoice(TimeStampedModel):
 reversion.register(Invoice)
 
 
-class VatCode(TimeStampedModel):
-    """VAT code and rates.
+class InvoiceSettingsManager(models.Manager):
 
-    https://www.gov.uk/rates-of-vat-on-different-goods-and-services
-
-    VAT rates for goods and services
-    Rate            % of VAT    What the rate applies to
-    Standard        20%         Most goods and services
-    Reduced rate    5%          Some goods and services, eg home energy
-    Zero rate       0%          Zero-rated goods and services, eg most food
-
-    https://www.gov.uk/rates-of-vat-on-different-goods-and-services
-
-    No VAT is charged on goods or services that are:
-    - exempt from VAT
-    - outside the scope of the UK VAT system
-
-    """
-
-    LEGACY  = 'L'
-    STANDARD  = 'S'
-
-    slug = models.SlugField(max_length=10)
-    description = models.CharField(max_length=100)
-    rate = models.DecimalField(max_digits=5, decimal_places=3)
-    deleted = models.BooleanField(default=False)
-
-reversion.register(VatCode)
+    def settings(self):
+        try:
+            return self.model.objects.get()
+        except self.model.DoesNotExist:
+            raise InvoiceError(
+                "Invoice settings have not been set-up in admin"
+            )
 
 
 class InvoiceSettings(SingletonModel):
 
-    vat_standard = models.ForeignKey(
-        VatCode,
-        default=default_vat_code,
-        related_name='+'
-    )
-    #vat_rate = models.DecimalField(
-    #    max_digits=8, decimal_places=2,
-    #    help_text="e.g. 0.175 to charge VAT at 17.5 percent",
-    #)
-    vat_number = models.CharField(max_length=12, blank=True)
     name_and_address = models.TextField()
     phone_number = models.CharField(max_length=100)
     footer = models.TextField()
+    objects = InvoiceSettingsManager()
 
     class Meta:
         verbose_name = 'Invoice print settings'

@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from django.test import TestCase
 
+from finance.tests.factories import VatSettingsFactory
 from invoice.models import InvoiceLine
 from invoice.service import InvoicePrint
 from invoice.tests.factories import (
@@ -27,6 +28,7 @@ class TestInvoice(TestCase):
 
     def test_create_with_lines(self):
         """ Create a simple invoice with lines """
+        VatSettingsFactory()
         invoice = InvoiceFactory()
         line = InvoiceLineFactory(
             invoice=invoice,
@@ -105,6 +107,7 @@ class TestInvoice(TestCase):
 
     def test_user_can_edit_invoice(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         invoice = InvoiceFactory()
         line = InvoiceLineFactory(invoice=invoice)
         TimeRecordFactory(invoice_line=line)

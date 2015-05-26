@@ -12,6 +12,7 @@ from crm.tests.factories import (
     ContactFactory,
     TicketFactory,
 )
+from finance.tests.factories import VatSettingsFactory
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -25,6 +26,7 @@ class TestInvoicePrint(TestCase):
 
     def test_invoice_create_pdf(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
@@ -48,6 +50,7 @@ class TestInvoicePrint(TestCase):
     def test_invoice_create_pdf_not_draft(self):
         """Cannot create a PDF if the invoice has already been printed"""
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         invoice = InvoiceFactory()
         InvoiceLineFactory(invoice=invoice)
         InvoicePrint().create_pdf(invoice, None)

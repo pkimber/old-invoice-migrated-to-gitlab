@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab import platypus
 
 from crm.models import Contact
+from finance.models import VatSettings
 from .models import (
     Invoice,
     InvoiceError,
@@ -25,21 +26,12 @@ from .pdf_utils import (
 )
 
 
-def get_invoice_settings():
-    try:
-        return InvoiceSettings.objects.get()
-    except InvoiceSettings.DoesNotExist:
-        raise InvoiceError(
-            "invoice settings have not been set-up in admin"
-        )
-
-
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
     def _add_time_records(self, user, invoice, time_records):
         """Add time records to a draft invoice."""
-        invoice_settings = get_invoice_settings()
+        vat_settings = VatSettings.objects.settings()
         for tr in time_records:
             invoice_line = InvoiceLine(
                 user=user,
@@ -48,7 +40,7 @@ class InvoiceCreate(object):
                 quantity=tr.invoice_quantity,
                 price=invoice.contact.hourly_rate,
                 units='hours',
-                vat_code=invoice_settings.vat_standard,
+                vat_code=vat_settings.standard_vat_code,
             )
             invoice_line.save()
             # link time record to invoice line
@@ -57,7 +49,10 @@ class InvoiceCreate(object):
 
     def _is_valid(self, contact, time_records, raise_exception=None):
         result = []
-        get_invoice_settings()
+        # check the invoice settings are set-up
+        InvoiceSettings.objects.settings()
+        # check the VAT settings are set-up
+        VatSettings.objects.settings()
         if not contact.hourly_rate:
             result.append(
                 "Cannot create invoice - no hourly rate for "
@@ -156,11 +151,17 @@ class InvoicePrint(MyReport):
             title=invoice.description,
             pagesize=A4
         )
-        invoice_settings = get_invoice_settings()
+        invoice_settings = InvoiceSettings.objects.settings()
+        vat_settings = VatSettings.objects.settings()
         # Container for the 'Flowable' objects
         elements = []
         elements.append(
-            self._table_header(invoice, invoice_settings, header_image)
+            self._table_header(
+                invoice,
+                invoice_settings,
+                vat_settings,
+                header_image
+            )
         )
         elements.append(platypus.Spacer(1, 12))
         elements.append(self._table_lines(invoice))
@@ -234,7 +235,8 @@ class InvoicePrint(MyReport):
             ]
         )
 
-    def _table_header(self, invoice, invoice_settings, header_image):
+    def _table_header(
+            self, invoice, invoice_settings, vat_settings, header_image):
         """
         Create a table for the top section of the invoice (before the project
         description and invoice detail)
@@ -252,9 +254,9 @@ class InvoicePrint(MyReport):
             self._text_our_address(invoice_settings.name_and_address)
         ))
         right.append(self._bold(invoice_settings.phone_number))
-        if invoice_settings.vat_number:
+        if vat_settings.vat_number:
             right.append(self._para(
-                self._text_our_vat_number(invoice_settings.vat_number)
+                self._text_our_vat_number(vat_settings.vat_number)
             ))
         heading = [platypus.Paragraph(invoice.description, self.head_1)]
         # If the invoice has a logo, then the layout is different

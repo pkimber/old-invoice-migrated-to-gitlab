@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     'base',
     'crm',
     'example_invoice',
+    'finance',
     'invoice',
     'login',
     'mail',

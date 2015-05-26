@@ -4,6 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.test import TestCase
 
+from finance.tests.factories import VatSettingsFactory
 from invoice.models import InvoiceError
 from invoice.service import (
     InvoiceCreate,
@@ -19,6 +20,7 @@ class TestInvoiceCorrection(TestCase):
 
     def test_is_not_draft(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()
@@ -29,6 +31,7 @@ class TestInvoiceCorrection(TestCase):
 
     def test_set_is_draft(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()
@@ -42,6 +45,7 @@ class TestInvoiceCorrection(TestCase):
     def test_set_is_draft_too_late(self):
         """invoice can only be set back to draft on the day it is created."""
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         TimeRecordFactory(ticket = tr.ticket)
         invoice = InvoiceCreate().create(
@@ -58,6 +62,7 @@ class TestInvoiceCorrection(TestCase):
     def test_remove_time_lines(self):
         """Remove all lines (because they are all linked to time records)."""
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         TimeRecordFactory(ticket=tr.ticket)
         invoice = InvoiceCreate().create(
@@ -77,6 +82,7 @@ class TestInvoiceCorrection(TestCase):
 
         """
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         TimeRecordFactory(ticket=tr.ticket)
         invoice = InvoiceCreate().create(
@@ -96,6 +102,7 @@ class TestInvoiceCorrection(TestCase):
     def test_refresh(self):
         """Create a draft invoice, and then add more time records to it."""
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()
@@ -110,6 +117,7 @@ class TestInvoiceCorrection(TestCase):
     def test_refresh_draft_only(self):
         """Only draft invoices can be refreshed."""
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         tr = TimeRecordFactory()
         invoice = InvoiceCreate().create(
             tr.user, tr.ticket.contact, date.today()

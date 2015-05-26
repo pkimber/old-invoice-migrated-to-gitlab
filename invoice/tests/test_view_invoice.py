@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from crm.tests.factories import ContactFactory
+from finance.tests.factories import VatSettingsFactory
 from login.tests.factories import (
     TEST_PASSWORD,
     UserFactory,
@@ -19,6 +20,7 @@ class TestViewInvoice(TestCase):
 
     def test_post(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         contact = ContactFactory()
         url = reverse('invoice.create.draft', kwargs={'slug': contact.slug})
         response = self.client.post(url)

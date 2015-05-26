@@ -8,6 +8,7 @@ from crm.tests.factories import (
     ContactFactory,
     TicketFactory,
 )
+from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
@@ -44,6 +45,7 @@ class TestViewPerm(PermTestCase):
 
     def test_invoice_create_draft(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         contact = ContactFactory()
         url = reverse(
             'invoice.create.draft',
@@ -53,6 +55,7 @@ class TestViewPerm(PermTestCase):
 
     def test_invoice_create_time(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         contact = ContactFactory()
         url = reverse(
             'invoice.create.time',
@@ -66,6 +69,7 @@ class TestViewPerm(PermTestCase):
 
     def test_invoice_download(self):
         InvoiceSettingsFactory()
+        VatSettingsFactory()
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
