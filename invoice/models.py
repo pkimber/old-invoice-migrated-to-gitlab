@@ -25,6 +25,10 @@ from crm.models import (
     Contact,
     Ticket,
 )
+from finance.models import (
+    legacy_vat_code,
+    VatCode,
+)
 
 
 class InvoiceError(Exception):
@@ -58,6 +62,7 @@ class Invoice(TimeStampedModel):
     - total charge made, excluding VAT;
     - rate of any cash discount offered; and
     - total amount of VAT charged, shown in sterling.
+
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
@@ -138,7 +143,6 @@ class Invoice(TimeStampedModel):
                     )
                 )
                 quantity = Decimal((tx.seconds / 3600))
-
             if not user_name in result:
                 result[user_name] = {}
             tickets = result[user_name]
@@ -160,10 +164,8 @@ class Invoice(TimeStampedModel):
             totals = tickets[pk]
             if totals['start_date'] > start_date:
                 totals['start_date'] = start_date
-
             if totals['end_date'] < end_date:
                 totals['end_date'] = end_date
-
             totals['net'] = totals['net'] + line.net
             totals['quantity'] = totals['quantity'] + quantity
         return result
@@ -242,15 +244,23 @@ class Invoice(TimeStampedModel):
 reversion.register(Invoice)
 
 
+class InvoiceSettingsManager(models.Manager):
+
+    def settings(self):
+        try:
+            return self.model.objects.get()
+        except self.model.DoesNotExist:
+            raise InvoiceError(
+                "Invoice settings have not been set-up in admin"
+            )
+
+
 class InvoiceSettings(SingletonModel):
-    vat_rate = models.DecimalField(
-        max_digits=8, decimal_places=2,
-        help_text="e.g. 0.175 to charge VAT at 17.5 percent",
-    )
-    vat_number = models.CharField(max_length=12, blank=True)
+
     name_and_address = models.TextField()
     phone_number = models.CharField(max_length=100)
     footer = models.TextField()
+    objects = InvoiceSettingsManager()
 
     class Meta:
         verbose_name = 'Invoice print settings'
@@ -279,7 +289,16 @@ class InvoiceLine(TimeStampedModel):
     units = models.CharField(max_length=5)
     price = models.DecimalField(max_digits=8, decimal_places=2)
     net = models.DecimalField(max_digits=8, decimal_places=2)
-    vat_rate = models.DecimalField(max_digits=5, decimal_places=3)
+    vat_code = models.ForeignKey(
+        VatCode,
+        #default=legacy_vat_code,
+        related_name='+'
+    )
+    vat_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=3,
+        help_text='VAT rate when the line was saved.',
+    )
     vat = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
@@ -304,6 +323,7 @@ class InvoiceLine(TimeStampedModel):
         return reverse('invoice.detail', args=[self.invoice.pk])
 
     def save(self, *args, **kwargs):
+        self.vat_rate = self.vat_code.rate
         self.net = self.price * self.quantity
         self.vat = self.price * self.quantity * self.vat_rate
         # Call the "real" save() method.

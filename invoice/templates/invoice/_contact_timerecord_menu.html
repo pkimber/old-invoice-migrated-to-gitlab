@@ -1,8 +1,8 @@
 {% if user.is_staff %}
-  <div class="pure-menu pure-menu-open pure-menu-horizontal">
-    <ul>
-      <li>
-        <a href="{% url 'invoice.create.time' contact.slug %}">
+  <div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.create.time' contact.slug %}" class="pure-menu-link">
           <i class="fa fa-gbp"></i>
           Create draft invoice
         </a>

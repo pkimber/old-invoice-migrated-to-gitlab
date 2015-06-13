@@ -8,6 +8,7 @@ from crm.tests.factories import (
     ContactFactory,
     TicketFactory,
 )
+from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
     InvoiceError,
@@ -26,10 +27,11 @@ class TestInvoice(TestCase):
 
     def test_invoice_with_time_records(self):
         """Invoice time records."""
+        VatSettingsFactory()
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
-        tr2 = TimeRecordFactory(ticket=ticket)
+        TimeRecordFactory(ticket=ticket)
         invoice = InvoiceCreate().create(
             tr1.user, contact, date.today()
         )
@@ -40,11 +42,12 @@ class TestInvoice(TestCase):
 
     def test_invoice_with_time_records_no_end_time(self):
         """One of the time records has no end time, so cannot be invoiced."""
+        VatSettingsFactory()
         contact = ContactFactory()
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
-        tr2 = TimeRecordFactory(ticket=ticket, end_time=None)
-        tr3 = TimeRecordFactory(ticket=ticket)
+        TimeRecordFactory(ticket=ticket, end_time=None)
+        TimeRecordFactory(ticket=ticket)
         with self.assertRaises(InvoiceError) as ex:
             InvoiceCreate().create(tr1.user, contact, date.today())
         message = str(ex.exception)
