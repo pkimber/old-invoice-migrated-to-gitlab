@@ -2,6 +2,7 @@
 -e .
 -e ../base
 -e ../crm
+-e ../finance
 -e ../login
 -e ../mail
 -e ../search
