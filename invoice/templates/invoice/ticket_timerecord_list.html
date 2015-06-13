@@ -64,22 +64,22 @@
         {% else %}
           <p>
             Click
-            <a href="{% url "invoice.time.create" ticket.pk %}">Add time</a>
+            <a href="{% url 'invoice.time.create' ticket.pk %}">Add time</a>
             to create a time record.
           </p>
         {% endif %}
-        <div class="pure-menu pure-menu-open pure-menu-horizontal">
-          <ul>
+        <div class="pure-menu pure-menu-horizontal">
+          <ul class="pure-menu-list">
             {% if user.is_staff %}
-            <li>
-              <a href="{% url "invoice.time.create" ticket.pk %}">
+            <li class="pure-menu-item">
+              <a href="{% url 'invoice.time.create' ticket.pk %}" class="pure-menu-link">
                 <i class="fa fa-clock-o"></i>
                 Add time
               </a>
             </li>
             {% endif %}
-            <li>
-              <a href="{% url "crm.note.create" ticket.pk %}">
+            <li class="pure-menu-item">
+              <a href="{% url 'crm.note.create' ticket.pk %}" class="pure-menu-link">
                 <i class="fa fa-comment"></i>
                 Add note
               </a>
