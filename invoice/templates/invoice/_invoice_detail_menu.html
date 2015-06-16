@@ -1,52 +1,52 @@
-<div class="pure-menu pure-menu-open pure-menu-horizontal">
-  <ul>
+<div class="pure-menu pure-menu-horizontal">
+  <ul class="pure-menu-list">
     {% if invoice.is_draft %}
-      <li>
-        <a href="{% url 'invoice.line.create' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.line.create' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-tasks"></i>
           Add line
         </a>
       </li>
-      <li>
-        <a href="{% url 'invoice.create.pdf' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.create.pdf' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-gbp"></i>
           Create PDF
         </a>
       </li>
-      <li>
-        <a href="{% url 'invoice.refresh.time.records' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.refresh.time.records' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-cog"></i>
           Refresh time
         </a>
       </li>
-      <li>
-        <a href="{% url 'invoice.remove.time.records' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.remove.time.records' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-cog"></i>
           Remove time
         </a>
       </li>
     {% else %}
-      <li>
-        <a href="{% url 'invoice.download' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.download' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-cloud-download"></i>
           Download
         </a>
       </li>
-      <li>
-        <a href="{% url 'invoice.report.time.analysis' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.report.time.analysis' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-cloud-download"></i>
           Time Analysis PDF
         </a>
       </li>
-      <li>
-        <a href="{% url 'invoice.report.time.analysis_csv' invoice.pk %}">
+      <li class="pure-menu-item">
+        <a href="{% url 'invoice.report.time.analysis_csv' invoice.pk %}" class="pure-menu-link">
           <i class="fa fa-cloud-download"></i>
           Time Analysis CSV
         </a>
       </li>
       {% if invoice.can_set_to_draft %}
-        <li>
-          <a href="{% url 'invoice.set.to.draft' invoice.pk %}">
+        <li class="pure-menu-item">
+          <a href="{% url 'invoice.set.to.draft' invoice.pk %}" class="pure-menu-link">
             <i class="fa fa-cog"></i>
             Set back to draft
           </a>
