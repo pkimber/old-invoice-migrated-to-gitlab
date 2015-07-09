@@ -52,7 +52,7 @@ class InvoiceLineForm(forms.ModelForm):
             'quantity',
             'units',
             'price',
-            'vat_rate',
+            'vat_code',
         )
 
 
