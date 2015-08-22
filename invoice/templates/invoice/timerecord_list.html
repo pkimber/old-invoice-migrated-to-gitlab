@@ -13,69 +13,87 @@
 {% endblock sub_heading %}
 
 {% block content %}
-  {% include 'crm/_menu.html' %}
-  {% include 'base/_paginate.html' %}
   <div class="pure-g">
     <div class="pure-u-1">
-      <div class="l-box">
-        {% if timerecord_list %}
-          <table class="pure-table pure-table-bordered">
-            <thead>
-              <tr>
-                <th>Ticket</th>
-                <th>Time</th>
-                <th>Start</th>
-                <th></th>
-                <th>Elapsed</th>
-                <th>Invoice</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for timerecord in timerecord_list %}
-                <tr valign="top">
-                  <td>
-                    {{ timerecord.ticket.contact.name }},
-                    <a href="{% url 'crm.ticket.detail' timerecord.ticket.pk %}">
-                      {{ timerecord.ticket.title }}
-                    </a>
-                  </td>
-                  <td>
-                    {% include 'invoice/_timerecord.html' %}
-                  </td>
-                  <td>
-                    {{ timerecord.date_started|date:"d/m/y" }}
-                  </td>
-                  <td>
-                    {{ timerecord.start_time|time:"H:i" }}
-                  </td>
-                  <td>
-                    {{ timerecord.delta_as_string }}
-                  </td>
-                  <td>
-                    {% if timerecord.invoice_line %}
-                      <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">
-                        {{ timerecord.invoice_line.invoice.invoice_number }}
-                      </a>
-                    {% else %}
-                      {% if timerecord.billable %}
-                        <small>Pending</small>
-                      {% else %}
-                        <small>No-charge</small>
-                      {% endif %}
-                    {% endif %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p>
-            No time records
-          </p>
-        {% endif %}
+      <div class="pure-menu pure-menu-open pure-menu-horizontal">
+        <ul class="pure-menu-list">
+          {% include 'base/_paginate.html' %}
+          {% if user.is_staff %}
+            {% include 'crm/_menu.html' %}
+          {% endif %}
+        </ul>
       </div>
     </div>
   </div>
-  {% include 'base/_paginate.html' %}
-  {% include 'crm/_menu.html' %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      {% if timerecord_list %}
+        <table class="pure-table pure-table-bordered">
+          <thead>
+            <tr>
+              <th>Ticket</th>
+              <th>Time</th>
+              <th>Start</th>
+              <th></th>
+              <th>Elapsed</th>
+              <th>Invoice</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for timerecord in timerecord_list %}
+              <tr valign="top">
+                <td>
+                  {{ timerecord.ticket.contact.name }},
+                  <a href="{% url 'crm.ticket.detail' timerecord.ticket.pk %}">
+                    {{ timerecord.ticket.title }}
+                  </a>
+                </td>
+                <td>
+                  {% include 'invoice/_timerecord.html' %}
+                </td>
+                <td>
+                  {{ timerecord.date_started|date:"d/m/y" }}
+                </td>
+                <td>
+                  {{ timerecord.start_time|time:"H:i" }}
+                </td>
+                <td>
+                  {{ timerecord.delta_as_string }}
+                </td>
+                <td>
+                  {% if timerecord.invoice_line %}
+                    <a href="{% url 'invoice.detail' timerecord.invoice_line.invoice.pk %}">
+                      {{ timerecord.invoice_line.invoice.invoice_number }}
+                    </a>
+                  {% else %}
+                    {% if timerecord.billable %}
+                      <small>Pending</small>
+                    {% else %}
+                      <small>No-charge</small>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>
+          No time records
+        </p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="pure-g">
+    <div class="pure-u-1">
+      <div class="pure-menu pure-menu-open pure-menu-horizontal">
+        <ul class="pure-menu-list">
+          {% include 'base/_paginate.html' %}
+          {% if user.is_staff %}
+            {% include 'crm/_menu.html' %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

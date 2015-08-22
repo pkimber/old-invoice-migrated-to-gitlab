@@ -1,13 +1,14 @@
 # -*- encoding: utf-8 -*-
-
-from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import RedirectView
 
-from .views import HomeView
+from .views import (
+    HomeView,
+    SettingsView,
+)
 
 admin.autodiscover()
 
@@ -33,6 +34,10 @@ urlpatterns = patterns(
     url(r'^home/user/$',
         view=RedirectView.as_view(url=reverse_lazy('project.home')),
         name='project.dash'
+        ),
+    url(r'^settings/$',
+        view=SettingsView.as_view(),
+        name='project.settings'
         ),
 )
 

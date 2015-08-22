@@ -1,0 +1,14 @@
+{% if user.is_staff %}
+  <li class="pure-menu-item">
+    <a href="{% url 'invoice.time.create' ticket.pk %}" class="pure-menu-link">
+      <i class="fa fa-clock-o"></i>
+      Add time
+    </a>
+  </li>
+{% endif %}
+<li class="pure-menu-item">
+  <a href="{% url 'crm.note.create' ticket.pk %}" class="pure-menu-link">
+    <i class="fa fa-comment"></i>
+    Add note
+  </a>
+</li>
