@@ -23,7 +23,6 @@ setup(
     packages=['invoice', 'invoice.migrations', 'invoice.tests', 'invoice.management', 'invoice.management.commands'],
     package_data={
         'invoice': [
-            'static/*.*',
             'templates/*.*',
             'templates/invoice/*.*',
             'templates/search/*.*',
@@ -31,7 +30,7 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.1.21',
+    version='0.1.22',
     description='invoice',
     author='Patrick Kimber',
     author_email='code@pkimber.net',
@@ -45,6 +44,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
+        'Framework :: Django :: 1.8',
         'Topic :: Office/Business :: Scheduling',
     ],
     long_description=get_readme(),
