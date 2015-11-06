@@ -155,6 +155,9 @@ class ContactTimeRecordListView(
 
 class DashMixin:
 
+    CHARGE = 'Chargeable'
+    NON_CHARGE = 'Non-Chargeable'
+
     def _charts(self):
         from_date = timezone.now() + relativedelta(months=-1)
         qs = TimeRecord.objects.filter(
@@ -162,29 +165,48 @@ class DashMixin:
             date_started__gte=from_date,
             date_started__lte=timezone.now(),
         )
+        charge = {self.CHARGE: 0, self.NON_CHARGE: 0}
         contact = {}
         for row in qs:
             if row.is_complete:
                 slug = row.ticket.contact.slug
                 if not slug in contact:
                     contact[slug] = 0
-                contact[slug] = contact[slug] + int(row.minutes)
+                minutes = int(row.minutes)
+                contact[slug] = contact[slug] + minutes
+                if row.billable:
+                    charge[self.CHARGE] = charge[self.CHARGE] + minutes
+                else:
+                    charge[self.NON_CHARGE] = charge[self.NON_CHARGE] + minutes
         contact_x = []
         contact_y = []
         for k in sorted(contact, key=contact.get, reverse=True):
             contact_x.append(k)
             contact_y.append(contact[k])
-        return [{
-            'charttype': 'pieChart',
-            'chartdata': {'x': contact_x, 'y': contact_y},
-            'chartcontainer': 'piechart_container',
-            'extra': {
-                'x_is_date': False,
-                'x_axis_format': '',
-                'tag_script_js': True,
-                'jquery_on_ready': False,
-            }
-        }]
+        return [
+            {
+                'charttype': 'pieChart',
+                'chartdata': {'x': contact_x, 'y': contact_y},
+                'chartcontainer': 'piechart_container',
+                'extra': {
+                    'x_is_date': False,
+                    'x_axis_format': '',
+                    'tag_script_js': True,
+                    'jquery_on_ready': False,
+                },
+            },
+            {
+                'charttype': 'pieChart',
+                'chartdata': {'x': list(charge.keys()), 'y': list(charge.values())},
+                'chartcontainer': 'charge_container',
+                'extra': {
+                    'x_is_date': False,
+                    'x_axis_format': '',
+                    'tag_script_js': True,
+                    'jquery_on_ready': False,
+                },
+            },
+        ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
