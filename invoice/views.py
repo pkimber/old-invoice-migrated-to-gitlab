@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
+from collections import OrderedDict
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -149,6 +151,50 @@ class ContactTimeRecordListView(
             'date_started',
             'start_time',
         )
+
+
+class DashMixin:
+
+    def _contact(self):
+        from_date = timezone.now() + relativedelta(months=-1)
+        print(from_date)
+        qs = TimeRecord.objects.filter(
+            user=self.request.user,
+            date_started__gte=from_date,
+            date_started__lte=timezone.now(),
+        )
+        result = {}
+        for row in qs:
+            if row.is_complete:
+                slug = row.ticket.contact.slug
+                if not slug in result:
+                    result[slug] = 0
+                result[slug] = result[slug] + int(row.minutes)
+        xdata = []
+        ydata = []
+        for k in sorted(result, key=result.get, reverse=True):
+            xdata.append(k)
+            ydata.append(result[k])
+        return xdata, ydata
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        xdata, ydata = self._contact()
+        chartdata = {'x': xdata, 'y': ydata}
+        charttype = "pieChart"
+        chartcontainer = 'piechart_container'
+        context.update({
+            'charttype': charttype,
+            'chartdata': chartdata,
+            'chartcontainer': chartcontainer,
+            'extra': {
+                'x_is_date': False,
+                'x_axis_format': '',
+                'tag_script_js': True,
+                'jquery_on_ready': False,
+            }
+        })
+        return context
 
 
 class InvoiceCreateViewMixin(BaseMixin, CreateView):

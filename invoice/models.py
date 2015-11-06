@@ -406,14 +406,6 @@ class TimeRecord(TimeStampedModel):
                 and self.start_time >= self.end_time):
             raise ValidationError('End time must be after the start time')
 
-    def can_invoice(self):
-        """Check the time record is set-up correctly for invoicing."""
-        if self.date_started and self.start_time and self.end_time:
-            result = True
-        else:
-            result = False
-        return result
-
     @property
     def deleted(self):
         """No actual delete (yet), so just return 'False'."""
@@ -440,6 +432,15 @@ class TimeRecord(TimeStampedModel):
             self.description,
         ))
 
+    @property
+    def is_complete(self):
+        """Check the time record is set-up correctly for invoicing."""
+        if self.date_started and self.start_time and self.end_time:
+            result = True
+        else:
+            result = False
+        return result
+
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)
 
@@ -448,21 +449,22 @@ class TimeRecord(TimeStampedModel):
         return bool(self.invoice_line)
     has_invoice_line = property(_has_invoice_line)
 
-    def _invoice_quantity(self):
+    @property
+    def invoice_quantity(self):
         """
         Convert the time in minutes into hours expressed as a decimal
         e.g. 1 hour, 30 minutes = 1.5.  This figure will be used on invoices.
         """
-        return Decimal(self._timedelta_minutes()) / Decimal('60')
-    invoice_quantity = property(_invoice_quantity)
+        return Decimal(self.minutes) / Decimal('60')
 
-    def _date_started_time(self):
-        return datetime.combine(self.date_started, self.start_time)
-
-    def _timedelta_minutes(self):
+    @property
+    def minutes(self):
         """ Convert the time difference into minutes """
         td = self.delta()
         return td.days * 1440 + td.seconds / 60
+
+    def _date_started_time(self):
+        return datetime.combine(self.date_started, self.start_time)
 
     def _user_can_edit(self):
         return not self.has_invoice_line
