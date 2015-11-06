@@ -161,28 +161,38 @@ class DashMixin:
     def _charts(self):
         from_date = timezone.now() + relativedelta(months=-1)
         qs = TimeRecord.objects.filter(
-            user=self.request.user,
             date_started__gte=from_date,
             date_started__lte=timezone.now(),
         )
         charge = {self.CHARGE: 0, self.NON_CHARGE: 0}
         contact = {}
+        user = {}
         for row in qs:
             if row.is_complete:
-                slug = row.ticket.contact.slug
-                if not slug in contact:
-                    contact[slug] = 0
                 minutes = int(row.minutes)
-                contact[slug] = contact[slug] + minutes
-                if row.billable:
-                    charge[self.CHARGE] = charge[self.CHARGE] + minutes
-                else:
-                    charge[self.NON_CHARGE] = charge[self.NON_CHARGE] + minutes
+                user_name = row.user.username
+                if not user_name in user:
+                    user[user_name] = 0
+                user[user_name] = user[user_name] + minutes
+                if row.user == self.request.user:
+                    slug = row.ticket.contact.slug
+                    if not slug in contact:
+                        contact[slug] = 0
+                    contact[slug] = contact[slug] + minutes
+                    if row.billable:
+                        charge[self.CHARGE] = charge[self.CHARGE] + minutes
+                    else:
+                        charge[self.NON_CHARGE] = charge[self.NON_CHARGE] + minutes
         contact_x = []
         contact_y = []
         for k in sorted(contact, key=contact.get, reverse=True):
             contact_x.append(k)
             contact_y.append(contact[k])
+        user_x = []
+        user_y = []
+        for k in sorted(user, key=user.get, reverse=True):
+            user_x.append(k)
+            user_y.append(user[k])
         return [
             {
                 'charttype': 'pieChart',
@@ -199,6 +209,17 @@ class DashMixin:
                 'charttype': 'pieChart',
                 'chartdata': {'x': list(charge.keys()), 'y': list(charge.values())},
                 'chartcontainer': 'charge_container',
+                'extra': {
+                    'x_is_date': False,
+                    'x_axis_format': '',
+                    'tag_script_js': True,
+                    'jquery_on_ready': False,
+                },
+            },
+            {
+                'charttype': 'pieChart',
+                'chartdata': {'x': user_x, 'y': user_y},
+                'chartcontainer': 'user_container',
                 'extra': {
                     'x_is_date': False,
                     'x_axis_format': '',
