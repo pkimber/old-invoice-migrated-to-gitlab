@@ -364,6 +364,8 @@ class TimeRecordManager(models.Manager):
             date_started__gte=from_date,
             date_started__lte=to_date,
         )
+        if user:
+            qs = qs.filter(user=user)
         result = OrderedDict([(self.CHARGE, 0), (self.NON_CHARGE, 0)])
         for row in qs:
             if row.is_complete:

@@ -15,6 +15,7 @@ from invoice.tests.factories import (
     InvoiceLineFactory,
     TimeRecordFactory,
 )
+from login.tests.factories import UserFactory
 from search.tests.helper import check_search_methods
 
 
@@ -45,6 +46,55 @@ def test_report_charge_non_charge():
     x, y = TimeRecord.objects.report_charge_non_charge(from_date, to_date)
     assert ['Chargeable', 'Non-Chargeable'] == x
     assert [30, 15] == y
+
+
+@pytest.mark.django_db
+def test_report_charge_non_charge_user():
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    d = from_date + relativedelta(days=7)
+    user = UserFactory()
+    TimeRecordFactory(
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 10),
+        user=user,
+    )
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 5),
+        user=user,
+    )
+    # records for other users
+    TimeRecordFactory(
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+    )
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+    )
+    # do not include this record
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=None,
+    )
+    x, y = TimeRecord.objects.report_charge_non_charge(
+        from_date,
+        to_date,
+        user,
+    )
+    assert ['Chargeable', 'Non-Chargeable'] == x
+    assert [10, 5] == y
 
 
 @pytest.mark.django_db
