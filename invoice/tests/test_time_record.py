@@ -4,17 +4,10 @@ Test time records.
 """
 import pytest
 
-
-from django.test import TestCase
-
-from invoice.models import TimeRecord
 from invoice.tests.factories import (
     InvoiceLineFactory,
-    ContactFactory,
-    TicketFactory,
     TimeRecordFactory,
 )
-from login.tests.factories import UserFactory
 from search.tests.helper import check_search_methods
 
 

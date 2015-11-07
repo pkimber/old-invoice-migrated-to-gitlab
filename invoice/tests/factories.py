@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import factory
 
-from datetime import date, time
+from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
@@ -12,10 +12,7 @@ from crm.tests.factories import (
     TicketFactory,
 )
 from login.tests.factories import UserFactory
-from finance.models import (
-    VatCode,
-    VatSettings,
-)
+from finance.models import VatCode
 from invoice.models import (
     Invoice,
     InvoiceLine,

@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-from collections import OrderedDict
 from datetime import (
     date,
     datetime,
@@ -26,10 +25,7 @@ from crm.models import (
     Contact,
     Ticket,
 )
-from finance.models import (
-    legacy_vat_code,
-    VatCode,
-)
+from finance.models import VatCode
 
 
 class InvoiceError(Exception):
