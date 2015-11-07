@@ -376,7 +376,6 @@ class TimeRecordManager(models.Manager):
         return list(result.keys()), list([int(i) for i in result.values()])
 
     def report_time_by_contact(self, from_date, to_date, user=None):
-        """Report of chargeable and non-chargeable time."""
         qs = TimeRecord.objects.filter(
             date_started__gte=from_date,
             date_started__lte=to_date,
@@ -390,6 +389,25 @@ class TimeRecordManager(models.Manager):
                 if not slug in result:
                     result[slug] = 0
                 result[slug] = result[slug] + row.minutes
+        x = []
+        y = []
+        for k in sorted(result, key=result.get, reverse=True):
+            x.append(k)
+            y.append(int(result[k]))
+        return x, y
+
+    def report_time_by_user(self, from_date, to_date):
+        qs = TimeRecord.objects.filter(
+            date_started__gte=from_date,
+            date_started__lte=to_date,
+        )
+        result = {}
+        for row in qs:
+            if row.is_complete:
+                user_name = row.user.username
+                if not user_name in result:
+                    result[user_name] = 0
+                result[user_name] = result[user_name] + row.minutes
         x = []
         y = []
         for k in sorted(result, key=result.get, reverse=True):

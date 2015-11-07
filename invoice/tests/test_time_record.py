@@ -177,6 +177,30 @@ def test_report_time_by_contact_user():
     assert [30, 15] == y
 
 
+@pytest.mark.django_db
+def test_report_time_by_user():
+    green = UserFactory(username='green')
+    red = UserFactory(username='red')
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    d = from_date + relativedelta(days=7)
+    TimeRecordFactory(
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=red,
+    )
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+        user=green,
+    )
+    x, y = TimeRecord.objects.report_time_by_user(from_date, to_date)
+    assert ['red', 'green'] == x
+    assert [30, 15] == y
 
 
 @pytest.mark.django_db
