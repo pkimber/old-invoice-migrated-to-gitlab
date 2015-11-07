@@ -13,6 +13,8 @@ from django.utils import timezone
 from invoice.models import TimeRecord
 from invoice.tests.factories import (
     InvoiceLineFactory,
+    ContactFactory,
+    TicketFactory,
     TimeRecordFactory,
 )
 from login.tests.factories import UserFactory
@@ -102,6 +104,79 @@ def test_report_charge_non_charge_user():
     )
     assert ['Chargeable', 'Non-Chargeable'] == x
     assert [10, 5] == y
+
+
+@pytest.mark.django_db
+def test_report_time_by_contact():
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    d = from_date + relativedelta(days=7)
+    ticket = TicketFactory(contact=ContactFactory(slug='bob'))
+    TimeRecordFactory(
+        ticket=ticket,
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+    )
+    ticket = TicketFactory(contact=ContactFactory(slug='sam'))
+    TimeRecordFactory(
+        ticket=ticket,
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+    )
+    x, y = TimeRecord.objects.report_time_by_contact(from_date, to_date)
+    assert ['bob', 'sam'] == x
+    assert [30, 15] == y
+
+
+@pytest.mark.django_db
+def test_report_time_by_contact_user():
+    user = UserFactory()
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    d = from_date + relativedelta(days=7)
+    bob = TicketFactory(contact=ContactFactory(slug='bob'))
+    sam = TicketFactory(contact=ContactFactory(slug='sam'))
+    # these time records are for a different user, so exclude them
+    TimeRecordFactory(
+        ticket=bob,
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+    )
+    TimeRecordFactory(
+        ticket=sam,
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+    )
+    # include these time records
+    TimeRecordFactory(
+        ticket=bob,
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        ticket=sam,
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+        user=user,
+    )
+    x, y = TimeRecord.objects.report_time_by_contact(from_date, to_date, user)
+    assert ['bob', 'sam'] == x
+    assert [30, 15] == y
+
+
 
 
 @pytest.mark.django_db

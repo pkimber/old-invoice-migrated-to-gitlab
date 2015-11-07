@@ -375,6 +375,28 @@ class TimeRecordManager(models.Manager):
                     result[self.NON_CHARGE] = result[self.NON_CHARGE] + row.minutes
         return list(result.keys()), list([int(i) for i in result.values()])
 
+    def report_time_by_contact(self, from_date, to_date, user=None):
+        """Report of chargeable and non-chargeable time."""
+        qs = TimeRecord.objects.filter(
+            date_started__gte=from_date,
+            date_started__lte=to_date,
+        )
+        if user:
+            qs = qs.filter(user=user)
+        result = {}
+        for row in qs:
+            if row.is_complete:
+                slug = row.ticket.contact.slug
+                if not slug in result:
+                    result[slug] = 0
+                result[slug] = result[slug] + row.minutes
+        x = []
+        y = []
+        for k in sorted(result, key=result.get, reverse=True):
+            x.append(k)
+            y.append(int(result[k]))
+        return x, y
+
     def to_invoice(self, contact, iteration_end):
         """
         Find time records:
