@@ -129,6 +129,7 @@ INSTALLED_APPS = (
     'invoice',
     'login',
     'mail',
+    'report',
 )
 
 # A sample logging configuration. The only tangible logging

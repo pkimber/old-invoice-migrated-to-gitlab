@@ -366,14 +366,14 @@ class TimeRecordManager(models.Manager):
         )
         if user:
             qs = qs.filter(user=user)
-        result = OrderedDict([(self.CHARGE, 0), (self.NON_CHARGE, 0)])
+        result = {self.CHARGE: 0, self.NON_CHARGE: 0}
         for row in qs:
             if row.is_complete:
                 if row.billable:
                     result[self.CHARGE] = result[self.CHARGE] + row.minutes
                 else:
                     result[self.NON_CHARGE] = result[self.NON_CHARGE] + row.minutes
-        return list(result.keys()), list([int(i) for i in result.values()])
+        return result
 
     def report_time_by_contact(self, from_date, to_date, user=None):
         qs = TimeRecord.objects.filter(
@@ -389,12 +389,7 @@ class TimeRecordManager(models.Manager):
                 if not slug in result:
                     result[slug] = 0
                 result[slug] = result[slug] + row.minutes
-        x = []
-        y = []
-        for k in sorted(result, key=result.get, reverse=True):
-            x.append(k)
-            y.append(int(result[k]))
-        return x, y
+        return result
 
     def report_time_by_user(self, from_date, to_date):
         qs = TimeRecord.objects.filter(
@@ -408,12 +403,7 @@ class TimeRecordManager(models.Manager):
                 if not user_name in result:
                     result[user_name] = 0
                 result[user_name] = result[user_name] + row.minutes
-        x = []
-        y = []
-        for k in sorted(result, key=result.get, reverse=True):
-            x.append(k)
-            y.append(int(result[k]))
-        return x, y
+        return result
 
     def to_invoice(self, contact, iteration_end):
         """

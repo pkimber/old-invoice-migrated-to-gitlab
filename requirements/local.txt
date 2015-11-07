@@ -5,6 +5,7 @@
 -e ../finance
 -e ../login
 -e ../mail
+-e ../report
 -e ../search
 devpi-client
 factory-boy

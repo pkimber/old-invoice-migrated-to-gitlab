@@ -2,10 +2,12 @@
 import io
 
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.utils import timezone
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -13,6 +15,10 @@ from reportlab import platypus
 
 from crm.models import Contact
 from finance.models import VatSettings
+from report.models import (
+    Report,
+    ReportDataInteger,
+)
 from .models import (
     Invoice,
     InvoiceError,
@@ -422,3 +428,18 @@ class InvoicePrint(MyReport):
 
     def _text_our_vat_number(self, vat_number):
         return '<b>VAT Number</b> {}'.format(vat_number)
+
+
+def charts():
+    """Chart data to be added to the off-line report models."""
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    data = TimeRecord.objects.report_charge_non_charge(from_date, to_date)
+    with transaction.atomic():
+        report = Report.objects.init_report(
+            'invoice_charge_non_charge',
+            'Invoice - Time - Charge and Non-Chargeable',
+            None,
+            'pieChart',
+        )
+        ReportDataInteger.objects.init_report_data(report, data)
