@@ -350,17 +350,48 @@ class InvoiceLine(TimeStampedModel):
 reversion.register(InvoiceLine)
 
 
-class TimeRecordCategory(TimeStampedModel):
+class TimeCodeManager(models.Manager):
+
+    def time_codes(self):
+        return self.model.objects.exclude(deleted=True)
+
+
+class TimeCode(TimeStampedModel):
 
     description = models.CharField(max_length=100)
-    billable = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
-    icon = models.CharField(max_length=100, blank=True)
+    objects = TimeCodeManager()
 
     class Meta:
-        ordering = ['description', 'billable']
-        verbose_name = 'Time Record Category'
-        verbose_name_plural = 'Time Record Categories'
+        ordering = ['description']
+        verbose_name = 'Time Code'
+        verbose_name_plural = 'Time Codes'
+
+    def __str__(self):
+        return self.description
+
+
+class TimeRecordingTriggerManager(models.Manager):
+
+    def triggers(self, user):
+        return self.model.objects.filter(user=user).exclude(deleted=True)
+
+
+class TimeRecordingTrigger(TimeStampedModel):
+    """Pass this record to ``create_time_record`` to auto-start time."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    time_code = models.ForeignKey(TimeCode)
+    chargeable = models.BooleanField(default=False)
+    description = models.CharField(max_length=100)
+    icon = models.CharField(max_length=100, blank=True)
+    deleted = models.BooleanField(default=False)
+    objects = TimeRecordingTriggerManager()
+
+    class Meta:
+        ordering = ['description', 'chargeable']
+        verbose_name = 'Time Recording Trigger'
+        verbose_name_plural = 'Time Recording Triggers'
 
     def __str__(self):
         return self.description
@@ -371,15 +402,15 @@ class TimeRecordManager(models.Manager):
     CHARGE = 'Chargeable'
     NON_CHARGE = 'Non-Chargeable'
 
-    def create_time_record(self, ticket, user, category, start_time):
+    def create_time_record(self, ticket, trigger, start_time):
         obj = self.model(
-            billable=category.billable,
-            category=category,
+            billable=trigger.chargeable,
             date_started=date.today(),
             start_time=start_time,
             ticket=ticket,
-            title=category.description,
-            user=user,
+            time_code=trigger.time_code,
+            title=trigger.description,
+            user=trigger.user,
         )
         obj.save()
         return obj
@@ -435,10 +466,10 @@ class TimeRecordManager(models.Manager):
                 result[user_name] = result[user_name] + row.minutes
         return result
 
-    def start(self, ticket, user, category):
+    def start(self, ticket, trigger):
         running = self.model.objects.filter(
             date_started=date.today(),
-            user=user,
+            user=trigger.user,
             end_time__isnull=True,
         )
         count = running.count()
@@ -451,9 +482,9 @@ class TimeRecordManager(models.Manager):
             elif count > 1:
                 raise InvoiceError(
                     "Cannot start a time record when {} are already "
-                    "running for '{}'.".format(count, user.username)
+                    "running for '{}'.".format(count, trigger.user.username)
                 )
-            obj = self.create_time_record(ticket, user, category, start_time)
+            obj = self.create_time_record(ticket, trigger, start_time)
         return obj
 
     def to_invoice(self, contact, iteration_end):
@@ -461,7 +492,7 @@ class TimeRecordManager(models.Manager):
         Find time records:
         - before iteration ended
         - which have not been included on a previous invoice
-        - which are billable
+        - which are chargeable
         """
         return self.model.objects.filter(
             ticket__contact=contact,
@@ -487,7 +518,7 @@ class TimeRecord(TimeStampedModel):
     end_time = models.TimeField(blank=True, null=True)
     billable = models.BooleanField(default=False)
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
-    category = models.ForeignKey(TimeRecordCategory, blank=True, null=True)
+    time_code = models.ForeignKey(TimeCode, blank=True, null=True)
     objects = TimeRecordManager()
 
     class Meta:

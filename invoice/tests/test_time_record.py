@@ -11,8 +11,8 @@ from invoice.models import (
 )
 from invoice.tests.factories import (
     InvoiceLineFactory,
-    TimeRecordCategoryFactory,
     TimeRecordFactory,
+    TimeRecordingTriggerFactory,
 )
 from login.tests.factories import UserFactory
 from search.tests.helper import check_search_methods
@@ -27,14 +27,14 @@ def test_search_methods():
 @pytest.mark.django_db
 def test_start():
     user = UserFactory()
-    category = TimeRecordCategoryFactory()
+    trigger = TimeRecordingTriggerFactory(user=user)
     ticket = TicketFactory()
-    time_record = TimeRecord.objects.start(ticket, user, category)
-    assert category == time_record.category
+    time_record = TimeRecord.objects.start(ticket, trigger)
+    assert trigger.time_code == time_record.time_code
     assert ticket == time_record.ticket
     assert time_record.end_time is None
     assert time_record.start_time is not None
-    assert user == time_record.user
+    assert trigger.user == time_record.user
 
 
 @pytest.mark.django_db
@@ -42,11 +42,11 @@ def test_start_and_stop():
     user = UserFactory()
     running = TimeRecordFactory(user=user, end_time=None)
     assert running.end_time is None
-    category = TimeRecordCategoryFactory()
+    trigger = TimeRecordingTriggerFactory(user=user)
     ticket = TicketFactory()
-    time_record = TimeRecord.objects.start(ticket, user, category)
-    assert category == time_record.category
-    assert category.description == time_record.title
+    time_record = TimeRecord.objects.start(ticket, trigger)
+    assert trigger.time_code == time_record.time_code
+    assert trigger.description == time_record.title
     assert time_record.billable is False
     assert time_record.end_time is None
     assert time_record.start_time is not None
@@ -57,10 +57,9 @@ def test_start_and_stop():
 
 @pytest.mark.django_db
 def test_start_and_stop_billable():
-    category = TimeRecordCategoryFactory(billable=True)
+    trigger = TimeRecordingTriggerFactory(chargeable=True)
     ticket = TicketFactory()
-    user = UserFactory()
-    time_record = TimeRecord.objects.start(ticket, user, category)
+    time_record = TimeRecord.objects.start(ticket, trigger)
     assert time_record.billable is True
 
 
@@ -69,10 +68,10 @@ def test_start_and_stop_too_many():
     user = UserFactory()
     TimeRecordFactory(user=user, end_time=None)
     TimeRecordFactory(user=user, end_time=None)
-    category = TimeRecordCategoryFactory()
+    trigger = TimeRecordingTriggerFactory(user=user)
     ticket = TicketFactory()
     with pytest.raises(InvoiceError) as e:
-        TimeRecord.objects.start(ticket, user, category)
+        TimeRecord.objects.start(ticket, trigger)
     assert 'Cannot start a time record when 2 are already' in str(e.value)
 
 
