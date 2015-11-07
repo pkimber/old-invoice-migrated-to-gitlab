@@ -362,12 +362,16 @@ class TimeRecordManager(models.Manager):
         )
         if user:
             qs = qs.filter(user=user)
-        result = {self.CHARGE: 0, self.NON_CHARGE: 0}
+        result = {}
         for row in qs:
             if row.is_complete:
                 if row.billable:
+                    if not self.CHARGE in result:
+                        result[self.CHARGE] = 0
                     result[self.CHARGE] = result[self.CHARGE] + row.minutes
                 else:
+                    if not self.NON_CHARGE in result:
+                        result[self.NON_CHARGE] = 0
                     result[self.NON_CHARGE] = result[self.NON_CHARGE] + row.minutes
         return result
 
