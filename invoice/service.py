@@ -449,7 +449,7 @@ def report():
             )
             report = Report.objects.init_report(
                 'invoice_charge_non_charge',
-                'Chargeable and Non-Chargeable',
+                'Chargeable vs Non-Chargeable',
                 'pieChart',
                 user,
             )
