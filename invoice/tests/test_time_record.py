@@ -36,12 +36,19 @@ def test_report_charge_non_charge():
         start_time=time(10, 0),
         end_time=time(10, 15),
     )
-    # do not include this record
+    # do not include this record - no end time
     TimeRecordFactory(
         billable=False,
         date_started=d,
         start_time=time(11, 0),
         end_time=None,
+    )
+    # do not include this record - outside of time
+    TimeRecordFactory(
+        billable=False,
+        date_started=timezone.now() + relativedelta(months=+1),
+        start_time=time(11, 0),
+        end_time=time(11, 30),
     )
     x, y = TimeRecord.objects.report_charge_non_charge(from_date, to_date)
     assert ['Chargeable', 'Non-Chargeable'] == x
