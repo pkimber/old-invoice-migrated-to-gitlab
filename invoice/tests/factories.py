@@ -18,6 +18,7 @@ from invoice.models import (
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
+    TimeRecordCategory,
 )
 
 
@@ -62,6 +63,16 @@ class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = InvoiceSettings
+
+
+class TimeRecordCategoryFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = TimeRecordCategory
+
+    @factory.sequence
+    def description(n):
+        return "description_{}".format(n)
 
 
 class TimeRecordFactory(factory.django.DjangoModelFactory):

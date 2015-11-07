@@ -12,6 +12,7 @@ from django.db import (
     models,
     transaction,
 )
+from django.utils import timezone
 from django.utils.timesince import timeuntil
 
 import reversion
@@ -349,10 +350,38 @@ class InvoiceLine(TimeStampedModel):
 reversion.register(InvoiceLine)
 
 
+class TimeRecordCategory(TimeStampedModel):
+
+    description = models.CharField(max_length=100)
+    billable = models.BooleanField(default=False)
+    icon = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        ordering = ['description', 'billable']
+        verbose_name = 'Time Record Category'
+        verbose_name_plural = 'Time Record Categories'
+
+    def __str__(self):
+        return self.description
+
+
 class TimeRecordManager(models.Manager):
 
     CHARGE = 'Chargeable'
     NON_CHARGE = 'Non-Chargeable'
+
+    def create_time_record(self, ticket, user, category, start_time):
+        obj = self.model(
+            billable=category.billable,
+            category=category,
+            date_started=date.today(),
+            start_time=start_time,
+            ticket=ticket,
+            title=category.description,
+            user=user,
+        )
+        obj.save()
+        return obj
 
     def report_charge_non_charge(self, from_date, to_date, user=None):
         """Report of chargeable and non-chargeable time."""
@@ -405,6 +434,27 @@ class TimeRecordManager(models.Manager):
                 result[user_name] = result[user_name] + row.minutes
         return result
 
+    def start(self, ticket, user, category):
+        running = self.model.objects.filter(
+            date_started=date.today(),
+            user=user,
+            end_time__isnull=True,
+        )
+        count = running.count()
+        with transaction.atomic():
+            start_time = timezone.now().time()
+            if count == 1:
+                to_stop = running[0]
+                to_stop.end_time = start_time
+                to_stop.save()
+            elif count > 1:
+                raise InvoiceError(
+                    "Cannot start a time record when {} are already "
+                    "running for '{}'.".format(count, user.username)
+                )
+            obj = self.create_time_record(ticket, user, category, start_time)
+        return obj
+
     def to_invoice(self, contact, iteration_end):
         """
         Find time records:
@@ -436,6 +486,7 @@ class TimeRecord(TimeStampedModel):
     end_time = models.TimeField(blank=True, null=True)
     billable = models.BooleanField(default=False)
     invoice_line = models.OneToOneField(InvoiceLine, blank=True, null=True)
+    category = models.ForeignKey(TimeRecordCategory, blank=True, null=True)
     objects = TimeRecordManager()
 
     class Meta:
