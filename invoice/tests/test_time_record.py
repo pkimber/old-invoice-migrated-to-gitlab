@@ -3,13 +3,48 @@
 Test time records.
 """
 import pytest
-from django.test import TestCase
 
+from datetime import time
+from dateutil.relativedelta import relativedelta
+
+from django.test import TestCase
+from django.utils import timezone
+
+from invoice.models import TimeRecord
 from invoice.tests.factories import (
     InvoiceLineFactory,
     TimeRecordFactory,
 )
 from search.tests.helper import check_search_methods
+
+
+@pytest.mark.django_db
+def test_report_charge_non_charge():
+    to_date = timezone.now()
+    from_date = to_date + relativedelta(months=-1)
+    d = from_date + relativedelta(days=7)
+    TimeRecordFactory(
+        billable=True,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+    )
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+    )
+    # do not include this record
+    TimeRecordFactory(
+        billable=False,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=None,
+    )
+    x, y = TimeRecord.objects.report_charge_non_charge(from_date, to_date)
+    assert ['Chargeable', 'Non-Chargeable'] == x
+    assert [30, 15] == y
 
 
 @pytest.mark.django_db

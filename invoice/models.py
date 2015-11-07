@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from collections import OrderedDict
 from datetime import (
     date,
     datetime,
@@ -353,6 +354,24 @@ reversion.register(InvoiceLine)
 
 
 class TimeRecordManager(models.Manager):
+
+    CHARGE = 'Chargeable'
+    NON_CHARGE = 'Non-Chargeable'
+
+    def report_charge_non_charge(self, from_date, to_date, user=None):
+        """Report of chargeable and non-chargeable time."""
+        qs = TimeRecord.objects.filter(
+            date_started__gte=from_date,
+            date_started__lte=to_date,
+        )
+        result = OrderedDict([(self.CHARGE, 0), (self.NON_CHARGE, 0)])
+        for row in qs:
+            if row.is_complete:
+                if row.billable:
+                    result[self.CHARGE] = result[self.CHARGE] + row.minutes
+                else:
+                    result[self.NON_CHARGE] = result[self.NON_CHARGE] + row.minutes
+        return list(result.keys()), list([int(i) for i in result.values()])
 
     def to_invoice(self, contact, iteration_end):
         """

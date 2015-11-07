@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 import factory
 
-from datetime import date
+from datetime import date, time
 
 from dateutil.relativedelta import relativedelta
 

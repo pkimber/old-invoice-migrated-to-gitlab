@@ -6,15 +6,12 @@
 -e ../login
 -e ../mail
 -e ../search
-beautifulsoup4
 devpi-client
 factory-boy
-gitpython
-hgapi
-ipdb
 psycopg2
+pytest-cov
 pytest-django
 pytest-flakes
 pytest-pep8
-pyyaml
-walkdir
+pytest-sugar
+pytest-watch
