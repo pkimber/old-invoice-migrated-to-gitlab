@@ -440,6 +440,7 @@ def report():
     users_list.append(None)
     with transaction.atomic():
         for user in users_list:
+            # charge and non-chargeable
             data = TimeRecord.objects.report_charge_non_charge(
                 from_date,
                 to_date,
@@ -447,8 +448,32 @@ def report():
             )
             report = Report.objects.init_report(
                 'invoice_charge_non_charge',
-                'Invoice - Time - Charge and Non-Chargeable',
-                user,
+                'Chargeable and Non-Chargeable',
                 'pieChart',
+                user,
             )
             ReportDataInteger.objects.init_report_data(report, data)
+            # contacts
+            data = TimeRecord.objects.report_time_by_contact(
+                from_date,
+                to_date,
+                user,
+            )
+            report = Report.objects.init_report(
+                'invoice_time_by_contact',
+                'Time by Contact',
+                'pieChart',
+                user,
+            )
+            ReportDataInteger.objects.init_report_data(report, data)
+        # user
+        data = TimeRecord.objects.report_time_by_user(
+            from_date,
+            to_date,
+        )
+        report = Report.objects.init_report(
+            'invoice_time_by_user',
+            'Time by User',
+            'pieChart',
+        )
+        ReportDataInteger.objects.init_report_data(report, data)
