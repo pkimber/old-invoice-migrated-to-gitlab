@@ -94,17 +94,14 @@ class TimeRecordForm(RequiredFieldForm):
     paginate_by = 20
 
     def __init__(self, *args, **kwargs):
-        super(TimeRecordForm, self).__init__(*args, **kwargs)
-        for name in ('title', 'description'):
-            self.fields[name].widget.attrs.update(
-                {'class': 'pure-input-2-3'}
-            )
+        super().__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'class': 'pure-input-2-3'})
 
     class Meta:
         model = TimeRecord
         fields = (
             "title",
-            "description",
+            "time_code",
             "date_started",
             "start_time",
             "end_time",
