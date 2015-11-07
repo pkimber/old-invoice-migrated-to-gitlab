@@ -15,10 +15,7 @@ from crm.tests.factories import (
     TicketFactory,
 )
 from invoice.models import TimeRecord
-from invoice.service import (
-    _top,
-    report,
-)
+from invoice.service import report
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -279,42 +276,3 @@ def test_report_total_by_user():
     assert invoice.net == net
 
 
-@pytest.mark.django_db
-def test_top():
-    data = {
-        'a': 100,
-        'b': 101,
-        'c': 102,
-        'd': 103,
-        'e': 104,
-        'f': 105,
-        'g': 106,
-        'h': 80,
-        'i': 70,
-        'j': 60,
-    }
-    result = _top(data)
-    print()
-    print(result)
-    print()
-    assert {
-        'a': 100,
-        'b': 101,
-        'c': 102,
-        'd': 103,
-        'e': 104,
-        'f': 105,
-        'g': 106,
-        'h': 80,
-        'other': 130,
-    } == result
-
-
-@pytest.mark.django_db
-def test_top_one():
-    data = {'a': 100}
-    result = _top(data)
-    print()
-    print(result)
-    print()
-    assert {'a': 100} == result
