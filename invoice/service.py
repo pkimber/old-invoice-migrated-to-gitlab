@@ -431,6 +431,39 @@ class InvoicePrint(MyReport):
         return '<b>VAT Number</b> {}'.format(vat_number)
 
 
+def _top(data):
+    """Merge the last 10 percent into an 'other' value."""
+    total = 0
+    for value in data.values():
+        print(value)
+        total = total + value
+    trigger = int(Decimal(total) * Decimal('.9'))
+    print()
+    print(trigger)
+    print()
+    result = {}
+    count = 0
+    other = 0
+    total = 0
+    for k in sorted(data, key=data.get, reverse=True):
+        count = count + 1
+        value = data[k]
+        total = total + value
+        print('  {} total {}'.format(value, total))
+        # preserve at least 6 items
+        if count < 6:
+            result[k] = value
+        # if in the last 10 percent then merge
+        elif total < trigger:
+            print('    trigger')
+            result[k] = value
+        else:
+            other = other + value
+    if other:
+        result['other'] = other
+    return result
+
+
 def report():
     """Chart data to be added to the off-line report models."""
     to_date = timezone.now()
@@ -453,7 +486,7 @@ def report():
                 user,
             )
             ReportDataInteger.objects.init_report_data(report, data)
-            # contacts
+            # contact
             data = TimeRecord.objects.report_time_by_contact(
                 from_date,
                 to_date,
@@ -465,7 +498,7 @@ def report():
                 'pieChart',
                 user,
             )
-            ReportDataInteger.objects.init_report_data(report, data)
+            ReportDataInteger.objects.init_report_data(report, _top(data))
         # user
         data = TimeRecord.objects.report_time_by_user(
             from_date,
