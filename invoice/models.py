@@ -384,12 +384,11 @@ class QuickTimeRecord(TimeStampedModel):
     time_code = models.ForeignKey(TimeCode)
     chargeable = models.BooleanField(default=False)
     description = models.CharField(max_length=100)
-    icon = models.CharField(max_length=100, blank=True)
     deleted = models.BooleanField(default=False)
     objects = QuickTimeRecordManager()
 
     class Meta:
-        ordering = ['description', 'chargeable']
+        ordering = ['-chargeable', 'description']
         verbose_name = 'Quick Time Recording'
         verbose_name_plural = 'Quick Time Recording'
 

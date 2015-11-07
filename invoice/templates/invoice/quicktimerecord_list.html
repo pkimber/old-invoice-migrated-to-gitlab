@@ -21,13 +21,7 @@
           <li class="pure-menu-item">
             <a href="{% url 'invoice.quick.time.record.create' %}" class="pure-menu-link">
               <i class="fa fa-clock-o"></i>
-              Create Quick Time Recording
-            </a>
-          </li>
-          <li class="pure-menu-item">
-            <a href="{% url 'invoice.quick.time.record.list' %}" class="pure-menu-link">
-              <i class="fa fa-clock-o"></i>
-              Quick Time Recording
+              Create
             </a>
           </li>
         </ul>
@@ -40,6 +34,7 @@
         <thead>
           <tr>
             <th>Name</th>
+            <th>Chargeable</th>
             <th>Delete</th>
           </tr>
         </thead>
@@ -49,18 +44,26 @@
               <td>
                 {% if o.deleted %}
                   <strike>
-                    {{ o.name }}
+                    {{ o.description }}
                   </strike>
                 {% else %}
-                  <a href="{% url 'block.image.category.update' o.pk %}">
+                  <a href="{% url 'invoice.quick.time.record.update' o.pk %}">
                     <i class="fa fa-edit"></i>
-                    {{ o.name }}
+                    {{ o.description }}
                   </a>
                 {% endif %}
               </td>
               <td>
-                {% if not o.deleted and not o.in_use %}
-                  <a href="{% url 'block.image.category.delete' o.pk %}">
+                {% if o.chargeable %}
+                  <i class="fa fa-gbp"></i>
+                  Yes
+                {% else %}
+                  No
+                {% endif %}
+              </td>
+              <td>
+                {% if not o.deleted %}
+                  <a href="{% url 'invoice.quick.time.record.delete' o.pk %}">
                     <i class="fa fa-trash-o"></i>
                   </a>
                 {% endif %}
@@ -72,4 +75,3 @@
     </div>
   </div>
 {% endblock content %}
-

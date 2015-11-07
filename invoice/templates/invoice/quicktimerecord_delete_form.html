@@ -13,7 +13,10 @@
     <div class="pure-u-1">
       <br>
       Are you sure you want to delete the
-      <strong>{{ object.name }}</strong>
+      <strong>{{ object.description }}</strong>
+      {% if object.chargeable %}
+        (Chargeable)
+      {% endif %}
       quick time record?
     </div>
   </div>

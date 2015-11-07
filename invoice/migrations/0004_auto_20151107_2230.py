@@ -16,33 +16,32 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='QuickTimeRecord',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('chargeable', models.BooleanField(default=False)),
                 ('description', models.CharField(max_length=100)),
-                ('icon', models.CharField(max_length=100, blank=True)),
                 ('deleted', models.BooleanField(default=False)),
             ],
             options={
-                'verbose_name_plural': 'Time Recording Triggers',
-                'verbose_name': 'Time Recording Trigger',
+                'verbose_name': 'Quick Time Recording',
                 'ordering': ['description', 'chargeable'],
+                'verbose_name_plural': 'Quick Time Recording',
             },
         ),
         migrations.CreateModel(
             name='TimeCode',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('description', models.CharField(max_length=100)),
                 ('deleted', models.BooleanField(default=False)),
             ],
             options={
-                'verbose_name_plural': 'Time Codes',
                 'verbose_name': 'Time Code',
                 'ordering': ['description'],
+                'verbose_name_plural': 'Time Codes',
             },
         ),
         migrations.AddField(
@@ -58,6 +57,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='timerecord',
             name='time_code',
-            field=models.ForeignKey(blank=True, to='invoice.TimeCode', null=True),
+            field=models.ForeignKey(to='invoice.TimeCode', blank=True, null=True),
         ),
     ]

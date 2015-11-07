@@ -77,7 +77,7 @@ class QuickTimeRecordForm(RequiredFieldForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for name in ('description', 'icon'):
+        for name in ('description',):
             self.fields[name].widget.attrs.update({'class': 'pure-input-2-3'})
 
     class Meta:
@@ -86,7 +86,6 @@ class QuickTimeRecordForm(RequiredFieldForm):
             'description',
             'time_code',
             'chargeable',
-            'icon',
         )
 
 
