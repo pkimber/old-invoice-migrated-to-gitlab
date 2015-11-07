@@ -61,7 +61,7 @@ class InvoiceCreate(object):
         #if not time_records.count():
         #    result.append("Cannot create invoice.  There are no time records.")
         for tr in time_records:
-            if not tr.can_invoice():
+            if not tr.is_complete:
                 result.append(
                     "Cannot create invoice.  Time record '{}' does "
                     "not have a start date/time or end time.".format(tr)
