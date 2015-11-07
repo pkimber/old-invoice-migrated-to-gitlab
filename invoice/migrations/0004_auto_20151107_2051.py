@@ -14,22 +14,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TimeRecordCategory',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('description', models.CharField(max_length=100)),
                 ('billable', models.BooleanField(default=False)),
+                ('deleted', models.BooleanField(default=False)),
                 ('icon', models.CharField(blank=True, max_length=100)),
             ],
             options={
-                'verbose_name_plural': 'Time Record Categories',
                 'verbose_name': 'Time Record Category',
                 'ordering': ['description', 'billable'],
+                'verbose_name_plural': 'Time Record Categories',
             },
         ),
         migrations.AddField(
             model_name='timerecord',
             name='category',
-            field=models.ForeignKey(blank=True, null=True, to='invoice.TimeRecordCategory'),
+            field=models.ForeignKey(to='invoice.TimeRecordCategory', blank=True, null=True),
         ),
     ]

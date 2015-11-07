@@ -354,6 +354,7 @@ class TimeRecordCategory(TimeStampedModel):
 
     description = models.CharField(max_length=100)
     billable = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
     icon = models.CharField(max_length=100, blank=True)
 
     class Meta:
