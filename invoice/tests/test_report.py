@@ -15,7 +15,7 @@ from crm.tests.factories import (
     TicketFactory,
 )
 from invoice.models import TimeRecord
-from invoice.service import charts
+from invoice.service import report
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -30,7 +30,7 @@ from report.models import (
 
 
 @pytest.mark.django_db
-def test_charts():
+def test_reports():
     to_date = timezone.now()
     from_date = to_date + relativedelta(months=-1)
     d = from_date + relativedelta(days=7)
@@ -46,9 +46,9 @@ def test_charts():
         start_time=time(10, 0),
         end_time=time(10, 15),
     )
-    charts()
-    report = Report.objects.get(slug='invoice_charge_non_charge')
-    qs = ReportDataInteger.objects.filter(report=report)
+    report()
+    obj = Report.objects.get(slug='invoice_charge_non_charge')
+    qs = ReportDataInteger.objects.filter(report=obj)
     assert 2 == qs.count()
 
 

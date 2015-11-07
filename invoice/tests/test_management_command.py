@@ -1,12 +1,21 @@
 # -*- encoding: utf-8 -*-
-from django.test import TestCase
+import pytest
 
-from invoice.management.commands import init_app_invoice
+from invoice.management.commands import (
+    init_app_invoice,
+    report_invoice,
+)
 
 
-class TestCommand(TestCase):
+@pytest.mark.django_db
+def test_init_app():
+    """ Test the management command """
+    command = init_app_invoice.Command()
+    command.handle()
 
-    def test_init_app(self):
-        """ Test the management command """
-        command = init_app_invoice.Command()
-        command.handle()
+
+@pytest.mark.django_db
+def test_report_invoice():
+    """ Test the management command """
+    command = report_invoice.Command()
+    command.handle()

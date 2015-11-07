@@ -430,7 +430,7 @@ class InvoicePrint(MyReport):
         return '<b>VAT Number</b> {}'.format(vat_number)
 
 
-def charts():
+def report():
     """Chart data to be added to the off-line report models."""
     to_date = timezone.now()
     from_date = to_date + relativedelta(months=-1)
