@@ -1,0 +1,25 @@
+{% extends 'dash/base.html' %}
+
+{% block sub_title %}
+  Delete Quick Time Recording
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Delete Quick Time Recording
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      <br>
+      Are you sure you want to delete the
+      <strong>{{ object.name }}</strong>
+      quick time record?
+    </div>
+  </div>
+  <div class="pure-g">
+    <div class="pure-u-1">
+      {% include '_form.html' with submit='Delete Quick Time Record' %}
+    </div>
+  </div>
+{% endblock content %}

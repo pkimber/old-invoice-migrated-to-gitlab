@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+import pytest
+
 from datetime import date
 
 from django.core.urlresolvers import reverse
@@ -17,125 +19,175 @@ from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
+    QuickTimeRecordFactory,
     TimeRecordFactory,
 )
 from login.tests.factories import UserFactory
+from login.tests.fixture import perm_check
 
 
-class TestViewPerm(PermTestCase):
+@pytest.mark.django_db
+def test_contact_invoice_list(perm_check):
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.contact.list',
+        kwargs={'slug': contact.slug}
+    )
+    perm_check.staff(url)
 
-    def setUp(self):
-        self.setup_users()
 
-    def test_contact_invoice_list(self):
-        contact = ContactFactory()
-        url = reverse(
-            'invoice.contact.list',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_contact_time_record_list(perm_check):
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.time.contact.list',
+        kwargs={'slug': contact.slug}
+    )
+    perm_check.staff(url)
 
-    def test_contact_time_record_list(self):
-        contact = ContactFactory()
-        url = reverse(
-            'invoice.time.contact.list',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
 
-    def test_invoice_create_draft(self):
-        InvoiceSettingsFactory()
-        VatSettingsFactory()
-        contact = ContactFactory()
-        url = reverse(
-            'invoice.create.draft',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_create_draft(perm_check):
+    InvoiceSettingsFactory()
+    VatSettingsFactory()
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.create.draft',
+        kwargs={'slug': contact.slug}
+    )
+    perm_check.staff(url)
 
-    def test_invoice_create_time(self):
-        InvoiceSettingsFactory()
-        VatSettingsFactory()
-        contact = ContactFactory()
-        url = reverse(
-            'invoice.create.time',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
 
-    def test_invoice_list(self):
-        url = reverse('invoice.list')
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_create_time(perm_check):
+    InvoiceSettingsFactory()
+    VatSettingsFactory()
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.create.time',
+        kwargs={'slug': contact.slug}
+    )
+    perm_check.staff(url)
 
-    def test_invoice_download(self):
-        InvoiceSettingsFactory()
-        VatSettingsFactory()
-        contact = ContactFactory()
-        ticket = TicketFactory(contact=contact)
-        TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
-        invoice = InvoiceCreate().create(
-            UserFactory(),
-            contact,
-            date(2013, 12, 31)
-        )
-        InvoicePrint().create_pdf(invoice, header_image=None)
-        url = reverse('invoice.download', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
 
-    def test_invoice_detail(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.detail', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_list(perm_check):
+    url = reverse('invoice.list')
+    perm_check.staff(url)
 
-    def test_invoice_line_create(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.line.create', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
 
-    def test_invoice_line_update(self):
-        invoice = InvoiceFactory()
-        InvoiceLineFactory(invoice=invoice)
-        url = reverse('invoice.line.update', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_download(perm_check):
+    InvoiceSettingsFactory()
+    VatSettingsFactory()
+    contact = ContactFactory()
+    ticket = TicketFactory(contact=contact)
+    TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
+    invoice = InvoiceCreate().create(
+        UserFactory(),
+        contact,
+        date(2013, 12, 31)
+    )
+    InvoicePrint().create_pdf(invoice, header_image=None)
+    url = reverse('invoice.download', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
 
-    def test_invoice_create_pdf(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.create.pdf', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
 
-    def test_invoice_update(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.update', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_detail(perm_check):
+    invoice = InvoiceFactory()
+    url = reverse('invoice.detail', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
 
-    def test_timerecord_list(self):
-        url = reverse('invoice.time')
-        self._assert_staff(url)
 
-    def test_timerecord_create(self):
-        ticket = TicketFactory()
-        url = reverse(
-            'invoice.time.create',
-            kwargs={'pk': ticket.pk}
-        )
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_line_create(perm_check):
+    invoice = InvoiceFactory()
+    url = reverse('invoice.line.create', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
 
-    def test_ticket_timerecord_list(self):
-        ticket = TicketFactory()
-        url = reverse(
-            'invoice.time.ticket.list',
-            kwargs={'pk': ticket.pk}
-        )
-        self._assert_staff(url)
 
-    def test_user_timerecord_list(self):
-        url = reverse('invoice.time.user.list')
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_line_update(perm_check):
+    invoice = InvoiceFactory()
+    InvoiceLineFactory(invoice=invoice)
+    url = reverse('invoice.line.update', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
 
-    def test_timerecord_update(self):
-        time_record = TimeRecordFactory()
-        url = reverse(
-            'invoice.time.update',
-            kwargs={'pk': time_record.pk}
-        )
-        self._assert_staff(url)
+
+@pytest.mark.django_db
+def test_invoice_create_pdf(perm_check):
+    invoice = InvoiceFactory()
+    url = reverse('invoice.create.pdf', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_invoice_update(perm_check):
+    invoice = InvoiceFactory()
+    url = reverse('invoice.update', kwargs={'pk': invoice.pk})
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_quick_time_record(perm_check):
+    perm_check.staff(reverse('invoice.quick.time.record.list'))
+
+
+@pytest.mark.django_db
+def test_quick_time_record_create(perm_check):
+    perm_check.staff(reverse('invoice.quick.time.record.create'))
+
+
+@pytest.mark.django_db
+def test_quick_time_record_delete(perm_check):
+    obj = QuickTimeRecordFactory()
+    perm_check.staff(reverse('invoice.quick.time.record.delete', args=[obj.pk]))
+
+
+@pytest.mark.django_db
+def test_quick_time_record_update(perm_check):
+    obj = QuickTimeRecordFactory()
+    perm_check.staff(reverse('invoice.quick.time.record.update', args=[obj.pk]))
+
+
+@pytest.mark.django_db
+def test_timerecord_list(perm_check):
+    url = reverse('invoice.time')
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_timerecord_create(perm_check):
+    ticket = TicketFactory()
+    url = reverse(
+        'invoice.time.create',
+        kwargs={'pk': ticket.pk}
+    )
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_ticket_timerecord_list(perm_check):
+    ticket = TicketFactory()
+    url = reverse(
+        'invoice.time.ticket.list',
+        kwargs={'pk': ticket.pk}
+    )
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_user_timerecord_list(perm_check):
+    url = reverse('invoice.time.user.list')
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_timerecord_update(perm_check):
+    time_record = TimeRecordFactory()
+    url = reverse(
+        'invoice.time.update',
+        kwargs={'pk': time_record.pk}
+    )
+    perm_check.staff(url)

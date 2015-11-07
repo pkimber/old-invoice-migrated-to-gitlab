@@ -19,7 +19,7 @@ from invoice.models import (
     InvoiceSettings,
     TimeCode,
     TimeRecord,
-    TimeRecordingTrigger,
+    QuickTimeRecord,
 )
 
 
@@ -76,10 +76,10 @@ class TimeCodeFactory(factory.django.DjangoModelFactory):
         return "description_{}".format(n)
 
 
-class TimeRecordingTriggerFactory(factory.django.DjangoModelFactory):
+class QuickTimeRecordFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = TimeRecordingTrigger
+        model = QuickTimeRecord
 
     time_code = factory.SubFactory(TimeCodeFactory)
     user = factory.SubFactory(UserFactory)

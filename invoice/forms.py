@@ -9,6 +9,7 @@ from base.form_utils import (
 from .models import (
     Invoice,
     InvoiceLine,
+    QuickTimeRecord,
     TimeRecord,
 )
 
@@ -62,6 +63,30 @@ class InvoiceUpdateForm(forms.ModelForm):
         model = Invoice
         fields = (
             'invoice_date',
+        )
+
+
+class QuickTimeRecordEmptyForm(forms.ModelForm):
+
+    class Meta:
+        model = QuickTimeRecord
+        fields = ()
+
+
+class QuickTimeRecordForm(RequiredFieldForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in ('description', 'icon'):
+            self.fields[name].widget.attrs.update({'class': 'pure-input-2-3'})
+
+    class Meta:
+        model = QuickTimeRecord
+        fields = (
+            'description',
+            'time_code',
+            'chargeable',
+            'icon',
         )
 
 

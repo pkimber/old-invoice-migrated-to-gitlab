@@ -1,0 +1,75 @@
+{% extends 'dash/base.html' %}
+
+{% block title %}
+  Quick Time Recording
+{% endblock title %}
+
+{% block sub_heading %}
+  Quick Time Recording
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      <div class="pure-menu pure-menu-horizontal">
+        <ul class="pure-menu-list">
+          <li class="pure-menu-item">
+            <a href="{% url 'project.settings' %}" class="pure-menu-link">
+              <i class="fa fa-reply"></i>
+            </a>
+          </li>
+          <li class="pure-menu-item">
+            <a href="{% url 'invoice.quick.time.record.create' %}" class="pure-menu-link">
+              <i class="fa fa-clock-o"></i>
+              Create Quick Time Recording
+            </a>
+          </li>
+          <li class="pure-menu-item">
+            <a href="{% url 'invoice.quick.time.record.list' %}" class="pure-menu-link">
+              <i class="fa fa-clock-o"></i>
+              Quick Time Recording
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="pure-g">
+    <div class="pure-u-1">
+      <table class="pure-table pure-table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in object_list %}
+            <tr valign="top">
+              <td>
+                {% if o.deleted %}
+                  <strike>
+                    {{ o.name }}
+                  </strike>
+                {% else %}
+                  <a href="{% url 'block.image.category.update' o.pk %}">
+                    <i class="fa fa-edit"></i>
+                    {{ o.name }}
+                  </a>
+                {% endif %}
+              </td>
+              <td>
+                {% if not o.deleted and not o.in_use %}
+                  <a href="{% url 'block.image.category.delete' o.pk %}">
+                    <i class="fa fa-trash-o"></i>
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock content %}
+

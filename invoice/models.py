@@ -371,13 +371,13 @@ class TimeCode(TimeStampedModel):
         return self.description
 
 
-class TimeRecordingTriggerManager(models.Manager):
+class QuickTimeRecordManager(models.Manager):
 
-    def triggers(self, user):
+    def quick(self, user):
         return self.model.objects.filter(user=user).exclude(deleted=True)
 
 
-class TimeRecordingTrigger(TimeStampedModel):
+class QuickTimeRecord(TimeStampedModel):
     """Pass this record to ``create_time_record`` to auto-start time."""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -386,12 +386,12 @@ class TimeRecordingTrigger(TimeStampedModel):
     description = models.CharField(max_length=100)
     icon = models.CharField(max_length=100, blank=True)
     deleted = models.BooleanField(default=False)
-    objects = TimeRecordingTriggerManager()
+    objects = QuickTimeRecordManager()
 
     class Meta:
         ordering = ['description', 'chargeable']
-        verbose_name = 'Time Recording Trigger'
-        verbose_name_plural = 'Time Recording Triggers'
+        verbose_name = 'Quick Time Recording'
+        verbose_name_plural = 'Quick Time Recording'
 
     def __str__(self):
         return self.description
@@ -402,15 +402,15 @@ class TimeRecordManager(models.Manager):
     CHARGE = 'Chargeable'
     NON_CHARGE = 'Non-Chargeable'
 
-    def create_time_record(self, ticket, trigger, start_time):
+    def create_time_record(self, ticket, quick_time_record, start_time):
         obj = self.model(
-            billable=trigger.chargeable,
+            billable=quick_time_record.chargeable,
             date_started=date.today(),
             start_time=start_time,
             ticket=ticket,
-            time_code=trigger.time_code,
-            title=trigger.description,
-            user=trigger.user,
+            time_code=quick_time_record.time_code,
+            title=quick_time_record.description,
+            user=quick_time_record.user,
         )
         obj.save()
         return obj
@@ -466,10 +466,10 @@ class TimeRecordManager(models.Manager):
                 result[user_name] = result[user_name] + row.minutes
         return result
 
-    def start(self, ticket, trigger):
+    def start(self, ticket, quick_time_record):
         running = self.model.objects.filter(
             date_started=date.today(),
-            user=trigger.user,
+            user=quick_time_record.user,
             end_time__isnull=True,
         )
         count = running.count()
@@ -482,9 +482,14 @@ class TimeRecordManager(models.Manager):
             elif count > 1:
                 raise InvoiceError(
                     "Cannot start a time record when {} are already "
-                    "running for '{}'.".format(count, trigger.user.username)
+                    "running for '{}'"
+                    ".".format(count, quick_time_record.user.username)
                 )
-            obj = self.create_time_record(ticket, trigger, start_time)
+            obj = self.create_time_record(
+                ticket,
+                quick_time_record,
+                start_time
+            )
         return obj
 
     def to_invoice(self, contact, iteration_end):

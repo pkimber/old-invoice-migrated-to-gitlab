@@ -39,11 +39,14 @@ from .forms import (
     InvoiceDraftCreateForm,
     InvoiceLineForm,
     InvoiceUpdateForm,
+    QuickTimeRecordEmptyForm,
+    QuickTimeRecordForm,
     TimeRecordForm,
 )
 from .models import (
     Invoice,
     InvoiceLine,
+    QuickTimeRecord,
     TimeRecord,
 )
 from .service import (
@@ -491,6 +494,56 @@ class InvoiceUpdateView(
     form_class = InvoiceUpdateForm
     model = Invoice
     template_name = 'invoice/invoice_update_form.html'
+
+
+class QuickTimeRecordCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+
+    form_class = QuickTimeRecordForm
+    model = QuickTimeRecord
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('invoice.quick.time.record.list')
+
+
+class QuickTimeRecordDeleteView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    form_class = QuickTimeRecordEmptyForm
+    model = QuickTimeRecord
+    template_name = 'invoice/quicktimerecord_delete_form.html'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.deleted = True
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('invoice.quick.time.record.list')
+
+
+class QuickTimeRecordListView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+
+    model = QuickTimeRecord
+
+    def get_queryset(self):
+        return QuickTimeRecord.objects.quick(self.request.user)
+
+
+class QuickTimeRecordUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    form_class = QuickTimeRecordForm
+    model = QuickTimeRecord
+
+    def get_success_url(self):
+        return reverse('invoice.quick.time.record.list')
 
 
 class TimeRecordCreateView(

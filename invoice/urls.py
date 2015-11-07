@@ -1,9 +1,7 @@
 # -*- encoding: utf-8 -*-
-
-from __future__ import unicode_literals
-
 from django.conf.urls import (
-    patterns, url
+    patterns,
+    url,
 )
 
 from .views import (
@@ -21,6 +19,10 @@ from .views import (
     InvoiceSetToDraftUpdateView,
     InvoiceTimeCreateView,
     InvoiceUpdateView,
+    QuickTimeRecordCreateView,
+    QuickTimeRecordDeleteView,
+    QuickTimeRecordListView,
+    QuickTimeRecordUpdateView,
     report_invoice_time_analysis,
     report_invoice_time_analysis_csv,
     TicketTimeRecordListView,
@@ -97,6 +99,24 @@ urlpatterns = patterns(
         view=InvoiceUpdateView.as_view(),
         name='invoice.update'
         ),
+    # quick time record
+    url(regex=r'^quick/time/record/$',
+        view=QuickTimeRecordListView.as_view(),
+        name='invoice.quick.time.record.list'
+        ),
+    url(regex=r'^quick/time/record/create/$',
+        view=QuickTimeRecordCreateView.as_view(),
+        name='invoice.quick.time.record.create'
+        ),
+    url(regex=r'^quick/time/record/(?P<pk>\d+)/update/$',
+        view=QuickTimeRecordUpdateView.as_view(),
+        name='invoice.quick.time.record.update'
+        ),
+    url(regex=r'^quick/time/record/(?P<pk>\d+)/delete/$',
+        view=QuickTimeRecordDeleteView.as_view(),
+        name='invoice.quick.time.record.delete'
+        ),
+    # ticket
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),
         name='invoice.time.ticket.list'

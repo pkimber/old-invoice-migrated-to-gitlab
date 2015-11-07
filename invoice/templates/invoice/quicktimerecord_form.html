@@ -1,0 +1,17 @@
+{% extends 'dash/base.html' %}
+
+{% block sub_title %}
+  Quick Time Recording
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Quick Time Recording
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      {% include '_form.html' with legend='Quick Time Recording' %}
+    </div>
+  </div>
+{% endblock content %}

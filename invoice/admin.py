@@ -1,12 +1,19 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.contrib import admin
 
-from .models import InvoiceSettings
+from .models import (
+    InvoiceSettings,
+    TimeCode,
+)
 
 
 class InvoiceSettingsAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(InvoiceSettings, InvoiceSettingsAdmin)
+
+
+class TimeCodeAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(TimeCode, TimeCodeAdmin)

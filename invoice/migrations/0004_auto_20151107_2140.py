@@ -14,42 +14,50 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='TimeCode',
+            name='QuickTimeRecord',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('description', models.CharField(max_length=100)),
-                ('deleted', models.BooleanField(default=False)),
-            ],
-            options={
-                'verbose_name': 'Time Code',
-                'verbose_name_plural': 'Time Codes',
-                'ordering': ['description'],
-            },
-        ),
-        migrations.CreateModel(
-            name='TimeRecordingTrigger',
-            fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('chargeable', models.BooleanField(default=False)),
                 ('description', models.CharField(max_length=100)),
-                ('icon', models.CharField(blank=True, max_length=100)),
+                ('icon', models.CharField(max_length=100, blank=True)),
                 ('deleted', models.BooleanField(default=False)),
-                ('time_code', models.ForeignKey(to='invoice.TimeCode')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'verbose_name': 'Time Recording Trigger',
                 'verbose_name_plural': 'Time Recording Triggers',
+                'verbose_name': 'Time Recording Trigger',
                 'ordering': ['description', 'chargeable'],
             },
+        ),
+        migrations.CreateModel(
+            name='TimeCode',
+            fields=[
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('modified', models.DateTimeField(auto_now=True)),
+                ('description', models.CharField(max_length=100)),
+                ('deleted', models.BooleanField(default=False)),
+            ],
+            options={
+                'verbose_name_plural': 'Time Codes',
+                'verbose_name': 'Time Code',
+                'ordering': ['description'],
+            },
+        ),
+        migrations.AddField(
+            model_name='quicktimerecord',
+            name='time_code',
+            field=models.ForeignKey(to='invoice.TimeCode'),
+        ),
+        migrations.AddField(
+            model_name='quicktimerecord',
+            name='user',
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
         ),
         migrations.AddField(
             model_name='timerecord',
             name='time_code',
-            field=models.ForeignKey(to='invoice.TimeCode', null=True, blank=True),
+            field=models.ForeignKey(blank=True, to='invoice.TimeCode', null=True),
         ),
     ]
