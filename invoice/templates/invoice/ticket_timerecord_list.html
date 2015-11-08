@@ -52,8 +52,10 @@
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
                 <td>
-                  {{ timerecord.end_time|time:"H:i" }}
-                  <small>({{ timerecord.delta_as_string }})</small>
+                  {% if timerecord.end_time %}
+                    {{ timerecord.end_time|time:"H:i" }}
+                    <small>({{ timerecord.delta_as_string }})</small>
+                  {% endif %}
                 </td>
                 <td>
                   {% if timerecord.invoice_line %}

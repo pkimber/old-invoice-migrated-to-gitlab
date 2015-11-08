@@ -34,8 +34,7 @@
               <th>Ticket</th>
               <th>Time</th>
               <th>Start</th>
-              <th></th>
-              <th>Elapsed</th>
+              <th>End</th>
               <th>Invoice</th>
             </tr>
           </thead>
@@ -50,15 +49,19 @@
                 </td>
                 <td>
                   {% include 'invoice/_timerecord.html' %}
+                  {% if timerecord.time_code %}
+                    <small>({{ timerecord.time_code.description }})</small>
+                  {% endif %}
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}
-                </td>
-                <td>
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
                 <td>
-                  {{ timerecord.delta_as_string }}
+                  {% if timerecord.end_time %}
+                    {{ timerecord.end_time|time:"H:i" }}
+                    <small>({{ timerecord.delta_as_string }})</small>
+                  {% endif %}
                 </td>
                 <td>
                   {% if timerecord.invoice_line %}
@@ -67,8 +70,10 @@
                     </a>
                   {% else %}
                     {% if timerecord.billable %}
+                      <i class="fa fa-gbp"></i>
                       <small>Pending</small>
                     {% else %}
+                      <i class="fa fa-gift"></i>
                       <small>No-charge</small>
                     {% endif %}
                   {% endif %}
