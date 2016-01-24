@@ -29,6 +29,23 @@ from crm.models import (
 from finance.models import VatCode
 
 
+# class InvoiceContact(TimeStampedModel):
+#
+#     contact = models.OneToOneField(settings.CONTACT_MODEL)
+#     hourly_rate = models.DecimalField(
+#         blank=True, null=True, max_digits=8, decimal_places=2
+#     )
+#
+#     class Meta:
+#         verbose_name = 'Invoice Contact'
+#         verbose_name_plural = 'Invoice Contacts'
+#
+#     def __str__(self):
+#         return '{}'.format(self.contact.name)
+#
+# reversion.register(InvoiceContact)
+
+
 class InvoiceError(Exception):
 
     def __init__(self, value):
@@ -64,7 +81,9 @@ class Invoice(TimeStampedModel):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
-    contact = models.ForeignKey(Contact)
+    # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
+    # crm_contact = models.ForeignKey(Contact)
+    crm_contact = models.ForeignKey(Contact) #, related_name='crm_contact_invoice')
     pdf = models.FileField(
         upload_to='invoice/%Y/%m/%d', storage=private_file_store, blank=True
     )

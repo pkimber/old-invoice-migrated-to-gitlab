@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'compressor',
+    'contact',
     'reversion',
     'base',
     'crm',
@@ -167,6 +168,8 @@ LOGIN_REDIRECT_URL = reverse_lazy('project.dash')
 
 # django-compressor
 COMPRESS_ENABLED = False # defaults to the opposite of DEBUG
+
+CONTACT_MODEL = 'contact.Contact'
 
 # https://github.com/johnsensible/django-sendfile
 SENDFILE_BACKEND = 'sendfile.backends.development'
