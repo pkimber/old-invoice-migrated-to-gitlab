@@ -178,4 +178,4 @@ SENDFILE_ROOT = 'media-private'
 FTP_STATIC_DIR = None
 FTP_STATIC_URL = None
 
-CONTACT_MODEL = 'crm.Contact'
+CONTACT_MODEL = 'contact.Contact'
