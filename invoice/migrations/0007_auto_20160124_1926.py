@@ -19,7 +19,7 @@ def _update_contact(model, obj, hourly_rate):
 
 
 def transfer_to_new_contact_app(apps, schema_editor):
-    contact_model = apps.get_model('contact', 'Contact')
+    contact_model = apps.get_model(settings.CONTACT_MODEL)
     crm_contact_model = apps.get_model('crm', 'Contact')
     invoice_contact_model = apps.get_model('invoice', 'InvoiceContact')
     invoice_model = apps.get_model('invoice', 'Invoice')
@@ -28,7 +28,7 @@ def transfer_to_new_contact_app(apps, schema_editor):
         invoice = invoice_model.objects.get(pk=pk)
         crm_contact = crm_contact_model.objects.get(pk=invoice.crm_contact.pk)
         hourly_rate = crm_contact.hourly_rate
-        contact = contact_model.objects.get(slug=invoice.crm_contact.slug)
+        contact = contact_model.objects.get(slug=crm_contact.slug)
         invoice.contact = contact
         invoice.save()
         _update_contact(invoice_contact_model, contact, hourly_rate)
