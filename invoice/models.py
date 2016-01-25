@@ -86,7 +86,9 @@ class Invoice(TimeStampedModel):
     # PJK2
     # new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     # PJK3
-    new_contact = models.ForeignKey(settings.CONTACT_MODEL, related_name='invoice_contact')
+    # new_contact = models.ForeignKey(settings.CONTACT_MODEL, related_name='invoice_contact')
+    # PJK4
+    contact = models.ForeignKey(settings.CONTACT_MODEL, related_name='invoice_contact')
 
     # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     # crm_contact = models.ForeignKey(Contact)
