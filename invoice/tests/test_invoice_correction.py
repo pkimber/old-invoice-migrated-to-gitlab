@@ -11,16 +11,19 @@ from invoice.service import (
     InvoicePrint,
 )
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
 )
+
 
 @pytest.mark.django_db
 def test_is_not_draft():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
     )
@@ -34,6 +37,7 @@ def test_set_is_draft():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
     )
@@ -50,7 +54,8 @@ def test_set_is_draft_too_late():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
-    TimeRecordFactory(ticket = tr.ticket)
+    InvoiceContactFactory(contact=tr.ticket.contact)
+    TimeRecordFactory(ticket=tr.ticket)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
     )
@@ -70,6 +75,7 @@ def test_remove_time_lines():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     TimeRecordFactory(ticket=tr.ticket)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
@@ -98,6 +104,7 @@ def test_remove_time_lines_not_extra():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     TimeRecordFactory(ticket=tr.ticket)
     invoice = InvoiceCreate().create(
         tr.user,
@@ -119,6 +126,7 @@ def test_refresh():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
     )
@@ -136,6 +144,7 @@ def test_refresh_draft_only():
     InvoiceSettingsFactory()
     VatSettingsFactory()
     tr = TimeRecordFactory()
+    InvoiceContactFactory(contact=tr.ticket.contact)
     invoice = InvoiceCreate().create(
         tr.user, tr.ticket.contact, date.today()
     )

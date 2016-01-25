@@ -2,25 +2,33 @@
 import factory
 
 from datetime import date
-
 from dateutil.relativedelta import relativedelta
+from decimal import Decimal
 
 from django.utils import timezone
 
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
-from login.tests.factories import UserFactory
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from finance.models import VatCode
+from login.tests.factories import UserFactory
 from invoice.models import (
     Invoice,
+    InvoiceContact,
     InvoiceLine,
     InvoiceSettings,
     TimeCode,
     TimeRecord,
     QuickTimeRecord,
 )
+
+
+class InvoiceContactFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = InvoiceContact
+
+    contact = factory.SubFactory(ContactFactory)
+    hourly_rate = Decimal('20')
 
 
 class InvoiceFactory(factory.django.DjangoModelFactory):

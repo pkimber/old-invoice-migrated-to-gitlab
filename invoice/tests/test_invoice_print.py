@@ -3,17 +3,16 @@ from datetime import date
 
 from django.test import TestCase
 
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
+from finance.tests.factories import VatSettingsFactory
 from invoice.models import InvoiceError
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
 )
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
-from finance.tests.factories import VatSettingsFactory
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
@@ -28,6 +27,7 @@ class TestInvoicePrint(TestCase):
         InvoiceSettingsFactory()
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
         invoice = InvoiceCreate().create(

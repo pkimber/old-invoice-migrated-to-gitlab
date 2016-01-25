@@ -5,16 +5,15 @@ from datetime import date
 from django.core.urlresolvers import reverse
 
 from base.tests.test_utils import PermTestCase
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
 )
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
@@ -31,6 +30,7 @@ class TestView(PermTestCase):
 
     def test_contact_invoice_list(self):
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         url = reverse(
             'invoice.contact.list',
             kwargs={'slug': contact.slug}
@@ -39,6 +39,7 @@ class TestView(PermTestCase):
 
     def test_contact_time_record_list(self):
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         url = reverse(
             'invoice.time.contact.list',
             kwargs={'slug': contact.slug}
@@ -48,6 +49,7 @@ class TestView(PermTestCase):
     def test_invoice_create_draft(self):
         InvoiceSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         url = reverse(
             'invoice.create.draft',
             kwargs={'slug': contact.slug}
@@ -57,6 +59,7 @@ class TestView(PermTestCase):
     def test_invoice_create_time(self):
         InvoiceSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         url = reverse(
             'invoice.create.time',
             kwargs={'slug': contact.slug}
@@ -70,6 +73,7 @@ class TestView(PermTestCase):
     def test_invoice_download(self):
         InvoiceSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
         TimeRecordFactory(ticket=ticket)

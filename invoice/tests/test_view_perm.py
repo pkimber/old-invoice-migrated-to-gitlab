@@ -6,16 +6,15 @@ from datetime import date
 from django.core.urlresolvers import reverse
 
 from base.tests.test_utils import PermTestCase
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
     InvoicePrint,
 )
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
@@ -51,6 +50,7 @@ def test_invoice_create_draft(perm_check):
     InvoiceSettingsFactory()
     VatSettingsFactory()
     contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
     url = reverse(
         'invoice.create.draft',
         kwargs={'slug': contact.slug}
@@ -63,6 +63,7 @@ def test_invoice_create_time(perm_check):
     InvoiceSettingsFactory()
     VatSettingsFactory()
     contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
     url = reverse(
         'invoice.create.time',
         kwargs={'slug': contact.slug}
@@ -81,6 +82,7 @@ def test_invoice_download(perm_check):
     InvoiceSettingsFactory()
     VatSettingsFactory()
     contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
     ticket = TicketFactory(contact=contact)
     TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
     invoice = InvoiceCreate().create(

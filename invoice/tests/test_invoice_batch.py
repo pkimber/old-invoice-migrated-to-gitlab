@@ -3,14 +3,13 @@ from datetime import date
 
 from django.test import TestCase
 
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from finance.tests.factories import VatSettingsFactory
 from invoice.models import Invoice
 from invoice.service import InvoiceCreateBatch
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
 )
@@ -24,6 +23,7 @@ class TestInvoiceCreateBatch(TestCase):
         InvoiceSettingsFactory()
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2012, 7, 1))
         TimeRecordFactory(ticket=ticket, date_started=date(2012, 8, 1))
@@ -39,6 +39,7 @@ class TestInvoiceCreateBatch(TestCase):
         InvoiceSettingsFactory()
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2012, 7, 1))
         InvoiceCreateBatch().create(UserFactory(), date(2012, 9, 30))
@@ -58,6 +59,7 @@ class TestInvoiceCreateBatch(TestCase):
         InvoiceSettingsFactory()
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         TimeRecordFactory(ticket=ticket, date_started=date(2012, 7, 1))
         user = UserFactory()
