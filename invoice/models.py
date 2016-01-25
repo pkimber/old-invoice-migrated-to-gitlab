@@ -83,9 +83,8 @@ class Invoice(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
     contact = models.ForeignKey(Contact)
-    # PJK1
-    # new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
-
+    # PJK2
+    new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
 
     # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     # crm_contact = models.ForeignKey(Contact)
