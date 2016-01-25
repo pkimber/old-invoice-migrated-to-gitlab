@@ -17,13 +17,15 @@ from django.utils.timesince import timeuntil
 
 import reversion
 
-from crm import models as crm_models
 from base.model_utils import (
     private_file_store,
     TimeStampedModel,
 )
 from base.singleton import SingletonModel
-from crm.models import Ticket
+from crm.models import (
+    Contact,
+    Ticket,
+)
 from finance.models import VatCode
 
 
@@ -80,11 +82,16 @@ class Invoice(TimeStampedModel):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
+    contact = models.ForeignKey(Contact)
+    # PJK1
+    # new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
+
+
     # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     # crm_contact = models.ForeignKey(Contact)
-    crm_contact = models.ForeignKey(crm_models.Contact) #, related_name='crm_contact_invoice')
+    # crm_contact = models.ForeignKey(crm_models.Contact) #, related_name='crm_contact_invoice')
     # PJK2
-    contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
+    # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     pdf = models.FileField(
         upload_to='invoice/%Y/%m/%d', storage=private_file_store, blank=True
     )
