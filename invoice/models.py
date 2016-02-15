@@ -22,10 +22,7 @@ from base.model_utils import (
     TimeStampedModel,
 )
 from base.singleton import SingletonModel
-from crm.models import (
-    Contact,
-    Ticket,
-)
+from crm.models import Ticket
 from finance.models import VatCode
 
 

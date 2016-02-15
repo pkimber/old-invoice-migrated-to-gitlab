@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.utils import timezone
 
 from crm.tests.factories import (
-    ContactFactory,
+    # ContactFactory,
     TicketFactory,
 )
 from invoice.models import TimeRecord
