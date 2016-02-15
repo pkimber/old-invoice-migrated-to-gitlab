@@ -25,7 +25,7 @@
           <strong>{{ ticket.title }}</strong>
         </a>
         <a href="{% url 'contact.detail' ticket.contact.slug %}">
-          {{ ticket.contact.name }}
+          {{ ticket.contact.full_name }}
         </a>
       </p>
       {% if timerecord_list %}

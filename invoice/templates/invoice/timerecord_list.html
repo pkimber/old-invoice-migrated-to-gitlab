@@ -42,7 +42,7 @@
             {% for timerecord in timerecord_list %}
               <tr valign="top">
                 <td>
-                  {{ timerecord.ticket.contact.name }},
+                  {{ timerecord.ticket.contact.full_name }},
                   <a href="{% url 'crm.ticket.detail' timerecord.ticket.pk %}">
                     {{ timerecord.ticket.title }}
                   </a>
