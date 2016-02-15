@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contact', '0004_default_gender'),
+        ('contact', '0002_default_gender'),
         ('invoice', '0004_auto_20151107_2230'),
         migrations.swappable_dependency(settings.CONTACT_MODEL),
     ]
