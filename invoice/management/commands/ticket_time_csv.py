@@ -10,7 +10,7 @@ from invoice.models import TimeRecord
 class Command(BaseCommand):
 
     help = "Export ticket time to a CSV file"
-    
+
     def _jobs_board_tickets(self):
         return (
             732,
@@ -31,12 +31,12 @@ class Command(BaseCommand):
             906,
             976,
         )
-    
+
     def _payment_plan_tickets(self):
         return (
             644,
         )
-    
+
     def handle(self, *args, **options):
         """Export ticket time to a CSV file.
 
@@ -49,9 +49,10 @@ class Command(BaseCommand):
         - minutes
 
         """
-        tickets = self._jobs_board_tickets()
+        # tickets = self._jobs_board_tickets()
         # tickets = self._payment_plan_tickets()
-        tickets = list(tickets)
+        # tickets = list(tickets)
+        tickets = [1100]
         tickets.sort()
         file_name = '{}_ticket_time.csv'.format(
             '_'.join([str(i) for i in tickets])
@@ -70,6 +71,6 @@ class Command(BaseCommand):
                     tr.billable,
                     tr.has_invoice_line,
                     tr.date_started,
-                    tr._timedelta_minutes(),
+                    tr.minutes,
                 ])
         print("Exported time to {}".format(file_name))
