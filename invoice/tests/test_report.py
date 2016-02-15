@@ -10,10 +10,8 @@ from decimal import Decimal
 
 from django.utils import timezone
 
-from crm.tests.factories import (
-    # ContactFactory,
-    TicketFactory,
-)
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from invoice.models import TimeRecord
 from invoice.service import report
 from invoice.tests.factories import (

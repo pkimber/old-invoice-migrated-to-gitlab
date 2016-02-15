@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('invoice_date', models.DateField()),
                 ('pdf', models.FileField(storage=django.core.files.storage.FileSystemStorage(location='media-private'), upload_to='invoice/%Y/%m/%d', blank=True)),
-                ('contact', models.ForeignKey(to='crm.Contact')),
+                ('contact', models.ForeignKey(to=settings.CONTACT_MODEL)),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={

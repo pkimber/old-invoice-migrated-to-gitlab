@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 
+
 def _create_contact_invoice(contact, hourly_rate, model):
     try:
         model.objects.get(contact=contact)
@@ -26,10 +27,16 @@ def _create(pk, model_contact_old, model_contact_new, model_contact_invoice):
 def transfer_to_new_contact_app(apps, schema_editor):
     model_contact_invoice = apps.get_model('invoice', 'InvoiceContact')
     model_contact_new = apps.get_model(settings.CONTACT_MODEL)
-    model_contact_old = apps.get_model('crm', 'Contact')
-    pks = [obj.pk for obj in model_contact_old.objects.all().order_by('pk')]
-    for pk in pks:
-        _create(pk, model_contact_old, model_contact_new, model_contact_invoice)
+    try:
+        model_contact_old = apps.get_model('crm', 'Contact')
+        pks = [obj.pk for obj in model_contact_old.objects.all().order_by('pk')]
+        for pk in pks:
+            _create(pk, model_contact_old, model_contact_new, model_contact_invoice)
+    except LookupError:
+        print(
+            "Warning: Cannot find 'crm.Contact'.  If you have an old "
+            "'Contact' table in 'crm', it will not be updated."
+        )
 
 
 class Migration(migrations.Migration):
