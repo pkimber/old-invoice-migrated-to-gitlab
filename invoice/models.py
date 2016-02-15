@@ -15,7 +15,7 @@ from django.db import (
 from django.utils import timezone
 from django.utils.timesince import timeuntil
 
-import reversion
+from reversion import revisions as reversion
 
 from base.model_utils import (
     private_file_store,
