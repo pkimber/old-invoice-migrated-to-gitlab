@@ -8,6 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('crm', '0006_auto_20160125_1153'),
         ('invoice', '0008_auto_20160125_1209'),
         migrations.swappable_dependency(settings.CONTACT_MODEL),
     ]

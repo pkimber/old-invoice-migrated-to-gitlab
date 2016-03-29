@@ -27,21 +27,22 @@ def _create(pk, model_contact_old, model_contact_new, model_contact_invoice):
 def transfer_to_new_contact_app(apps, schema_editor):
     model_contact_invoice = apps.get_model('invoice', 'InvoiceContact')
     model_contact_new = apps.get_model(settings.CONTACT_MODEL)
-    try:
-        model_contact_old = apps.get_model('crm', 'Contact')
-        pks = [obj.pk for obj in model_contact_old.objects.all().order_by('pk')]
-        for pk in pks:
-            _create(pk, model_contact_old, model_contact_new, model_contact_invoice)
-    except LookupError:
-        print(
-            "Warning: Cannot find 'crm.Contact'.  If you have an old "
-            "'Contact' table in 'crm', it will not be updated."
-        )
+    # try:
+    model_contact_old = apps.get_model('crm', 'Contact')
+    pks = [obj.pk for obj in model_contact_old.objects.all().order_by('pk')]
+    for pk in pks:
+        _create(pk, model_contact_old, model_contact_new, model_contact_invoice)
+    # except LookupError:
+    #     print(
+    #         "Warning: Cannot find 'crm.Contact'.  If you have an old "
+    #         "'Contact' table in 'crm', it will not be updated."
+    #     )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('crm', '0005_ticket_new_contact'),
         ('invoice', '0005_auto_20160125_1134'),
         migrations.swappable_dependency(settings.CONTACT_MODEL),
     ]
