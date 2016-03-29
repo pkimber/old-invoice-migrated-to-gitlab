@@ -500,7 +500,7 @@ class TimeRecordManager(models.Manager):
         )
         count = running.count()
         with transaction.atomic():
-            start_time = timezone.now().time()
+            start_time = timezone.localtime(timezone.now()).time()
             if count == 1:
                 to_stop = running[0]
                 to_stop.end_time = start_time
