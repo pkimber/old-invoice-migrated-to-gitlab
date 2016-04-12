@@ -22,11 +22,26 @@ from base.model_utils import (
     TimeStampedModel,
 )
 from base.singleton import SingletonModel
-from crm.models import (
-    Contact,
-    Ticket,
-)
+from crm.models import Ticket
 from finance.models import VatCode
+
+
+class InvoiceContact(TimeStampedModel):
+
+    contact = models.OneToOneField(settings.CONTACT_MODEL)
+    hourly_rate = models.DecimalField(
+        blank=True, null=True, max_digits=8, decimal_places=2
+    )
+
+    class Meta:
+        verbose_name = 'Invoice Contact'
+        verbose_name_plural = 'Invoice Contacts'
+
+    def __str__(self):
+        return 'abc'
+        return '{}'.format(self.contact.name)
+
+reversion.register(InvoiceContact)
 
 
 class InvoiceError(Exception):
@@ -64,7 +79,19 @@ class Invoice(TimeStampedModel):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
-    contact = models.ForeignKey(Contact)
+    # contact = models.ForeignKey(Contact)
+    # PJK2
+    # new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
+    # PJK3
+    # new_contact = models.ForeignKey(settings.CONTACT_MODEL, related_name='invoice_contact')
+    # PJK4
+    contact = models.ForeignKey(settings.CONTACT_MODEL, related_name='invoice_contact')
+
+    # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
+    # crm_contact = models.ForeignKey(Contact)
+    # crm_contact = models.ForeignKey(crm_models.Contact) #, related_name='crm_contact_invoice')
+    # PJK2
+    # contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
     pdf = models.FileField(
         upload_to='invoice/%Y/%m/%d', storage=private_file_store, blank=True
     )
@@ -473,7 +500,7 @@ class TimeRecordManager(models.Manager):
         )
         count = running.count()
         with transaction.atomic():
-            start_time = timezone.now().time()
+            start_time = timezone.localtime(timezone.now()).time()
             if count == 1:
                 to_stop = running[0]
                 to_stop.end_time = start_time

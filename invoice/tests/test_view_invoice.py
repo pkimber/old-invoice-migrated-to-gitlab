@@ -2,13 +2,17 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
-from crm.tests.factories import ContactFactory
+from contact.tests.factories import ContactFactory
 from finance.tests.factories import VatSettingsFactory
 from login.tests.factories import (
     TEST_PASSWORD,
     UserFactory,
 )
-from .factories import InvoiceSettingsFactory
+from .factories import (
+    InvoiceContactFactory,
+    InvoiceSettingsFactory,
+)
+
 
 class TestViewInvoice(TestCase):
 
@@ -22,6 +26,7 @@ class TestViewInvoice(TestCase):
         InvoiceSettingsFactory()
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         url = reverse('invoice.create.draft', kwargs={'slug': contact.slug})
         response = self.client.post(url)
         assert 200 == response.status_code

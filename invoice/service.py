@@ -5,6 +5,8 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
+from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -14,7 +16,6 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab import platypus
 
-from crm.models import Contact
 from finance.models import VatSettings
 from report.models import (
     Report,
@@ -23,6 +24,7 @@ from report.models import (
 from report.service import top
 from .models import (
     Invoice,
+    InvoiceContact,
     InvoiceError,
     InvoiceLine,
     InvoiceSettings,
@@ -41,12 +43,14 @@ class InvoiceCreate(object):
         """Add time records to a draft invoice."""
         vat_settings = VatSettings.objects.settings()
         for tr in time_records:
+            contact = invoice.contact
+            invoice_contact = InvoiceContact.objects.get(contact=contact)
             invoice_line = InvoiceLine(
                 user=user,
                 invoice=invoice,
                 line_number=invoice.get_next_line_number(),
                 quantity=tr.invoice_quantity,
-                price=invoice.contact.hourly_rate,
+                price=invoice_contact.hourly_rate,
                 units='hours',
                 vat_code=vat_settings.standard_vat_code,
             )
@@ -61,10 +65,11 @@ class InvoiceCreate(object):
         InvoiceSettings.objects.settings()
         # check the VAT settings are set-up
         VatSettings.objects.settings()
-        if not contact.hourly_rate:
+        invoice_contact = InvoiceContact.objects.get(contact=contact)
+        if not invoice_contact.hourly_rate:
             result.append(
                 "Cannot create invoice - no hourly rate for "
-                "'{}' ('{}')".format(contact.name, contact.slug)
+                "'{}'".format(contact.slug)
             )
         #if not time_records.count():
         #    result.append("Cannot create invoice.  There are no time records.")
@@ -128,7 +133,8 @@ class InvoiceCreateBatch(object):
     def create(self, user, iteration_end):
         """ Create invoices from time records """
         invoice_create = InvoiceCreate()
-        for contact in Contact.objects.all():
+        model = apps.get_model(settings.CONTACT_MODEL)
+        for contact in model.objects.all():
             invoice_create.create(user, contact, iteration_end)
 
 
@@ -419,8 +425,16 @@ class InvoicePrint(MyReport):
 
     def _text_invoice_address(self, invoice):
         """ Name and address of contact we are invoicing """
-        lines = [invoice.contact.name]
-        lines = lines + invoice.contact.address.split('\n')
+        contact = invoice.contact
+        lines = []
+        lines += [contact.company_name] if contact.company_name else []
+        lines += [contact.address_1] if contact.address_1 else []
+        lines += [contact.address_2] if contact.address_2 else []
+        lines += [contact.address_3] if contact.address_3 else []
+        lines += [contact.town] if contact.town else []
+        lines += [contact.county] if contact.county else []
+        lines += [contact.postcode] if contact.postcode else []
+        lines += [contact.country] if contact.country else []
         return '<br />'.join(lines)
 
     def _text_our_address(self, name_and_address):

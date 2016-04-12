@@ -25,6 +25,9 @@ urlpatterns = patterns(
     url(regex=r'^admin/',
         view=include(admin.site.urls)
         ),
+    url(regex=r'^contact/',
+        view=include('contact.urls')
+        ),
     url(regex=r'^crm/',
         view=include('crm.urls')
         ),

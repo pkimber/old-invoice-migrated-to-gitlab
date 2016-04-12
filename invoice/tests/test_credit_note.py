@@ -12,6 +12,7 @@ from invoice.service import (
     InvoicePrint,
 )
 from .factories import (
+    InvoiceContactFactory,
     InvoiceFactory,
     InvoiceLineFactory,
     InvoiceSettingsFactory,
@@ -60,6 +61,7 @@ class TestCreditNote(TestCase):
 
     def test_credit_note(self):
         credit = self._credit_note()
+        InvoiceContactFactory(contact=credit.contact)
         InvoiceCreate().create(credit.user, credit.contact, date.today())
 
     def test_line_is_credit(self):

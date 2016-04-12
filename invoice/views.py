@@ -2,8 +2,11 @@
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+# from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -24,15 +27,7 @@ from braces.views import (
 from sendfile import sendfile
 
 from base.view_utils import BaseMixin
-from crm.models import (
-    Contact,
-    Ticket,
-)
-from crm.views import (
-    check_perm,
-    CheckPermMixin,
-)
-
+from crm.models import Ticket
 from .forms import (
     InvoiceBlankForm,
     InvoiceBlankTodayForm,
@@ -59,11 +54,11 @@ from .report import (
 )
 
 
-@login_required
+@staff_member_required
 def invoice_download(request, pk):
     """https://github.com/johnsensible/django-sendfile"""
     invoice = get_object_or_404(Invoice, pk=pk)
-    check_perm(request.user, invoice.contact)
+    # check_perm(request.user, invoice.contact)
     return sendfile(
         request,
         invoice.pdf.path,
@@ -72,7 +67,7 @@ def invoice_download(request, pk):
     )
 
 
-@login_required
+@staff_member_required
 def report_invoice_time_analysis(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     check_perm(request.user, invoice.contact)
@@ -85,7 +80,8 @@ def report_invoice_time_analysis(request, pk):
     report.report(invoice, request.user, response)
     return response
 
-@login_required
+
+@staff_member_required
 def report_invoice_time_analysis_csv(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     check_perm(request.user, invoice.contact)
@@ -100,20 +96,19 @@ def report_invoice_time_analysis_csv(request, pk):
 
 
 class ContactInvoiceListView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     template_name = 'invoice/contact_invoice_list.html'
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = Contact.objects.get(slug=slug)
-        self._check_perm(contact)
+        model = apps.get_model(settings.CONTACT_MODEL)
+        contact = model.objects.get(slug=slug)
+        # self._check_perm(contact)
         return contact
 
     def get_context_data(self, **kwargs):
-        context = super(
-            ContactInvoiceListView, self
-        ).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             contact=self._get_contact(),
         ))
@@ -125,21 +120,20 @@ class ContactInvoiceListView(
 
 
 class ContactTimeRecordListView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     paginate_by = 20
     template_name = 'invoice/contact_timerecord_list.html'
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = Contact.objects.get(slug=slug)
-        self._check_perm(contact)
+        model = apps.get_model(settings.CONTACT_MODEL)
+        contact = model.objects.get(slug=slug)
+        # self._check_perm(contact)
         return contact
 
     def get_context_data(self, **kwargs):
-        context = super(
-            ContactTimeRecordListView, self
-        ).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             contact=self._get_contact(),
         ))
@@ -243,7 +237,8 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
     def _get_contact(self):
         slug = self.kwargs.get('slug')
-        contact = Contact.objects.get(slug=slug)
+        model = apps.get_model(settings.CONTACT_MODEL)
+        contact = model.objects.get(slug=slug)
         return contact
 
     def _check_invoice_settings(self, contact):
@@ -252,9 +247,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
             messages.warning(self.request, message)
 
     def get_context_data(self, **kwargs):
-        context = super(
-            InvoiceCreateViewMixin, self
-        ).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         contact = self._get_contact()
         self._check_invoice_settings(contact)
         context.update(dict(
@@ -279,7 +272,7 @@ class InvoiceDraftCreateView(
         self.object = form.save(commit=False)
         self.object.contact = self._get_contact()
         self.object.user = self.request.user
-        return super(InvoiceDraftCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class InvoiceLineCreateView(
@@ -295,7 +288,7 @@ class InvoiceLineCreateView(
         return invoice
 
     def get_context_data(self, **kwargs):
-        context = super(InvoiceLineCreateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             invoice=self._get_invoice(),
         ))
@@ -306,7 +299,7 @@ class InvoiceLineCreateView(
         self.object.invoice = self._get_invoice()
         self.object.line_number = self.object.invoice.get_next_line_number()
         self.object.user = self.request.user
-        return super(InvoiceLineCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class InvoiceLineUpdateView(
@@ -317,14 +310,14 @@ class InvoiceLineUpdateView(
     template_name = 'invoice/invoiceline_update_form.html'
 
     def get_object(self, *args, **kwargs):
-        obj = super(InvoiceLineUpdateView, self).get_object(*args, **kwargs)
+        obj = super().get_object(*args, **kwargs)
         if not obj.user_can_edit:
             raise PermissionDenied()
         return obj
 
 
 class InvoicePdfUpdateView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     form_class = InvoiceBlankForm
     model = Invoice
@@ -336,7 +329,7 @@ class InvoicePdfUpdateView(
             messages.warning(self.request, message)
 
     def get_object(self, *args, **kwargs):
-        obj = super(InvoicePdfUpdateView, self).get_object(*args, **kwargs)
+        obj = super().get_object(*args, **kwargs)
         self._check_invoice_print(obj)
         return obj
 
@@ -354,14 +347,14 @@ class InvoicePdfUpdateView(
 
 
 class InvoiceRefreshTimeRecordsUpdateView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     form_class = InvoiceBlankTodayForm
     model = Invoice
     template_name = 'invoice/invoice_refresh_time_records_form.html'
 
     def get_context_data(self, **kwargs):
-        context = super(InvoiceRefreshTimeRecordsUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             timerecords=InvoiceCreate().draft(
                 self.object.contact, date.today()
@@ -391,7 +384,7 @@ class InvoiceRefreshTimeRecordsUpdateView(
 
 
 class InvoiceRemoveTimeRecordsUpdateView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     form_class = InvoiceBlankForm
     model = Invoice
@@ -412,7 +405,7 @@ class InvoiceRemoveTimeRecordsUpdateView(
 
 
 class InvoiceSetToDraftUpdateView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, UpdateView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     form_class = InvoiceBlankForm
     model = Invoice
@@ -439,7 +432,7 @@ class InvoiceTimeCreateView(
     template_name = 'invoice/invoice_create_time_form.html'
 
     def get_context_data(self, **kwargs):
-        context = super(InvoiceTimeCreateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             timerecords=InvoiceCreate().draft(
                 self._get_contact(), date.today()
@@ -558,7 +551,7 @@ class TimeRecordCreateView(
         return ticket
 
     def get_context_data(self, **kwargs):
-        context = super(TimeRecordCreateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             ticket=self._get_ticket(),
         ))
@@ -574,7 +567,7 @@ class TimeRecordCreateView(
         self.object = form.save(commit=False)
         self.object.ticket = self._get_ticket()
         self.object.user = self.request.user
-        return super(TimeRecordCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class TimeRecordListView(
@@ -585,20 +578,18 @@ class TimeRecordListView(
 
 
 class TicketTimeRecordListView(
-        LoginRequiredMixin, CheckPermMixin, BaseMixin, ListView):
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
 
     template_name = 'invoice/ticket_timerecord_list.html'
 
     def _get_ticket(self):
         pk = self.kwargs.get('pk')
         ticket = get_object_or_404(Ticket, pk=pk)
-        self._check_perm(ticket.contact)
+        # self._check_perm(ticket.contact)
         return ticket
 
     def get_context_data(self, **kwargs):
-        context = super(
-            TicketTimeRecordListView, self
-        ).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             ticket=self._get_ticket(),
         ))
@@ -621,14 +612,14 @@ class TimeRecordUpdateView(
     model = TimeRecord
 
     def get_context_data(self, **kwargs):
-        context = super(TimeRecordUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(dict(
             ticket=self.object.ticket,
         ))
         return context
 
     def get_object(self, *args, **kwargs):
-        obj = super(TimeRecordUpdateView, self).get_object(*args, **kwargs)
+        obj = super().get_object(*args, **kwargs)
         if not obj.user_can_edit:
             raise PermissionDenied()
         return obj

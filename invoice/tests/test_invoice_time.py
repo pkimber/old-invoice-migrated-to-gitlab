@@ -4,10 +4,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from crm.tests.factories import (
-    ContactFactory,
-    TicketFactory,
-)
+from contact.tests.factories import ContactFactory
+from crm.tests.factories import TicketFactory
 from finance.tests.factories import VatSettingsFactory
 from invoice.service import (
     InvoiceCreate,
@@ -15,6 +13,7 @@ from invoice.service import (
     InvoicePrint,
 )
 from invoice.tests.factories import (
+    InvoiceContactFactory,
     InvoiceSettingsFactory,
     TimeRecordFactory,
 )
@@ -29,6 +28,7 @@ class TestInvoice(TestCase):
         """Invoice time records."""
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
         TimeRecordFactory(ticket=ticket)
@@ -44,6 +44,7 @@ class TestInvoice(TestCase):
         """One of the time records has no end time, so cannot be invoiced."""
         VatSettingsFactory()
         contact = ContactFactory()
+        InvoiceContactFactory(contact=contact)
         ticket = TicketFactory(contact=contact)
         tr1 = TimeRecordFactory(ticket=ticket)
         TimeRecordFactory(ticket=ticket, end_time=None)
