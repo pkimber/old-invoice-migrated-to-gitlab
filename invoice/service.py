@@ -41,6 +41,7 @@ class InvoiceCreate(object):
 
     def _add_time_records(self, user, invoice, time_records):
         """Add time records to a draft invoice."""
+        invoice_settings = InvoiceSettings.objects.settings()
         vat_settings = VatSettings.objects.settings()
         for tr in time_records:
             contact = invoice.contact
@@ -49,6 +50,7 @@ class InvoiceCreate(object):
                 user=user,
                 invoice=invoice,
                 line_number=invoice.get_next_line_number(),
+                product=invoice_settings.time_record_product,
                 quantity=tr.invoice_quantity,
                 price=invoice_contact.hourly_rate,
                 units='hours',
@@ -62,7 +64,12 @@ class InvoiceCreate(object):
     def _is_valid(self, contact, time_records, raise_exception=None):
         result = []
         # check the invoice settings are set-up
-        InvoiceSettings.objects.settings()
+        invoice_settings = InvoiceSettings.objects.settings()
+        if not invoice_settings.time_record_product:
+            result.append(
+                "Cannot create an invoice.  The invoice settings need a "
+                "product selected to use for time records."
+            )
         # check the VAT settings are set-up
         VatSettings.objects.settings()
         invoice_contact = InvoiceContact.objects.get(contact=contact)
@@ -94,7 +101,9 @@ class InvoiceCreate(object):
         self._is_valid(contact, time_records, raise_exception=True)
         with transaction.atomic():
             if time_records.count():
+                next_number = Invoice.objects.next_number()
                 invoice = Invoice(
+                    number=next_number,
                     invoice_date=date.today(),
                     contact=contact,
                     user=user,

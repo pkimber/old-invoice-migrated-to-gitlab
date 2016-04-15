@@ -8,7 +8,7 @@ from decimal import Decimal
 from django.test import TestCase
 
 from finance.tests.factories import VatSettingsFactory
-from invoice.models import InvoiceLine
+from invoice.models import Invoice, InvoiceLine
 from invoice.service import InvoicePrint
 from invoice.tests.factories import (
     InvoiceFactory,
@@ -112,6 +112,19 @@ def test_has_lines():
 def test_has_lines_not():
     invoice = InvoiceFactory()
     assert invoice.has_lines is False
+
+
+@pytest.mark.django_db
+def test_next_number():
+    InvoiceFactory(number=99)
+    assert 100 == Invoice.objects.next_number()
+
+
+@pytest.mark.django_db
+def test_next_number():
+    InvoiceFactory(number=99, deleted=True)
+    InvoiceFactory(number=98, deleted_version=1)
+    assert 1 == Invoice.objects.next_number()
 
 
 @pytest.mark.django_db

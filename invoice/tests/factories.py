@@ -20,6 +20,7 @@ from invoice.models import (
     TimeRecord,
     QuickTimeRecord,
 )
+from stock.tests.factories import ProductFactory
 
 
 class InvoiceContactFactory(factory.django.DjangoModelFactory):
@@ -40,6 +41,10 @@ class InvoiceFactory(factory.django.DjangoModelFactory):
     invoice_date = date.today()
     user = factory.SubFactory(UserFactory)
 
+    @factory.sequence
+    def number(n):
+        return n + 1
+
 
 class InvoiceLineFactory(factory.django.DjangoModelFactory):
 
@@ -48,6 +53,7 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
 
     invoice = factory.SubFactory(InvoiceFactory)
     price = 0
+    product = factory.SubFactory(ProductFactory)
     quantity = 1
     units = 'each'
 
@@ -69,6 +75,8 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
 
 
 class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
+
+    time_record_product = factory.SubFactory(ProductFactory)
 
     class Meta:
         model = InvoiceSettings
