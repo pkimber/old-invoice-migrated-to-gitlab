@@ -36,4 +36,4 @@ Usage
 Release
 =======
 
-https://pkimber.net/open/
+https://www.kbsoftware.co.uk/docs/

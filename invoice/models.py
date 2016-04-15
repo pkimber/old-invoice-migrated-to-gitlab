@@ -12,6 +12,7 @@ from django.db import (
     models,
     transaction,
 )
+from django.db.models import Max
 from django.utils import timezone
 from django.utils.timesince import timeuntil
 
@@ -19,11 +20,13 @@ from reversion import revisions as reversion
 
 from base.model_utils import (
     private_file_store,
+    TimedCreateModifyDeleteVersionModel,
     TimeStampedModel,
 )
 from base.singleton import SingletonModel
 from crm.models import Ticket
 from finance.models import VatCode
+from stock.models import Product
 
 
 class InvoiceContact(TimeStampedModel):
@@ -54,7 +57,20 @@ class InvoiceError(Exception):
         return repr('%s, %s' % (self.__class__.__name__, self.value))
 
 
-class Invoice(TimeStampedModel):
+class InvoiceManager(models.Manager):
+
+    def next_number(self):
+        qs = self.model.objects.exclude(
+            deleted=True,
+        ).exclude(
+            deleted_version__gt=0,
+        )
+        result = qs.aggregate(max_id=Max('number'))
+        current_number = result.get('max_id') or 0
+        return current_number + 1
+
+
+class Invoice(TimedCreateModifyDeleteVersionModel):
     """
     From Notice 700 The VAT Guide, 16.3.1 General
 
@@ -77,8 +93,12 @@ class Invoice(TimeStampedModel):
     - total amount of VAT charged, shown in sterling.
 
     """
+
+    UNIQUE_FIELD_NAME = 'number'
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     invoice_date = models.DateField()
+    number = models.IntegerField(default=0)
     # contact = models.ForeignKey(Contact)
     # PJK2
     # new_contact = models.ForeignKey(settings.CONTACT_MODEL, blank=True, null=True, related_name='invoice_contact')
@@ -95,9 +115,11 @@ class Invoice(TimeStampedModel):
     pdf = models.FileField(
         upload_to='invoice/%Y/%m/%d', storage=private_file_store, blank=True
     )
+    objects = InvoiceManager()
 
     class Meta:
         ordering = ['pk',]
+        unique_together = ('number', 'deleted_version')
         verbose_name = 'Invoice'
         verbose_name_plural = 'Invoices'
 
@@ -285,6 +307,12 @@ class InvoiceSettings(SingletonModel):
     name_and_address = models.TextField()
     phone_number = models.CharField(max_length=100)
     footer = models.TextField()
+    time_record_product = models.ForeignKey(
+        Product,
+        blank=True,
+        null=True,
+        help_text="Product used for time records."
+    )
     objects = InvoiceSettingsManager()
 
     class Meta:
@@ -310,6 +338,7 @@ class InvoiceLine(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     line_number = models.IntegerField()
     description = models.TextField(blank=True, null=True)
+    product = models.ForeignKey(Product, related_name='+')
     quantity = models.DecimalField(max_digits=6, decimal_places=2)
     units = models.CharField(max_length=5)
     price = models.DecimalField(max_digits=8, decimal_places=2)
