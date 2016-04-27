@@ -20,7 +20,7 @@ def get_readme():
 
 setup(
     name='kb-invoice',
-    packages=['invoice', 'invoice.migrations', 'invoice.tests', 'invoice.management', 'invoice.management.commands'],
+    packages=['invoice', 'invoice.migrations', 'invoice.management', 'invoice.management.commands', 'invoice.tests'],
     package_data={
         'invoice': [
             'templates/*.*',
@@ -30,7 +30,7 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.1.26',
+    version='0.1.27',
     description='invoice',
     author='Patrick Kimber',
     author_email='code@pkimber.net',
