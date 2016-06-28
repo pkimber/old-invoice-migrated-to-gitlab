@@ -1,8 +1,9 @@
 # -*- encoding: utf-8 -*-
-from datetime import (
-    date,
-    datetime,
-)
+import collections
+
+from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
+from dateutil.rrule import WEEKLY, rrule, SU, SA
 from decimal import Decimal
 
 from django.conf import settings
@@ -520,6 +521,33 @@ class TimeRecordManager(models.Manager):
                     result[user_name] = 0
                 result[user_name] = result[user_name] + row.minutes
         return result
+
+    def _report_time_by_user_by_week(self, from_date, to_date, user):
+        start_date = from_date + relativedelta(weekday=SU(-1))
+        end_date = to_date + relativedelta(weekday=SU(1))
+        result = collections.OrderedDict()
+        for d in rrule(WEEKLY, dtstart=start_date, until=end_date):
+            print(d)
+            result[d.date()] = 0
+        qs = TimeRecord.objects.filter(
+            date_started__gte=from_date,
+            date_started__lte=to_date,
+            user=user,
+        )
+        for row in qs:
+            if row.is_complete:
+                item = row.date_started + relativedelta(weekday=SU(-1))
+                print(item)
+                result[item] = result[item] + row.minutes
+        return result
+
+    def report_time_by_user_by_week(self, from_date, to_date, user):
+        data = self._report_time_by_user_by_week(from_date, to_date, user)
+        result = collections.OrderedDict()
+        for key, value in data.items():
+            result[key.strftime('%Y_%U')] = value
+        return result
+
 
     def start(self, ticket, quick_time_record):
         running = self.model.objects.filter(

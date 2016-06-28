@@ -3,8 +3,9 @@
 Test report.
 """
 import pytest
+import pytz
 
-from datetime import time
+from datetime import datetime, time
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
@@ -225,6 +226,52 @@ def test_report_time_by_user():
     )
     data = TimeRecord.objects.report_time_by_user(from_date, to_date)
     assert {'red': 30, 'green': 15} == data
+
+
+@pytest.mark.django_db
+def test_report_time_by_user_by_week():
+    user = UserFactory(username='green')
+    from_date = datetime(2015, 12, 20, 0, 0, 0, tzinfo=pytz.utc)
+    to_date = datetime(2016, 1, 7, 0, 0, 0, tzinfo=pytz.utc)
+    TimeRecordFactory(
+        billable=True,
+        date_started=datetime(2015, 12, 21, 6, 0, 0, tzinfo=pytz.utc),
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        billable=True,
+        date_started=datetime(2016, 1, 5, 6, 0, 0, tzinfo=pytz.utc),
+        start_time=time(10, 0),
+        end_time=time(10, 3),
+        user=user,
+    )
+    TimeRecordFactory(
+        billable=True,
+        date_started=datetime(2016, 1, 7, 6, 0, 0, tzinfo=pytz.utc),
+        start_time=time(10, 0),
+        end_time=time(10, 4),
+        user=UserFactory(),
+    )
+    TimeRecordFactory(
+        billable=False,
+        date_started=datetime(2016, 1, 6, 6, 0, 0, tzinfo=pytz.utc),
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+        user=user,
+    )
+    data = TimeRecord.objects.report_time_by_user_by_week(
+        from_date, to_date, user
+    )
+    import json
+    print(json.dumps(data, indent=4))
+    assert {
+        '2015_51': 30,
+        '2015_52': 0,
+        '2016_01': 18,
+        '2016_02': 0,
+    } == data
 
 
 @pytest.mark.django_db
