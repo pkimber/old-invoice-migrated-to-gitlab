@@ -525,7 +525,7 @@ class TimeRecordManager(models.Manager):
                 result[user_name] = result[user_name] + row.minutes
         return result
 
-    def _report_time_by_user_by_week(self, from_date, to_date, user):
+    def report_time_by_user_by_week_date(self, from_date, to_date, user):
         start_date = from_date + relativedelta(weekday=SU(-1))
         end_date = to_date + relativedelta(weekday=SU(1))
         result = collections.OrderedDict()
@@ -543,7 +543,7 @@ class TimeRecordManager(models.Manager):
         return result
 
     def report_time_by_user_by_week(self, from_date, to_date, user):
-        data = self._report_time_by_user_by_week(from_date, to_date, user)
+        data = self.report_time_by_user_by_week_date(from_date, to_date, user)
         result = collections.OrderedDict()
         for key, value in data.items():
             result[key.strftime('%Y_%U')] = value
