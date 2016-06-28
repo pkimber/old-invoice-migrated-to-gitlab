@@ -379,10 +379,13 @@ class InvoiceLine(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         self.vat_rate = self.vat_code.rate
-        self.net = self.price * self.quantity
-        self.vat = self.price * self.quantity * self.vat_rate
+        self.net = self._quantize(self.price * self.quantity)
+        self.vat = self._quantize(self.price * self.quantity * self.vat_rate)
         # Call the "real" save() method.
-        super(InvoiceLine, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+    def _quantize(self, value):
+        return value.quantize(Decimal('.01'))
 
     @property
     def gross(self):

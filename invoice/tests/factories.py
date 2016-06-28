@@ -52,7 +52,7 @@ class InvoiceLineFactory(factory.django.DjangoModelFactory):
         model = InvoiceLine
 
     invoice = factory.SubFactory(InvoiceFactory)
-    price = 0
+    price = Decimal('0')
     product = factory.SubFactory(ProductFactory)
     quantity = 1
     units = 'each'
