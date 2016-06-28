@@ -264,8 +264,6 @@ def test_report_time_by_user_by_week():
     data = TimeRecord.objects.report_time_by_user_by_week(
         from_date, to_date, user
     )
-    import json
-    print(json.dumps(data, indent=4))
     assert {
         '2015_51': 30,
         '2015_52': 0,

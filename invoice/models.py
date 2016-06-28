@@ -527,7 +527,6 @@ class TimeRecordManager(models.Manager):
         end_date = to_date + relativedelta(weekday=SU(1))
         result = collections.OrderedDict()
         for d in rrule(WEEKLY, dtstart=start_date, until=end_date):
-            print(d)
             result[d.date()] = 0
         qs = TimeRecord.objects.filter(
             date_started__gte=from_date,
@@ -537,7 +536,6 @@ class TimeRecordManager(models.Manager):
         for row in qs:
             if row.is_complete:
                 item = row.date_started + relativedelta(weekday=SU(-1))
-                print(item)
                 result[item] = result[item] + row.minutes
         return result
 
@@ -547,7 +545,6 @@ class TimeRecordManager(models.Manager):
         for key, value in data.items():
             result[key.strftime('%Y_%U')] = value
         return result
-
 
     def start(self, ticket, quick_time_record):
         running = self.model.objects.filter(
