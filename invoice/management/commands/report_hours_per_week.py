@@ -42,4 +42,5 @@ class Command(BaseCommand):
             csv_writer.writerow(['Date'] + users_list)
             for key, value in result.items():
                 csv_writer.writerow([key] + value)
-        self.stdout.write("Report - created...")
+        self.stdout.write("Report - created:")
+        self.stdout.write(file_name)
