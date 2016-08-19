@@ -1,11 +1,7 @@
 # -*- encoding: utf-8 -*-
 import pytest
-"""
-Test invoice.
-"""
-from decimal import Decimal
 
-from django.test import TestCase
+from decimal import Decimal
 
 from finance.tests.factories import VatSettingsFactory
 from invoice.models import Invoice, InvoiceLine
@@ -121,7 +117,7 @@ def test_next_number():
 
 
 @pytest.mark.django_db
-def test_next_number():
+def test_next_number_2():
     InvoiceFactory(number=99, deleted=True)
     InvoiceFactory(number=98, deleted_version=1)
     assert 1 == Invoice.objects.next_number()

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
+from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from datetime import date
 from dateutil.relativedelta import relativedelta
-
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
@@ -19,14 +19,10 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
-
-from braces.views import (
-    LoginRequiredMixin,
-    StaffuserRequiredMixin,
-)
 from sendfile import sendfile
 
 from base.view_utils import BaseMixin
+from contact.views import check_perm
 from crm.models import Ticket
 from .forms import (
     InvoiceBlankForm,
@@ -38,27 +34,16 @@ from .forms import (
     QuickTimeRecordForm,
     TimeRecordForm,
 )
-from .models import (
-    Invoice,
-    InvoiceLine,
-    QuickTimeRecord,
-    TimeRecord,
-)
-from .service import (
-    InvoiceCreate,
-    InvoicePrint,
-)
-from .report import (
-    ReportInvoiceTimeAnalysis,
-    ReportInvoiceTimeAnalysisCSV,
-)
+from .models import Invoice, InvoiceLine, QuickTimeRecord, TimeRecord
+from .service import InvoiceCreate, InvoicePrint
+from .report import ReportInvoiceTimeAnalysis, ReportInvoiceTimeAnalysisCSV
 
 
 @staff_member_required
 def invoice_download(request, pk):
     """https://github.com/johnsensible/django-sendfile"""
     invoice = get_object_or_404(Invoice, pk=pk)
-    # check_perm(request.user, invoice.contact)
+    check_perm(request.user, invoice.contact)
     return sendfile(
         request,
         invoice.pdf.path,

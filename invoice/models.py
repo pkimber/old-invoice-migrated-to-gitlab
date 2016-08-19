@@ -3,20 +3,15 @@ import collections
 
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
-from dateutil.rrule import WEEKLY, rrule, SU, SA
+from dateutil.rrule import WEEKLY, rrule, SU
 from decimal import Decimal
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.db import (
-    models,
-    transaction,
-)
+from django.db import models, transaction
 from django.db.models import Max
 from django.utils import timezone
 from django.utils.timesince import timeuntil
-
 from reversion import revisions as reversion
 
 from base.model_utils import (
