@@ -1,8 +1,5 @@
 # -*- encoding: utf-8 -*-
-from django.conf.urls import (
-    patterns,
-    url,
-)
+from django.conf.urls import url
 
 from .views import (
     ContactInvoiceListView,
@@ -33,8 +30,7 @@ from .views import (
 )
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(regex=r'^contact/(?P<slug>[-\w\d]+)/invoice/$',
         view=ContactInvoiceListView.as_view(),
         name='invoice.contact.list'
@@ -137,4 +133,4 @@ urlpatterns = patterns(
         view=TimeRecordUpdateView.as_view(),
         name='invoice.time.update'
         ),
-)
+]
