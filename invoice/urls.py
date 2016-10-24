@@ -5,6 +5,7 @@ from .views import (
     ContactInvoiceListView,
     ContactTimeRecordListView,
     invoice_download,
+    InvoiceContactUpdateView,
     InvoiceDetailView,
     InvoiceDraftCreateView,
     InvoiceLineCreateView,
@@ -34,6 +35,10 @@ urlpatterns = [
     url(regex=r'^contact/(?P<slug>[-\w\d]+)/invoice/$',
         view=ContactInvoiceListView.as_view(),
         name='invoice.contact.list'
+        ),
+    url(regex=r'^contact/(?P<slug>[-\w\d]+)/edit/$',
+        view=InvoiceContactUpdateView.as_view(),
+        name='invoice.contact.update'
         ),
     url(regex=r'^contact/(?P<slug>[-\w\d]+)/time/$',
         view=ContactTimeRecordListView.as_view(),

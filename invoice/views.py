@@ -27,6 +27,7 @@ from crm.models import Ticket
 from .forms import (
     InvoiceBlankForm,
     InvoiceBlankTodayForm,
+    InvoiceContactForm,
     InvoiceDraftCreateForm,
     InvoiceLineForm,
     InvoiceUpdateForm,
@@ -34,7 +35,13 @@ from .forms import (
     QuickTimeRecordForm,
     TimeRecordForm,
 )
-from .models import Invoice, InvoiceLine, QuickTimeRecord, TimeRecord
+from .models import (
+    Invoice,
+    InvoiceContact,
+    InvoiceLine,
+    QuickTimeRecord,
+    TimeRecord,
+)
 from .service import InvoiceCreate, InvoicePrint
 from .report import ReportInvoiceTimeAnalysis, ReportInvoiceTimeAnalysisCSV
 
@@ -102,6 +109,17 @@ class ContactInvoiceListView(
     def get_queryset(self):
         contact = self._get_contact()
         return Invoice.objects.filter(contact=contact)
+
+
+class InvoiceContactUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    model = InvoiceContact
+    form_class = InvoiceContactForm
+    slug_field = 'contact__user__username'
+
+    def get_success_url(self):
+        return self.object.contact.get_absolute_url()
 
 
 class ContactTimeRecordListView(

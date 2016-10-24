@@ -8,10 +8,20 @@ from base.form_utils import (
 )
 from .models import (
     Invoice,
+    InvoiceContact,
     InvoiceLine,
     QuickTimeRecord,
     TimeRecord,
 )
+
+
+class InvoiceContactForm(forms.ModelForm):
+
+    class Meta:
+        model = InvoiceContact
+        fields = (
+            'hourly_rate',
+        )
 
 
 class InvoiceDraftCreateForm(forms.ModelForm):

@@ -1,0 +1,16 @@
+{% extends 'invoice/base.html' %}
+
+{% block sub_title %}
+  Invoice Contact
+{% endblock sub_title %}
+
+{% block sub_heading %}
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      {% include '_form.html' with legend='Invoice Contact' %}
+    </div>
+  </div>
+{% endblock content %}
