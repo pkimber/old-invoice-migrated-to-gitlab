@@ -21,6 +21,7 @@ from report.models import (
     Report,
     ReportDataInteger,
 )
+from report.pdf import MyReport, NumberedCanvas
 from report.service import top
 from .models import (
     Invoice,
@@ -29,10 +30,6 @@ from .models import (
     InvoiceLine,
     InvoiceSettings,
     TimeRecord,
-)
-from .pdf_utils import (
-    MyReport,
-    NumberedCanvas,
 )
 
 

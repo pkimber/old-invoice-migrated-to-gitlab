@@ -10,10 +10,9 @@ from reportlab.lib.pagesizes import A4
 from django.utils import timezone
 
 from crm.models import Ticket
+from report.pdf import MyReport
 
-from .pdf_utils import MyReport
 from .service import InvoiceError
-
 
 
 class ReportInvoiceTimeAnalysis(MyReport):
