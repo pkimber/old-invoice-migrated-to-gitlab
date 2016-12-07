@@ -4,7 +4,7 @@
       <td>Contact</td>
       <td>
         <a href="{% url 'contact.detail' invoice.contact.slug %}">
-          <strong>{{ invoice.contact.name }}</strong>
+          <strong>{{ invoice.contact.full_name }}</strong>
         </a>
         <br />
         {{ invoice.contact.address|linebreaksbr }}
