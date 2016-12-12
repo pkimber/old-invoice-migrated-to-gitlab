@@ -315,11 +315,16 @@ class InvoiceSettings(SingletonModel):
         verbose_name = 'Invoice print settings'
 
     def __str__(self):
-        return "{}, Phone {}, VAT {}".format(
+        result = "{}, Phone: {}".format(
             ' '.join(self.name_and_address.split('\n')),
             self.phone_number,
-            self.vat_rate,
         )
+        if self.time_record_product:
+            result = '{}, Time record: {}'.format(
+                result,
+                self.time_record_product.name,
+            )
+        return result
 
 reversion.register(InvoiceSettings)
 
