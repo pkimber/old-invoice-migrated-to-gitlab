@@ -236,7 +236,7 @@ class Invoice(TimedCreateModifyDeleteVersionModel):
 
     @property
     def invoice_number(self):
-        return '{:06d}'.format(self.pk)
+        return '{:06d}'.format(self.number)
 
     @property
     def is_credit(self):

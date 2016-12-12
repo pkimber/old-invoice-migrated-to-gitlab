@@ -274,6 +274,7 @@ class InvoiceDraftCreateView(
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.contact = self._get_contact()
+        self.object.number = Invoice.objects.next_number()
         self.object.user = self.request.user
         return super().form_valid(form)
 

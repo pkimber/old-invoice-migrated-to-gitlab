@@ -3,9 +3,10 @@ import pytest
 
 from decimal import Decimal
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from contact.tests.factories import ContactFactory
-from invoice.models import InvoiceLine
+from invoice.models import Invoice, InvoiceLine
 from finance.tests.factories import VatCode, VatSettingsFactory
 from login.tests.factories import TEST_PASSWORD, UserFactory
 from stock.tests.factories import ProductFactory
@@ -24,9 +25,17 @@ def test_invoice_create_draft(client):
     VatSettingsFactory()
     contact = ContactFactory()
     InvoiceContactFactory(contact=contact)
+    assert 0 == Invoice.objects.count()
     url = reverse('invoice.create.draft', kwargs={'slug': contact.slug})
-    response = client.post(url)
-    assert 200 == response.status_code
+    data = {
+        'invoice_date': timezone.now().date(),
+    }
+    response = client.post(url, data)
+    assert 302 == response.status_code, response.context['form'].errors
+    assert 1 == Invoice.objects.count()
+    invoice = Invoice.objects.first()
+    assert invoice.number == 1
+    assert invoice.invoice_number == '000001'
 
 
 @pytest.mark.django_db
