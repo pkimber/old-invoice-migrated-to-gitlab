@@ -71,6 +71,11 @@
             {% else %}
               Time
             {% endif %}
+            {% if line.product %}
+              <small>
+                ({{ line.product.name }})
+              </small>
+            {% endif %}
           </td>
           <td>{{ line.quantity }}</td>
           <td>{{ line.units }}</td>

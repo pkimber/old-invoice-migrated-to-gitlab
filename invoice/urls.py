@@ -64,7 +64,7 @@ urlpatterns = [
         view=InvoiceDetailView.as_view(),
         name='invoice.detail'
         ),
-    url(regex=r'^invoice/(?P<pk>\d+)/line/add/$',
+    url(regex=r'^invoice/(?P<pk>\d+)/line/create/$',
         view=InvoiceLineCreateView.as_view(),
         name='invoice.line.create'
         ),
