@@ -37,7 +37,7 @@ urlpatterns = [
         view=InvoiceContactCreateView.as_view(),
         name='invoice.contact.create'
         ),
-    url(regex=r'^contact/(?P<slug>[-\w\d]+)/edit/$',
+    url(regex=r'^contact/(?P<slug>[-\w\d]+)/update/$',
         view=InvoiceContactUpdateView.as_view(),
         name='invoice.contact.update'
         ),
@@ -73,7 +73,7 @@ urlpatterns = [
         view=InvoiceLineCreateView.as_view(),
         name='invoice.line.create'
         ),
-    url(regex=r'^invoice/(?P<pk>\d+)/line/edit/$',
+    url(regex=r'^invoice/(?P<pk>\d+)/line/update/$',
         view=InvoiceLineUpdateView.as_view(),
         name='invoice.line.update'
         ),
@@ -101,7 +101,7 @@ urlpatterns = [
         view=InvoiceSetToDraftUpdateView.as_view(),
         name='invoice.set.to.draft'
         ),
-    url(regex=r'^invoice/(?P<pk>\d+)/edit/$',
+    url(regex=r'^invoice/(?P<pk>\d+)/update/$',
         view=InvoiceUpdateView.as_view(),
         name='invoice.update'
         ),
@@ -139,7 +139,7 @@ urlpatterns = [
         view=TimeRecordListView.as_view(),
         name='invoice.time'
         ),
-    url(regex=r'^time/(?P<pk>\d+)/edit/$',
+    url(regex=r'^time/(?P<pk>\d+)/update/$',
         view=TimeRecordUpdateView.as_view(),
         name='invoice.time.update'
         ),
