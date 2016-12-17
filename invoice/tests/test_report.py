@@ -229,6 +229,52 @@ def test_report_time_by_user():
 
 
 @pytest.mark.django_db
+def test_report_time_by_ticket():
+    user = UserFactory(username='green')
+    d = timezone.now().date()
+    t1 = TicketFactory(pk=1, contact=ContactFactory())
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(pk=2, contact=ContactFactory()),
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+        user=user,
+    )
+    # another date (so not included)
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d+relativedelta(days=-1),
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=UserFactory(),
+    )
+    # another user (so not included)
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=UserFactory(),
+    )
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=user,
+    )
+    data = TimeRecord.objects.report_time_by_ticket(user, d)
+    assert {1: 40, 2: 15} == data
+
+
+@pytest.mark.django_db
 def test_report_time_by_user_by_week():
     user = UserFactory(username='green')
     from_date = datetime(2015, 12, 20, 0, 0, 0, tzinfo=pytz.utc)

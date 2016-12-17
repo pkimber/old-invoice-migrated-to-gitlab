@@ -516,6 +516,23 @@ class TimeRecordManager(models.Manager):
                 result[slug] = result[slug] + row.minutes
         return result
 
+    def report_time_by_ticket(self, user, day):
+        """Group time by ticket for a user for a day."""
+        qs = TimeRecord.objects.filter(
+            user=user,
+            date_started=day,
+        ).order_by(
+            'start_time',
+        )
+        result = collections.OrderedDict()
+        for row in qs:
+            if row.is_complete:
+                ticket_pk = row.ticket.pk
+                if not ticket_pk in result:
+                    result[ticket_pk] = 0
+                result[ticket_pk] = result[ticket_pk] + row.minutes
+        return result
+
     def report_time_by_user(self, from_date, to_date):
         qs = TimeRecord.objects.filter(
             date_started__gte=from_date,
