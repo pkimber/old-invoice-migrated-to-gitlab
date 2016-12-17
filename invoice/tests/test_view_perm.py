@@ -46,6 +46,27 @@ def test_contact_time_record_list(perm_check):
 
 
 @pytest.mark.django_db
+def test_invoice_contact_create(perm_check):
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.contact.create',
+        kwargs={'slug': contact.user.username}
+    )
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
+def test_invoice_contact_update(perm_check):
+    contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
+    url = reverse(
+        'invoice.contact.update',
+        kwargs={'slug': contact.user.username}
+    )
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
 def test_invoice_create_draft(perm_check):
     InvoiceSettingsFactory()
     VatSettingsFactory()

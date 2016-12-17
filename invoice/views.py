@@ -111,15 +111,31 @@ class ContactInvoiceListView(
         return Invoice.objects.filter(contact=contact)
 
 
+class InvoiceContactCreateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+
+    model = InvoiceContact
+    form_class = InvoiceContactForm
+
+    def _contact(self):
+        slug = self.kwargs.get('slug')
+        model = apps.get_model(settings.CONTACT_MODEL)
+        contact = model.objects.get(user__username=slug)
+        # self._check_perm(contact)
+        return contact
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.contact = self._contact()
+        return super().form_valid(form)
+
+
 class InvoiceContactUpdateView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
 
     model = InvoiceContact
     form_class = InvoiceContactForm
     slug_field = 'contact__user__username'
-
-    def get_success_url(self):
-        return self.object.contact.get_absolute_url()
 
 
 class ContactTimeRecordListView(

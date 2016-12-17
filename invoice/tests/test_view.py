@@ -1,141 +1,51 @@
 # -*- encoding: utf-8 -*-
-"""Simple tests to make sure a view doesn't throw any exceptions"""
-from datetime import date
+import pytest
 
+from decimal import Decimal
 from django.core.urlresolvers import reverse
 
-from base.tests.test_utils import PermTestCase
 from contact.tests.factories import ContactFactory
-from crm.tests.factories import TicketFactory
-from finance.tests.factories import VatSettingsFactory
-from invoice.service import (
-    InvoiceCreate,
-    InvoicePrint,
-)
-from invoice.tests.factories import (
-    InvoiceContactFactory,
-    InvoiceFactory,
-    InvoiceLineFactory,
-    InvoiceSettingsFactory,
-    TimeRecordFactory,
-)
-from login.tests.factories import UserFactory
+from invoice.models import InvoiceContact
+from invoice.tests.factories import InvoiceContactFactory
+from login.tests.factories import TEST_PASSWORD, UserFactory
 
 
-class TestView(PermTestCase):
+@pytest.mark.django_db
+def test_invoice_contact_create(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    contact = ContactFactory()
+    url = reverse(
+        'invoice.contact.create',
+        kwargs={'slug': contact.user.username}
+    )
+    data = {
+        'hourly_rate': Decimal('12.34'),
+    }
+    response = client.post(url, data)
+    assert 302 == response.status_code
+    expect = reverse('contact.detail', args=[contact.user.username])
+    assert expect == response['Location']
+    invoice_contact = InvoiceContact.objects.get(contact=contact)
+    assert Decimal('12.34') == invoice_contact.hourly_rate
 
-    def setUp(self):
-        self.setup_users()
-        VatSettingsFactory()
 
-    def test_contact_invoice_list(self):
-        contact = ContactFactory()
-        InvoiceContactFactory(contact=contact)
-        url = reverse(
-            'invoice.contact.list',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
-
-    def test_contact_time_record_list(self):
-        contact = ContactFactory()
-        InvoiceContactFactory(contact=contact)
-        url = reverse(
-            'invoice.time.contact.list',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
-
-    def test_invoice_create_draft(self):
-        InvoiceSettingsFactory()
-        contact = ContactFactory()
-        InvoiceContactFactory(contact=contact)
-        url = reverse(
-            'invoice.create.draft',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
-
-    def test_invoice_create_time(self):
-        InvoiceSettingsFactory()
-        contact = ContactFactory()
-        InvoiceContactFactory(contact=contact)
-        url = reverse(
-            'invoice.create.time',
-            kwargs={'slug': contact.slug}
-        )
-        self._assert_staff(url)
-
-    def test_invoice_list(self):
-        url = reverse('invoice.list')
-        self._assert_staff(url)
-
-    def test_invoice_download(self):
-        InvoiceSettingsFactory()
-        contact = ContactFactory()
-        InvoiceContactFactory(contact=contact)
-        ticket = TicketFactory(contact=contact)
-        TimeRecordFactory(ticket=ticket, date_started=date(2013, 12, 1))
-        TimeRecordFactory(ticket=ticket)
-        invoice = InvoiceCreate().create(
-            UserFactory(),
-            contact,
-            date(2013, 12, 31)
-        )
-        InvoicePrint().create_pdf(invoice, header_image=None)
-        url = reverse('invoice.download', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_invoice_detail(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.detail', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_invoice_line_create(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.line.create', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_invoice_line_update(self):
-        invoice = InvoiceFactory()
-        InvoiceLineFactory(invoice=invoice)
-        url = reverse('invoice.line.update', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_invoice_create_pdf(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.create.pdf', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_invoice_update(self):
-        invoice = InvoiceFactory()
-        url = reverse('invoice.update', kwargs={'pk': invoice.pk})
-        self._assert_staff(url)
-
-    def test_ticket_timerecord_list(self):
-        ticket = TicketFactory()
-        url = reverse(
-            'invoice.time.ticket.list',
-            kwargs={'pk': ticket.pk}
-        )
-        self._assert_staff(url)
-
-    def test_timerecord_create(self):
-        ticket = TicketFactory()
-        url = reverse(
-            'invoice.time.create',
-            kwargs={'pk': ticket.pk}
-        )
-        self._assert_staff(url)
-
-    def test_timerecord_list(self):
-        url = reverse('invoice.time')
-        self._assert_staff(url)
-
-    def test_timerecord_update(self):
-        time_record = TimeRecordFactory()
-        url = reverse(
-            'invoice.time.update',
-            kwargs={'pk': time_record.pk}
-        )
-        self._assert_staff(url)
+@pytest.mark.django_db
+def test_invoice_contact_update(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
+    url = reverse(
+        'invoice.contact.update',
+        kwargs={'slug': contact.user.username}
+    )
+    data = {
+        'hourly_rate': Decimal('12.34'),
+    }
+    response = client.post(url, data)
+    assert 302 == response.status_code
+    expect = reverse('contact.detail', args=[contact.user.username])
+    assert expect == response['Location']
+    invoice_contact = InvoiceContact.objects.get(contact=contact)
+    assert Decimal('12.34') == invoice_contact.hourly_rate

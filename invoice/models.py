@@ -37,8 +37,13 @@ class InvoiceContact(TimeStampedModel):
         verbose_name_plural = 'Invoice Contacts'
 
     def __str__(self):
-        return 'abc'
-        return '{}'.format(self.contact.name)
+        result = '{}'.format(self.contact.full_name)
+        if self.hourly_rate:
+            result = '{} @ {}'.format(result, self.hourly_rate)
+        return result
+
+    def get_absolute_url(self):
+        return self.contact.get_absolute_url()
 
 reversion.register(InvoiceContact)
 
