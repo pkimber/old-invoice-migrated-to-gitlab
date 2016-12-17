@@ -11,6 +11,17 @@
 {% block content %}
   <div class="pure-g">
     <div class="pure-u-1">
+      <div class="pure-menu pure-menu-horizontal">
+        <ul class="pure-menu-list">
+          {% if user.is_staff %}
+            {% include 'crm/_menu_time.html' %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="pure-g">
+    <div class="pure-u-1">
       <table class="pure-table pure-table-bordered">
         <thead>
           <tr>

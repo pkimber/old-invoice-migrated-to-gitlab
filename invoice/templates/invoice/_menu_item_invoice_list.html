@@ -1,0 +1,8 @@
+{% if not path == '/invoice/' %}
+  <li class="pure-menu-item">
+    <a href="{% url 'invoice.list' %}" class="pure-menu-link">
+      <i class="fa fa-gbp"></i>
+      Invoices
+    </a>
+  </li>
+{% endif %}

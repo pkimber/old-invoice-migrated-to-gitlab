@@ -43,11 +43,11 @@ urlpatterns = [
         view=InvoiceContactUpdateView.as_view(),
         name='invoice.contact.update'
         ),
-    url(regex=r'^contact/(?P<slug>[-\w\d]+)/invoice/$',
+    url(regex=r'^contact/(?P<username>[-\w\d\.]+)/invoice/$',
         view=ContactInvoiceListView.as_view(),
         name='invoice.contact.list'
         ),
-    url(regex=r'^contact/(?P<slug>[-\w\d]+)/time/$',
+    url(regex=r'^contact/(?P<username>[-\w\d\.]+)/time/$',
         view=ContactTimeRecordListView.as_view(),
         name='invoice.time.contact.list'
         ),

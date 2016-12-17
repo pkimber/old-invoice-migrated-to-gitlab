@@ -95,7 +95,7 @@ class ContactInvoiceListView(
     template_name = 'invoice/contact_invoice_list.html'
 
     def _get_contact(self):
-        slug = self.kwargs.get('slug')
+        slug = self.kwargs.get('username')
         model = apps.get_model(settings.CONTACT_MODEL)
         contact = model.objects.get(user__username=slug)
         # self._check_perm(contact)
@@ -147,7 +147,7 @@ class ContactTimeRecordListView(
     template_name = 'invoice/contact_timerecord_list.html'
 
     def _get_contact(self):
-        slug = self.kwargs.get('slug')
+        slug = self.kwargs.get('username')
         model = apps.get_model(settings.CONTACT_MODEL)
         contact = model.objects.get(user__username=slug)
         # self._check_perm(contact)

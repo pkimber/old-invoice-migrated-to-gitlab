@@ -1,0 +1,8 @@
+{% if not path == '/invoice/time/summary/' %}
+  <li class="pure-menu-item">
+    <a href="{% url 'invoice.time.summary' %}" class="pure-menu-link">
+      <i class="fa fa-clock-o"></i>
+      Time
+    </a>
+  </li>
+{% endif %}

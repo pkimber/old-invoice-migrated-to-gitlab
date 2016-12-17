@@ -13,9 +13,10 @@
     <div class="pure-u-1">
       <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
+          {% include 'crm/_menu_item_ticket_home.html' %}
           {% include 'base/_paginate.html' %}
           {% if user.is_staff %}
-            {% include 'crm/_menu.html' %}
+            {% include 'crm/_menu_invoice.html' %}
           {% endif %}
         </ul>
       </div>
@@ -49,7 +50,7 @@
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
                 <td>
                   <a href="{% url 'contact.detail' invoice.contact.user.username %}">
-                    <strong>{{ invoice.contact.full_name }}</strong>
+                    {{ invoice.contact.full_name }}
                   </a>
                 </td>
                 <td>{{ invoice.net }}</td>
@@ -78,7 +79,7 @@
         <ul class="pure-menu-list">
           {% include 'base/_paginate.html' %}
           {% if user.is_staff %}
-            {% include 'crm/_menu.html' %}
+            {% include 'crm/_menu_invoice.html' %}
           {% endif %}
         </ul>
       </div>
