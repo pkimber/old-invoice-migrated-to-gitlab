@@ -30,7 +30,7 @@ def test_contact_invoice_list(perm_check):
     contact = ContactFactory()
     url = reverse(
         'invoice.contact.list',
-        kwargs={'slug': contact.slug}
+        kwargs={'slug': contact.user.username}
     )
     perm_check.staff(url)
 
@@ -40,7 +40,7 @@ def test_contact_time_record_list(perm_check):
     contact = ContactFactory()
     url = reverse(
         'invoice.time.contact.list',
-        kwargs={'slug': contact.slug}
+        kwargs={'slug': contact.user.username}
     )
     perm_check.staff(url)
 
@@ -74,7 +74,7 @@ def test_invoice_create_draft(perm_check):
     InvoiceContactFactory(contact=contact)
     url = reverse(
         'invoice.create.draft',
-        kwargs={'slug': contact.slug}
+        kwargs={'slug': contact.user.username}
     )
     perm_check.staff(url)
 
@@ -87,7 +87,7 @@ def test_invoice_create_time(perm_check):
     InvoiceContactFactory(contact=contact)
     url = reverse(
         'invoice.create.time',
-        kwargs={'slug': contact.slug}
+        kwargs={'slug': contact.user.username}
     )
     perm_check.staff(url)
 

@@ -95,7 +95,7 @@ class ContactInvoiceListView(
     def _get_contact(self):
         slug = self.kwargs.get('slug')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(slug=slug)
+        contact = model.objects.get(user__username=slug)
         # self._check_perm(contact)
         return contact
 
@@ -147,7 +147,7 @@ class ContactTimeRecordListView(
     def _get_contact(self):
         slug = self.kwargs.get('slug')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(slug=slug)
+        contact = model.objects.get(user__username=slug)
         # self._check_perm(contact)
         return contact
 
@@ -190,10 +190,10 @@ class DashMixin:
                     user[user_name] = 0
                 user[user_name] = user[user_name] + minutes
                 if row.user == self.request.user:
-                    slug = row.ticket.contact.slug
-                    if not slug in contact:
-                        contact[slug] = 0
-                    contact[slug] = contact[slug] + minutes
+                    user_name = row.ticket.contact.user.username
+                    if not user_name in contact:
+                        contact[user_name] = 0
+                    contact[user_name] = contact[user_name] + minutes
                     if row.billable:
                         charge[self.CHARGE] = charge[self.CHARGE] + minutes
                     else:
@@ -257,7 +257,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
     def _get_contact(self):
         slug = self.kwargs.get('slug')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(slug=slug)
+        contact = model.objects.get(user__username=slug)
         return contact
 
     def _check_invoice_settings(self, contact):
@@ -269,9 +269,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
         context = super().get_context_data(**kwargs)
         contact = self._get_contact()
         self._check_invoice_settings(contact)
-        context.update(dict(
-            contact=contact,
-        ))
+        context.update(dict(contact=contact))
         return context
 
 

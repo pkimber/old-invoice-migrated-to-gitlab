@@ -48,7 +48,7 @@
                 </td>
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
                 <td>
-                  <a href="{% url 'contact.detail' invoice.contact.slug %}">
+                  <a href="{% url 'contact.detail' invoice.contact.user.username %}">
                     <strong>{{ invoice.contact.full_name }}</strong>
                   </a>
                 </td>

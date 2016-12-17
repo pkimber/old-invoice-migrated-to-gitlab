@@ -26,7 +26,10 @@ def test_invoice_create_draft(client):
     contact = ContactFactory()
     InvoiceContactFactory(contact=contact)
     assert 0 == Invoice.objects.count()
-    url = reverse('invoice.create.draft', kwargs={'slug': contact.slug})
+    url = reverse(
+        'invoice.create.draft',
+        kwargs={'slug': contact.user.username}
+    )
     data = {
         'invoice_date': timezone.now().date(),
     }

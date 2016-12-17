@@ -24,7 +24,7 @@
         <a href="{% url 'crm.ticket.detail' ticket.pk %}">
           <strong>{{ ticket.title }}</strong>
         </a>
-        <a href="{% url 'contact.detail' ticket.contact.slug %}">
+        <a href="{% url 'contact.detail' ticket.contact.user.username %}">
           {{ ticket.contact.full_name }}
         </a>
       </p>
