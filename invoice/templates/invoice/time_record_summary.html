@@ -1,11 +1,11 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Time Summary
+  Time Summary for {{ user_full_name }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Time Summary
+  Time Summary for {{ user_full_name }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -14,8 +14,7 @@
       <table class="pure-table pure-table-bordered">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Ticket</th>
+            <th colspan="2">Ticket</th>
             <th>Time</th>
           </tr>
         </thead>

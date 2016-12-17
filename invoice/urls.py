@@ -28,6 +28,7 @@ from .views import (
     TimeRecordCreateView,
     TimeRecordListView,
     TimeRecordSummaryView,
+    TimeRecordSummaryUserView,
     TimeRecordUpdateView,
     UserTimeRecordListView,
 )
@@ -143,6 +144,10 @@ urlpatterns = [
     url(regex=r'^time/summary/$',
         view=TimeRecordSummaryView.as_view(),
         name='invoice.time.summary'
+        ),
+    url(regex=r'^time/summary/(?P<username>[-\w\d\.]+)/$',
+        view=TimeRecordSummaryUserView.as_view(),
+        name='invoice.time.summary.user'
         ),
     url(regex=r'^time/(?P<pk>\d+)/update/$',
         view=TimeRecordUpdateView.as_view(),

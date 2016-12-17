@@ -49,3 +49,21 @@ def test_invoice_contact_update(client):
     assert expect == response['Location']
     invoice_contact = InvoiceContact.objects.get(contact=contact)
     assert Decimal('12.34') == invoice_contact.hourly_rate
+
+
+@pytest.mark.django_db
+def test_timerecord_summary(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    url = reverse('invoice.time.summary')
+    response = client.get(url)
+    assert 200 == response.status_code
+
+
+@pytest.mark.django_db
+def test_timerecord_summary_user(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    url = reverse('invoice.time.summary.user', args=[UserFactory().username])
+    response = client.get(url)
+    assert 200 == response.status_code

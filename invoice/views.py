@@ -8,6 +8,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -596,27 +597,22 @@ class TimeRecordListView(
     model = TimeRecord
 
 
-class TimeRecordSummaryView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, TemplateView):
+class TimeRecordSummaryMixin:
 
     template_name = 'invoice/time_record_summary.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def _report(self, user):
         # list of the last 10 days
         date_list = []
         d = timezone.now().date()
-        for i in range(0, 10):
+        for i in range(0, 31):
             date_list.append(d)
             d = d + relativedelta(days=-1)
         # find three days where I worked and display the time summary
         count = 0
         report = collections.OrderedDict()
         for d in date_list:
-            data = TimeRecord.objects.report_time_by_ticket(
-                self.request.user,
-                d,
-            )
+            data = TimeRecord.objects.report_time_by_ticket(user, d)
             if data:
                 summary = {}
                 tickets = []
@@ -640,7 +636,41 @@ class TimeRecordSummaryView(
             # maximum of 3 days
             if count > 2:
                 break
-        context.update(dict(report=report))
+        return report
+
+
+class TimeRecordSummaryView(
+        LoginRequiredMixin, StaffuserRequiredMixin,
+        TimeRecordSummaryMixin, BaseMixin, TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        full_name = self.request.user.get_full_name()
+        if not full_name:
+            full_name = self.request.user.username
+        context.update(dict(
+            report=self._report(self.request.user),
+            user_full_name=full_name,
+        ))
+        return context
+
+
+class TimeRecordSummaryUserView(
+        LoginRequiredMixin, StaffuserRequiredMixin,
+        TimeRecordSummaryMixin, BaseMixin, TemplateView):
+
+    def _user(self):
+        user_name = self.kwargs.get('username')
+        return get_user_model().objects.get(username=user_name)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self._user()
+        full_name = user.get_full_name() or user.username
+        context.update(dict(
+            report=self._report(self._user()),
+            user_full_name=full_name,
+        ))
         return context
 
 
