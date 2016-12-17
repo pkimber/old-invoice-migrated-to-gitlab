@@ -26,7 +26,9 @@
                 <strong>
                   {{ d|date:'d/m/Y' }}
                 </strong>
-                {{ d|date:'l' }}
+                <small>
+                  {{ d|date:'l' }}
+                <small>
               </td>
               <td>
               </td>
@@ -37,24 +39,22 @@
                   {{ ticket.pk }}
                 </td>
                 <td>
-                  {{ ticket.description }}
-                  <small>
-                    ({{ ticket.contact }})
-                  </small>
+                  {{ ticket.contact }}:
+                  <a href="{% url 'crm.ticket.detail' ticket.pk %}">
+                    {{ ticket.description }}
+                  </a>
                 </td>
                 <td>
-                  {{ ticket.minutes }}
+                  {{ ticket.format_minutes }}
                 </td>
               </tr>
             {% endfor %}
             <tr valign="top">
-              <td>
-              </td>
-              <td>
+              <td colspan="2">
               </td>
               <td>
                 <strong>
-                  {{ summary.total }}
+                  {{ summary.format_total }}
                 </strong>
               </td>
             </tr>

@@ -43,7 +43,7 @@ from .models import (
     QuickTimeRecord,
     TimeRecord,
 )
-from .service import InvoiceCreate, InvoicePrint
+from .service import format_minutes, InvoiceCreate, InvoicePrint
 from .report import ReportInvoiceTimeAnalysis, ReportInvoiceTimeAnalysisCSV
 
 
@@ -603,13 +603,13 @@ class TimeRecordSummaryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        # list of the last 10 days
         date_list = []
         d = timezone.now().date()
         for i in range(0, 10):
             date_list.append(d)
             d = d + relativedelta(days=-1)
-
+        # find three days where I worked and display the time summary
         count = 0
         report = collections.OrderedDict()
         for d in date_list:
@@ -627,19 +627,20 @@ class TimeRecordSummaryView(
                         'pk': ticket.pk,
                         'description': ticket.title,
                         'contact': ticket.contact.full_name,
+                        'user_name': ticket.contact.user.username,
                         'minutes': minutes,
+                        'format_minutes': format_minutes(minutes),
                     })
                     total = total + minutes
                 summary['tickets'] = tickets
                 summary['total'] = total
+                summary['format_total'] = format_minutes(total)
                 report[d] = summary
                 count = count + 1
             # maximum of 3 days
             if count > 2:
                 break
-
         context.update(dict(report=report))
-
         return context
 
 

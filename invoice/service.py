@@ -33,6 +33,18 @@ from .models import (
 )
 
 
+def format_minutes(minutes):
+    """Convert minutes into formatted hours and minutes.
+
+    e.g. assert '01:15' == format_minutes(75)
+
+    From:
+    http://stackoverflow.com/questions/20291883/converting-minutes-to-hhmm-format-in-python
+
+    """
+    return '{:02d}:{:02d}'.format(*divmod(int(minutes), 60))
+
+
 class InvoiceCreate(object):
     """ Create invoices for outstanding time records """
 
