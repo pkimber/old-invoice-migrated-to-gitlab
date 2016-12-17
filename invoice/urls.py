@@ -35,27 +35,27 @@ from .views import (
 
 
 urlpatterns = [
-    url(regex=r'^contact/(?P<slug>[-\w\d]+)/create/$',
+    url(regex=r'^contact/(?P<slug>[-\w\d\.]+)/create/$',
         view=InvoiceContactCreateView.as_view(),
         name='invoice.contact.create'
         ),
-    url(regex=r'^contact/(?P<slug>[-\w\d]+)/update/$',
+    url(regex=r'^contact/(?P<slug>[-\w\d\.]+)/update/$',
         view=InvoiceContactUpdateView.as_view(),
         name='invoice.contact.update'
         ),
-    url(regex=r'^contact/(?P<username>[-\w\d\.]+)/invoice/$',
+    url(regex=r'^contact/(?P<slug>[-\w\d\.]+)/invoice/$',
         view=ContactInvoiceListView.as_view(),
         name='invoice.contact.list'
         ),
-    url(regex=r'^contact/(?P<username>[-\w\d\.]+)/time/$',
+    url(regex=r'^contact/(?P<slug>[-\w\d\.]+)/time/$',
         view=ContactTimeRecordListView.as_view(),
         name='invoice.time.contact.list'
         ),
-    url(regex=r'^create/(?P<slug>[-\w\d]+)/draft/$',
+    url(regex=r'^create/(?P<slug>[-\w\d\.]+)/draft/$',
         view=InvoiceDraftCreateView.as_view(),
         name='invoice.create.draft'
         ),
-    url(regex=r'^create/(?P<slug>[-\w\d]+)/time/$',
+    url(regex=r'^create/(?P<slug>[-\w\d\.]+)/time/$',
         view=InvoiceTimeCreateView.as_view(),
         name='invoice.create.time'
         ),
@@ -145,7 +145,7 @@ urlpatterns = [
         view=TimeRecordSummaryView.as_view(),
         name='invoice.time.summary'
         ),
-    url(regex=r'^time/summary/(?P<username>[-\w\d\.]+)/$',
+    url(regex=r'^time/summary/(?P<slug>[-\w\d\.]+)/$',
         view=TimeRecordSummaryUserView.as_view(),
         name='invoice.time.summary.user'
         ),
