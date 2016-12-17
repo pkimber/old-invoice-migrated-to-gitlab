@@ -47,7 +47,6 @@ def test_invoice_line_create(client):
     assert client.login(username=user.username, password=TEST_PASSWORD) is True
     InvoiceSettingsFactory()
     VatSettingsFactory()
-    contact = ContactFactory()
     invoice = InvoiceFactory()
     assert 0 == InvoiceLine.objects.count()
     url = reverse('invoice.line.create', args=[invoice.pk])
