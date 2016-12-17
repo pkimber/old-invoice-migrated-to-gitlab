@@ -181,6 +181,12 @@ def test_timerecord_list(perm_check):
 
 
 @pytest.mark.django_db
+def test_timerecord_summary(perm_check):
+    url = reverse('invoice.time.summary')
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
 def test_timerecord_create(perm_check):
     ticket = TicketFactory()
     url = reverse(

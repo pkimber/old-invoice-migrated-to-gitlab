@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+import collections
+
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -6,17 +8,16 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-# from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 from sendfile import sendfile
@@ -593,6 +594,53 @@ class TimeRecordListView(
 
     paginate_by = 20
     model = TimeRecord
+
+
+class TimeRecordSummaryView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, TemplateView):
+
+    template_name = 'invoice/time_record_summary.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        date_list = []
+        d = timezone.now().date()
+        for i in range(0, 10):
+            date_list.append(d)
+            d = d + relativedelta(days=-1)
+
+        count = 0
+        report = collections.OrderedDict()
+        for d in date_list:
+            data = TimeRecord.objects.report_time_by_ticket(
+                self.request.user,
+                d,
+            )
+            if data:
+                summary = {}
+                tickets = []
+                total = 0
+                for ticket_pk, minutes in data.items():
+                    ticket = Ticket.objects.get(pk=ticket_pk)
+                    tickets.append({
+                        'pk': ticket.pk,
+                        'description': ticket.title,
+                        'contact': ticket.contact.full_name,
+                        'minutes': minutes,
+                    })
+                    total = total + minutes
+                summary['tickets'] = tickets
+                summary['total'] = total
+                report[d] = summary
+                count = count + 1
+            # maximum of 3 days
+            if count > 2:
+                break
+
+        context.update(dict(report=report))
+
+        return context
 
 
 class TicketTimeRecordListView(

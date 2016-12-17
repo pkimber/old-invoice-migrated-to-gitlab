@@ -522,7 +522,7 @@ class TimeRecordManager(models.Manager):
             user=user,
             date_started=day,
         ).order_by(
-            'start_time',
+            '-start_time',
         )
         result = collections.OrderedDict()
         for row in qs:

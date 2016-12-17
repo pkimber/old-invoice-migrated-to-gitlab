@@ -1,0 +1,66 @@
+{% extends "invoice/base.html" %}
+
+{% block sub_title %}
+  Time Summary
+{% endblock sub_title %}
+
+{% block sub_heading %}
+  Time Summary
+{% endblock sub_heading %}
+
+{% block content %}
+  <div class="pure-g">
+    <div class="pure-u-1">
+      <table class="pure-table pure-table-bordered">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Ticket</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d, summary in report.items %}
+            <tr valign="top">
+              <td colspan="2">
+                <strong>
+                  {{ d|date:'d/m/Y' }}
+                </strong>
+                {{ d|date:'l' }}
+              </td>
+              <td>
+              </td>
+            </tr>
+            {% for ticket in summary.tickets %}
+              <tr valign="top">
+                <td>
+                  {{ ticket.pk }}
+                </td>
+                <td>
+                  {{ ticket.description }}
+                  <small>
+                    ({{ ticket.contact }})
+                  </small>
+                </td>
+                <td>
+                  {{ ticket.minutes }}
+                </td>
+              </tr>
+            {% endfor %}
+            <tr valign="top">
+              <td>
+              </td>
+              <td>
+              </td>
+              <td>
+                <strong>
+                  {{ summary.total }}
+                </strong>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock content %}
