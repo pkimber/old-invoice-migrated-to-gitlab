@@ -1,18 +1,61 @@
 # -*- encoding: utf-8 -*-
+import collections
 import csv
 
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal
-
+from django.utils import timezone
 from reportlab import platypus
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 
-from django.utils import timezone
-
 from crm.models import Ticket
 from report.pdf import MyReport
+from .models import TimeRecord
+from .service import format_minutes, InvoiceError
 
-from .service import InvoiceError
+
+def time_summary(user, days=None):
+    """Time summary for a user.
+
+    """
+    if not days:
+        days = 4
+    # list of the last 10 days
+    date_list = []
+    d = timezone.now().date()
+    for i in range(0, 31):
+        date_list.append(d)
+        d = d + relativedelta(days=-1)
+    # find three days where I worked and display the time summary
+    count = 0
+    report = collections.OrderedDict()
+    for d in date_list:
+        data = TimeRecord.objects.report_time_by_ticket(user, d)
+        if data:
+            summary = {}
+            tickets = []
+            total = 0
+            for ticket_pk, minutes in data.items():
+                ticket = Ticket.objects.get(pk=ticket_pk)
+                tickets.append({
+                    'pk': ticket.pk,
+                    'description': ticket.title,
+                    'contact': ticket.contact.full_name,
+                    'user_name': ticket.contact.user.username,
+                    'minutes': minutes,
+                    'format_minutes': format_minutes(minutes),
+                })
+                total = total + minutes
+            summary['tickets'] = tickets
+            summary['total'] = total
+            summary['format_total'] = format_minutes(total)
+            report[d] = summary
+            count = count + 1
+        # maximum of 5 days
+        if count > days:
+            break
+    return report
 
 
 class ReportInvoiceTimeAnalysis(MyReport):

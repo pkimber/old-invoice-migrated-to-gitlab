@@ -47,7 +47,11 @@ from .models import (
     TimeRecord,
 )
 from .service import format_minutes, InvoiceCreate, InvoicePrint
-from .report import ReportInvoiceTimeAnalysis, ReportInvoiceTimeAnalysisCSV
+from .report import (
+    ReportInvoiceTimeAnalysis,
+    ReportInvoiceTimeAnalysisCSV,
+    time_summary,
+)
 
 
 @staff_member_required
@@ -622,41 +626,7 @@ class TimeRecordSummaryMixin:
     template_name = 'invoice/time_record_summary.html'
 
     def _report(self, user):
-        # list of the last 10 days
-        date_list = []
-        d = timezone.now().date()
-        for i in range(0, 31):
-            date_list.append(d)
-            d = d + relativedelta(days=-1)
-        # find three days where I worked and display the time summary
-        count = 0
-        report = collections.OrderedDict()
-        for d in date_list:
-            data = TimeRecord.objects.report_time_by_ticket(user, d)
-            if data:
-                summary = {}
-                tickets = []
-                total = 0
-                for ticket_pk, minutes in data.items():
-                    ticket = Ticket.objects.get(pk=ticket_pk)
-                    tickets.append({
-                        'pk': ticket.pk,
-                        'description': ticket.title,
-                        'contact': ticket.contact.full_name,
-                        'user_name': ticket.contact.user.username,
-                        'minutes': minutes,
-                        'format_minutes': format_minutes(minutes),
-                    })
-                    total = total + minutes
-                summary['tickets'] = tickets
-                summary['total'] = total
-                summary['format_total'] = format_minutes(total)
-                report[d] = summary
-                count = count + 1
-            # maximum of 5 days
-            if count > 4:
-                break
-        return report
+        return time_summary(user)
 
 
 class TimeRecordSummaryView(
