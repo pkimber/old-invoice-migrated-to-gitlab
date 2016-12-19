@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.core.urlresolvers import reverse
 
 from contact.tests.factories import ContactFactory
-from invoice.models import InvoiceContact
+from invoice.models import InvoiceContact, InvoiceUser
 from invoice.tests.factories import InvoiceContactFactory
 from login.tests.factories import TEST_PASSWORD, UserFactory
 
@@ -49,6 +49,22 @@ def test_invoice_contact_update(client):
     assert expect == response['Location']
     invoice_contact = InvoiceContact.objects.get(contact=contact)
     assert Decimal('12.34') == invoice_contact.hourly_rate
+
+
+@pytest.mark.django_db
+def test_invoice_user_update(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    url = reverse('invoice.user.update')
+    data = {
+        'mail_time_summary': True,
+    }
+    response = client.post(url, data)
+    assert 302 == response.status_code
+    expect = reverse('project.settings')
+    assert expect == response['Location']
+    obj = InvoiceUser.objects.get(user=user)
+    assert True == obj.mail_time_summary
 
 
 @pytest.mark.django_db

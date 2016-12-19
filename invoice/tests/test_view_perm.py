@@ -138,6 +138,12 @@ def test_invoice_update(perm_check):
 
 
 @pytest.mark.django_db
+def test_invoice_user_update(perm_check):
+    url = reverse('invoice.user.update')
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
 def test_quick_time_record(perm_check):
     perm_check.staff(reverse('invoice.quick.time.record.list'))
 

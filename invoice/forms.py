@@ -10,6 +10,7 @@ from .models import (
     Invoice,
     InvoiceContact,
     InvoiceLine,
+    InvoiceUser,
     QuickTimeRecord,
     TimeRecord,
 )
@@ -74,6 +75,15 @@ class InvoiceUpdateForm(forms.ModelForm):
         model = Invoice
         fields = (
             'invoice_date',
+        )
+
+
+class InvoiceUserUpdateForm(forms.ModelForm):
+
+    class Meta:
+        model = InvoiceUser
+        fields = (
+            'mail_time_summary',
         )
 
 

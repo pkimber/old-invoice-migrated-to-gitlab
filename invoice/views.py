@@ -33,6 +33,7 @@ from .forms import (
     InvoiceDraftCreateForm,
     InvoiceLineForm,
     InvoiceUpdateForm,
+    InvoiceUserUpdateForm,
     QuickTimeRecordEmptyForm,
     QuickTimeRecordForm,
     TimeRecordForm,
@@ -41,6 +42,7 @@ from .models import (
     Invoice,
     InvoiceContact,
     InvoiceLine,
+    InvoiceUser,
     QuickTimeRecord,
     TimeRecord,
 )
@@ -508,6 +510,25 @@ class InvoiceUpdateView(
     template_name = 'invoice/invoice_update_form.html'
 
 
+class InvoiceUserUpdateView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+
+    form_class = InvoiceUserUpdateForm
+    model = InvoiceUser
+    template_name = 'invoice/invoice_user_update_form.html'
+
+    def get_object(self, *args, **kwargs):
+        try:
+            obj = InvoiceUser.objects.get(user=self.request.user)
+        except InvoiceUser.DoesNotExist:
+            obj = InvoiceUser(user=self.request.user)
+            obj.save()
+        return obj
+
+    def get_success_url(self):
+        return reverse('project.settings')
+
+
 class QuickTimeRecordCreateView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
 
@@ -632,8 +653,8 @@ class TimeRecordSummaryMixin:
                 summary['format_total'] = format_minutes(total)
                 report[d] = summary
                 count = count + 1
-            # maximum of 3 days
-            if count > 2:
+            # maximum of 5 days
+            if count > 4:
                 break
         return report
 

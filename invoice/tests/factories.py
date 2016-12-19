@@ -16,6 +16,7 @@ from invoice.models import (
     InvoiceContact,
     InvoiceLine,
     InvoiceSettings,
+    InvoiceUser,
     TimeCode,
     TimeRecord,
     QuickTimeRecord,
@@ -80,6 +81,14 @@ class InvoiceSettingsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = InvoiceSettings
+
+
+class InvoiceUserFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = InvoiceUser
+
+    user = factory.SubFactory(UserFactory)
 
 
 class TimeCodeFactory(factory.django.DjangoModelFactory):

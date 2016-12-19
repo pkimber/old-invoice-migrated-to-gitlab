@@ -18,6 +18,7 @@ from .views import (
     InvoiceSetToDraftUpdateView,
     InvoiceTimeCreateView,
     InvoiceUpdateView,
+    InvoiceUserUpdateView,
     QuickTimeRecordCreateView,
     QuickTimeRecordDeleteView,
     QuickTimeRecordListView,
@@ -27,8 +28,8 @@ from .views import (
     TicketTimeRecordListView,
     TimeRecordCreateView,
     TimeRecordListView,
-    TimeRecordSummaryView,
     TimeRecordSummaryUserView,
+    TimeRecordSummaryView,
     TimeRecordUpdateView,
     UserTimeRecordListView,
 )
@@ -123,6 +124,11 @@ urlpatterns = [
     url(regex=r'^quick/time/record/(?P<pk>\d+)/delete/$',
         view=QuickTimeRecordDeleteView.as_view(),
         name='invoice.quick.time.record.delete'
+        ),
+    # settings
+    url(regex=r'^user/update/$',
+        view=InvoiceUserUpdateView.as_view(),
+        name='invoice.user.update'
         ),
     # ticket
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
