@@ -49,7 +49,7 @@
                 </td>
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
                 <td>
-                  <a href="{% url 'contact.detail' invoice.contact.user.username %}">
+                  <a href="{% url 'contact.detail' invoice.contact.pk %}">
                     {{ invoice.contact.full_name }}
                   </a>
                 </td>

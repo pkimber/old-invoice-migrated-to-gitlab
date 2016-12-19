@@ -13,7 +13,7 @@
     <div class="pure-u-1">
       <div class="l-box">
         <p>
-          <a href="{% url 'contact.detail' contact.user.username %}">
+          <a href="{% url 'contact.detail' contact.pk %}">
             {{ contact.full_name }}
           </a>
           {{ contact.address }}

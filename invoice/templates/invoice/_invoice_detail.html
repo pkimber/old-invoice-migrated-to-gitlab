@@ -3,7 +3,7 @@
     <tr valign="top">
       <td>Contact</td>
       <td>
-        <a href="{% url 'contact.detail' invoice.contact.user.username %}">
+        <a href="{% url 'contact.detail' invoice.contact.pk %}">
           <strong>{{ invoice.contact.full_name }}</strong>
         </a>
         <br />

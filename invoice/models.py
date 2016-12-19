@@ -415,6 +415,25 @@ class InvoiceLine(TimeStampedModel):
 reversion.register(InvoiceLine)
 
 
+# class InvoiceUser(models.Model):
+#
+#     user = models.OneToOneField(settings.AUTH_USER_MODEL)
+#     email_time_summary = models.BooleanField(default=False)
+#
+#     class Meta:
+#         ordering = ['description']
+#         verbose_name = 'Time Code'
+#         verbose_name_plural = 'Time Codes'
+#
+#     def __str__(self):
+#         message = ''
+#         if self.email_time_summary:
+#             message = 'mail time summary'
+#         return '{}: {}'.format(self.user.username, message)
+#
+# reversion.register(InvoiceUser)
+
+
 class TimeCodeManager(models.Manager):
 
     def time_codes(self):

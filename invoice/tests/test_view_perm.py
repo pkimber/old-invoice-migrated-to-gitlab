@@ -28,40 +28,31 @@ from login.tests.fixture import perm_check
 @pytest.mark.django_db
 def test_contact_invoice_list(perm_check):
     contact = ContactFactory()
-    url = reverse(
-        'invoice.contact.list',
-        kwargs={'slug': contact.user.username}
-    )
+    url = reverse('invoice.contact.list', kwargs={'pk': contact.pk})
     perm_check.staff(url)
 
 
 @pytest.mark.django_db
 def test_contact_time_record_list(perm_check):
     contact = ContactFactory()
-    url = reverse(
-        'invoice.time.contact.list',
-        kwargs={'slug': contact.user.username}
-    )
+    url = reverse('invoice.time.contact.list', kwargs={'pk': contact.pk})
     perm_check.staff(url)
 
 
 @pytest.mark.django_db
 def test_invoice_contact_create(perm_check):
     contact = ContactFactory()
-    url = reverse(
-        'invoice.contact.create',
-        kwargs={'slug': contact.user.username}
-    )
+    url = reverse('invoice.contact.create', kwargs={'pk': contact.pk})
     perm_check.staff(url)
 
 
 @pytest.mark.django_db
 def test_invoice_contact_update(perm_check):
     contact = ContactFactory()
-    InvoiceContactFactory(contact=contact)
+    invoice_contact = InvoiceContactFactory(contact=contact)
     url = reverse(
         'invoice.contact.update',
-        kwargs={'slug': contact.user.username}
+        kwargs={'pk': invoice_contact.pk}
     )
     perm_check.staff(url)
 
@@ -72,10 +63,7 @@ def test_invoice_create_draft(perm_check):
     VatSettingsFactory()
     contact = ContactFactory()
     InvoiceContactFactory(contact=contact)
-    url = reverse(
-        'invoice.create.draft',
-        kwargs={'slug': contact.user.username}
-    )
+    url = reverse('invoice.create.draft', kwargs={'pk': contact.pk})
     perm_check.staff(url)
 
 
@@ -85,10 +73,7 @@ def test_invoice_create_time(perm_check):
     VatSettingsFactory()
     contact = ContactFactory()
     InvoiceContactFactory(contact=contact)
-    url = reverse(
-        'invoice.create.time',
-        kwargs={'slug': contact.user.username}
-    )
+    url = reverse('invoice.create.time', kwargs={'pk': contact.pk})
     perm_check.staff(url)
 
 
@@ -189,7 +174,7 @@ def test_timerecord_summary(perm_check):
 @pytest.mark.django_db
 def test_timerecord_summary_user(perm_check):
     user = UserFactory()
-    url = reverse('invoice.time.summary.user', args=[user.username])
+    url = reverse('invoice.time.summary.user', args=[user.pk])
     perm_check.staff(url)
 
 

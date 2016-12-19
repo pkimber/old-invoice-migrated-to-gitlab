@@ -13,7 +13,7 @@ from login.tests.factories import UserFactory
 def test_get_absolute_url():
     contact = ContactFactory(user=UserFactory(username='alan'))
     obj = InvoiceContactFactory(contact=contact)
-    expect = reverse('contact.detail', args=[contact.user.username])
+    expect = reverse('contact.detail', args=[contact.pk])
     assert expect == obj.get_absolute_url()
 
 

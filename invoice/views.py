@@ -94,22 +94,22 @@ class ContactInvoiceListView(
 
     template_name = 'invoice/contact_invoice_list.html'
 
-    def _get_contact(self):
-        slug = self.kwargs.get('slug')
+    def _contact(self):
+        pk = self.kwargs.get('pk')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(user__username=slug)
+        contact = model.objects.get(pk=pk)
         # self._check_perm(contact)
         return contact
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(dict(
-            contact=self._get_contact(),
+            contact=self._contact(),
         ))
         return context
 
     def get_queryset(self):
-        contact = self._get_contact()
+        contact = self._contact()
         return Invoice.objects.filter(contact=contact)
 
 
@@ -120,9 +120,9 @@ class InvoiceContactCreateView(
     form_class = InvoiceContactForm
 
     def _contact(self):
-        slug = self.kwargs.get('slug')
+        pk = self.kwargs.get('pk')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(user__username=slug)
+        contact = model.objects.get(pk=pk)
         # self._check_perm(contact)
         return contact
 
@@ -137,7 +137,6 @@ class InvoiceContactUpdateView(
 
     model = InvoiceContact
     form_class = InvoiceContactForm
-    slug_field = 'contact__user__username'
 
 
 class ContactTimeRecordListView(
@@ -146,22 +145,22 @@ class ContactTimeRecordListView(
     paginate_by = 20
     template_name = 'invoice/contact_timerecord_list.html'
 
-    def _get_contact(self):
-        slug = self.kwargs.get('slug')
+    def _contact(self):
+        pk = self.kwargs.get('pk')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(user__username=slug)
+        contact = model.objects.get(pk=pk)
         # self._check_perm(contact)
         return contact
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(dict(
-            contact=self._get_contact(),
+            contact=self._contact(),
         ))
         return context
 
     def get_queryset(self):
-        contact = self._get_contact()
+        contact = self._contact()
         return TimeRecord.objects.filter(
             ticket__contact=contact
         ).order_by(
@@ -256,10 +255,10 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
     model = Invoice
 
-    def _get_contact(self):
-        slug = self.kwargs.get('slug')
+    def _contact(self):
+        pk = self.kwargs.get('pk')
         model = apps.get_model(settings.CONTACT_MODEL)
-        contact = model.objects.get(user__username=slug)
+        contact = model.objects.get(pk=pk)
         return contact
 
     def _check_invoice_settings(self, contact):
@@ -269,7 +268,7 @@ class InvoiceCreateViewMixin(BaseMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contact = self._get_contact()
+        contact = self._contact()
         self._check_invoice_settings(contact)
         context.update(dict(contact=contact))
         return context
@@ -289,7 +288,7 @@ class InvoiceDraftCreateView(
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.contact = self._get_contact()
+        self.object.contact = self._contact()
         self.object.number = Invoice.objects.next_number()
         self.object.user = self.request.user
         return super().form_valid(form)
@@ -455,7 +454,7 @@ class InvoiceTimeCreateView(
         context = super().get_context_data(**kwargs)
         context.update(dict(
             timerecords=InvoiceCreate().draft(
-                self._get_contact(), date.today()
+                self._contact(), date.today()
             ),
         ))
         return context
@@ -465,7 +464,7 @@ class InvoiceTimeCreateView(
         invoice_create = InvoiceCreate()
         self.object = invoice_create.create(
             self.request.user,
-            self._get_contact(),
+            self._contact(),
             iteration_end,
         )
         if self.object:
@@ -660,8 +659,8 @@ class TimeRecordSummaryUserView(
         TimeRecordSummaryMixin, BaseMixin, TemplateView):
 
     def _user(self):
-        user_name = self.kwargs.get('slug')
-        return get_user_model().objects.get(username=user_name)
+        pk = self.kwargs.get('pk')
+        return get_user_model().objects.get(pk=pk)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
