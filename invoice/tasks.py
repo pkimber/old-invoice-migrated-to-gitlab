@@ -20,21 +20,31 @@ def mail_time_summary():
         if item.mail_time_summary and item.user.email:
             users.append(item.user)
     for user in users:
-        logger.debug('mail_time_summary: {}'.format(user.username))
+        logger.info('mail_time_summary: {}'.format(user.username))
         report = time_summary(user, days=1)
-        message = ''
+        message = '<table border="0">'
         for d, summary in report.items():
-            message = message + '\n\n{}, total time {}'.format(
-                d.strftime('%d/%m/%Y %A'),
-                summary['format_total'],
-            )
+            message = message + '<tr colspan="3">'
+            message = message + '<td>{}</td>'.format(d.strftime('%d/%m/%Y %A'))
+            message = message + '</tr>'
             for ticket in summary['tickets']:
-                message = message + '\n{}: {}, {} ({})'.format(
-                    ticket['pk'],
+                message = message + '<tr>'
+                message = message + '<td>{}</td>'.format(ticket['pk'])
+                message = message + '<td>{}, {}</td>'.format(
                     ticket['contact'],
                     ticket['description'],
+                )
+                message = message + '<td>{}</td>'.format(
                     ticket['format_minutes'],
                 )
+                message = message + '</tr>'
+            message = message + '<tr>'
+            message = message + '<td></td><td></td>'
+            message = message + '<td><b>{}</b></td>'.format(
+                summary['format_total']
+            )
+            message = message + '</tr>'
+        message = message + '</table>'
         queue_mail_message(
             user,
             [user.email],
