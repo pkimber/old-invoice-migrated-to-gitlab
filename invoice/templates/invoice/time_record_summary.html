@@ -30,6 +30,43 @@
           </tr>
         </thead>
         <tbody>
+
+          {% for tr in running %}
+            {% if forloop.first %}
+              <tr valign="top">
+                <td colspan="2">
+                  <strong>
+                    Open Time Records
+                  </strong>
+                </td>
+                <td>
+                </td>
+              </tr>
+            {% endif %}
+            <tr valign="top">
+              <td>
+                {{ tr.ticket.pk }}
+              </td>
+              <td>
+                {{ tr.ticket.contact.full_name }}:
+                <a href="{% url 'crm.ticket.detail' tr.ticket.pk %}">
+                  {{ tr.ticket.title }}
+                </a>
+              </td>
+              <td>
+                <a href="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}">
+                  {{ tr.start_time|time:'H:i' }}
+                </a>
+              </td>
+            </tr>
+            {% if forloop.last %}
+              <tr valign="top">
+                <td colspan="3">
+                  &nbsp;
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
           {% for d, summary in report.items %}
             <tr valign="top">
               <td colspan="2">

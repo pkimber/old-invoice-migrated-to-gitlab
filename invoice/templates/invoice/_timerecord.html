@@ -2,7 +2,7 @@
   <i class="fa fa-clock-o"></i>
 {% endif %}
 {% if user.is_staff and timerecord.user_can_edit %}
-  <a href="{% url 'invoice.time.update' timerecord.pk %}">
+  <a href="{% url 'invoice.time.update' timerecord.pk %}?next={{ request.path }}">
     <i class="fa fa-edit"></i>
     {{ timerecord.title }}
   </a>

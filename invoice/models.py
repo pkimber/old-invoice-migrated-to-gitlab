@@ -709,6 +709,9 @@ class TimeRecord(TimeStampedModel):
             result = False
         return result
 
+    def is_today(self):
+        return timezone.now().date() == self.date_started
+
     def _end_date_time(self):
         return datetime.combine(self.date_started, self.end_time)
 

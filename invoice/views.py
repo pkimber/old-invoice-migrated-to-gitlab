@@ -8,7 +8,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -23,7 +23,7 @@ from django.views.generic import (
 )
 from sendfile import sendfile
 
-from base.view_utils import BaseMixin
+from base.view_utils import BaseMixin, RedirectNextMixin
 from contact.views import check_perm
 from crm.models import Ticket
 from .forms import (
@@ -584,7 +584,8 @@ class QuickTimeRecordUpdateView(
 
 
 class TimeRecordCreateView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, CreateView):
+        LoginRequiredMixin, StaffuserRequiredMixin,
+        RedirectNextMixin, BaseMixin, CreateView):
 
     form_class = TimeRecordForm
     model = TimeRecord
@@ -613,6 +614,13 @@ class TimeRecordCreateView(
         self.object.user = self.request.user
         return super().form_valid(form)
 
+    def get_success_url(self):
+        next_url = self.request.POST.get(REDIRECT_FIELD_NAME)
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
+
 
 class TimeRecordListView(
         LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
@@ -640,6 +648,7 @@ class TimeRecordSummaryView(
             full_name = self.request.user.username
         context.update(dict(
             report=self._report(self.request.user),
+            running=TimeRecord.objects.running(self.request.user),
             user_full_name=full_name,
         ))
         return context
@@ -659,6 +668,7 @@ class TimeRecordSummaryUserView(
         full_name = user.get_full_name() or user.username
         context.update(dict(
             report=self._report(self._user()),
+            running=None,
             user_full_name=full_name,
         ))
         return context
@@ -693,14 +703,17 @@ class TicketTimeRecordListView(
 
 
 class TimeRecordUpdateView(
-        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, UpdateView):
+        LoginRequiredMixin, StaffuserRequiredMixin,
+        RedirectNextMixin, BaseMixin, UpdateView):
 
     form_class = TimeRecordForm
     model = TimeRecord
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        is_old_time_record = not self.object.is_today()
         context.update(dict(
+            is_old_time_record=is_old_time_record,
             ticket=self.object.ticket,
         ))
         return context
@@ -710,6 +723,13 @@ class TimeRecordUpdateView(
         if not obj.user_can_edit:
             raise PermissionDenied()
         return obj
+
+    def get_success_url(self):
+        next_url = self.request.POST.get(REDIRECT_FIELD_NAME)
+        if next_url:
+            return next_url
+        else:
+            return super().get_success_url()
 
 
 class UserTimeRecordListView(
