@@ -606,8 +606,7 @@ class TimeRecordManager(models.Manager):
             start_time = timezone.localtime(timezone.now()).time()
             if count == 1:
                 to_stop = running[0]
-                to_stop.end_time = start_time
-                to_stop.save()
+                to_stop.stop(start_time)
             elif count > 1:
                 raise InvoiceError(
                     "Cannot start a time record when {} are already "
@@ -733,6 +732,17 @@ class TimeRecord(TimeStampedModel):
         """ Convert the time difference into minutes """
         td = self.delta()
         return td.days * 1440 + td.seconds / 60
+
+    def stop(self, end_time=None):
+        """Stop recording time on this record."""
+        if not end_time:
+            end_time = timezone.localtime(timezone.now()).time()
+        if self.end_time:
+            raise InvoiceError(
+                "Time record '{}' has already been stopped".format(self.pk)
+            )
+        self.end_time = end_time
+        self.save()
 
     def _date_started_time(self):
         return datetime.combine(self.date_started, self.start_time)

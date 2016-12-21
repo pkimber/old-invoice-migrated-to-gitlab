@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-"""
-Test time records.
-"""
 import pytest
+import pytz
 
-from datetime import time
+from datetime import datetime, time
 from django.utils import timezone
 
 from crm.tests.factories import TicketFactory
@@ -111,6 +109,32 @@ def test_start_and_stop_too_many():
     with pytest.raises(InvoiceError) as e:
         TimeRecord.objects.start(ticket, quick)
     assert 'Cannot start a time record when 2 are already' in str(e.value)
+
+
+@pytest.mark.django_db
+def test_stop():
+    obj = TimeRecordFactory(end_time=None)
+    assert obj.end_time is None
+    obj.stop()
+    assert obj.end_time is not None
+
+
+@pytest.mark.django_db
+def test_stop_end_time():
+    obj = TimeRecordFactory(end_time=None)
+    assert obj.end_time is None
+    end_time = datetime(2014, 10, 1, 18, 13, 32, tzinfo=pytz.utc)
+    obj.stop(end_time)
+    assert end_time == obj.end_time
+
+
+@pytest.mark.django_db
+def test_stop_already_stopped():
+    end_time = datetime(2014, 10, 1, 18, 13, 32, tzinfo=pytz.utc)
+    obj = TimeRecordFactory(end_time=end_time)
+    with pytest.raises(InvoiceError) as e:
+        obj.stop()
+    assert 'has already been stopped' in str(e.value)
 
 
 @pytest.mark.django_db
