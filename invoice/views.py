@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DetailView,
+    FormView,
     ListView,
     TemplateView,
     UpdateView,
@@ -36,11 +37,13 @@ from .forms import (
     InvoiceUserUpdateForm,
     QuickTimeRecordEmptyForm,
     QuickTimeRecordForm,
+    TimeRecordEmptyForm,
     TimeRecordForm,
 )
 from .models import (
     Invoice,
     InvoiceContact,
+    InvoiceError,
     InvoiceLine,
     InvoiceUser,
     QuickTimeRecord,
@@ -639,7 +642,20 @@ class TimeRecordSummaryMixin:
 
 class TimeRecordSummaryView(
         LoginRequiredMixin, StaffuserRequiredMixin,
-        TimeRecordSummaryMixin, BaseMixin, TemplateView):
+        TimeRecordSummaryMixin, BaseMixin, FormView):
+
+    form_class = TimeRecordEmptyForm
+
+    def form_valid(self, form):
+        pk = self.request.POST.get('pk')
+        try:
+            time_record = TimeRecord.objects.get(pk=pk)
+        except TimeRecord.DoesNotExist:
+            raise InvoiceError(
+                "Time record '{}' does not exist".format(pk)
+            )
+        time_record.stop()
+        return HttpResponseRedirect(reverse('invoice.time.summary'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

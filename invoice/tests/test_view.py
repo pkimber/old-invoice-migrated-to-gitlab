@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 
 from contact.tests.factories import ContactFactory
 from invoice.models import InvoiceContact, InvoiceUser
-from invoice.tests.factories import InvoiceContactFactory
+from invoice.tests.factories import InvoiceContactFactory, TimeRecordFactory
 from login.tests.factories import TEST_PASSWORD, UserFactory
 
 
@@ -74,6 +74,23 @@ def test_timerecord_summary(client):
     url = reverse('invoice.time.summary')
     response = client.get(url)
     assert 200 == response.status_code
+
+
+@pytest.mark.django_db
+def test_timerecord_summary_stop_time(client):
+    user = UserFactory(username='staff', is_staff=True)
+    assert client.login(username=user.username, password=TEST_PASSWORD) is True
+    time_record = TimeRecordFactory(end_time=None)
+    url = reverse('invoice.time.summary')
+    data = {
+        'pk': time_record.pk,
+    }
+    assert time_record.end_time is None
+    response = client.post(url, data)
+    assert 302 == response.status_code
+    assert url == response['Location']
+    time_record.refresh_from_db()
+    assert time_record.end_time is not None
 
 
 @pytest.mark.django_db

@@ -110,6 +110,13 @@ class QuickTimeRecordForm(RequiredFieldForm):
         )
 
 
+class TimeRecordEmptyForm(forms.ModelForm):
+
+    class Meta:
+        model = TimeRecord
+        fields = ()
+
+
 class TimeRecordForm(RequiredFieldForm):
 
     paginate_by = 20

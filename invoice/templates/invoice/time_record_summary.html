@@ -55,8 +55,25 @@
               </td>
               <td>
                 <a href="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}">
+                  <i class="fa fa-edit"></i>
                   {{ tr.start_time|time:'H:i' }}
                 </a>
+                <form action="." method="post" class="pure-form">
+                  {% csrf_token %}
+                  {% if form.non_field_errors %}
+                    {{ form.non_field_errors }}
+                  {% endif %}
+                  <small>
+                    <button type="submit" name="pk" value="{{ tr.pk }}" class="pure-button">
+                      Stop
+                      {% if tr.chargeable %}
+                        <i class="fa fa-gbp"></i>
+                      {% else %}
+                        <i class="fa fa-gift"></i>
+                      {% endif %}
+                    </button>
+                  </small>
+                </form>
               </td>
             </tr>
             {% if forloop.last %}
