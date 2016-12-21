@@ -593,12 +593,14 @@ class TimeRecordManager(models.Manager):
             result[key.strftime('%Y_%U')] = value
         return result
 
+    def running(self, user):
+        return self.model.objects.filter(user=user, end_time__isnull=True)
+
+    def running_today(self, user):
+        return self.running(user).filter(date_started=date.today())
+
     def start(self, ticket, quick_time_record):
-        running = self.model.objects.filter(
-            date_started=date.today(),
-            user=quick_time_record.user,
-            end_time__isnull=True,
-        )
+        running = self.running_today(quick_time_record.user)
         count = running.count()
         with transaction.atomic():
             start_time = timezone.localtime(timezone.now()).time()
