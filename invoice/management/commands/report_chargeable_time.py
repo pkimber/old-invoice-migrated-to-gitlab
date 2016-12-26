@@ -12,7 +12,7 @@ from invoice.models import TimeRecord
 
 class Command(BaseCommand):
 
-    help = "Chargeable time by week"
+    help = "Chargeable time by month"
 
     def handle(self, *args, **options):
         count = 0
@@ -21,12 +21,14 @@ class Command(BaseCommand):
         qs = TimeRecord.objects.filter(billable=True).order_by('created')
         for item in qs:
             user_names.add(item.user.username)
-            monday = item.date_started + relativedelta(weekday=MO(-1))
+            # monday = item.date_started + relativedelta(weekday=MO(-1))
+            year_month = (item.date_started.year, item.date_started.month)
             if count % 1000:
                 self.stdout.write(item.date_started.strftime('%d/%m/%Y'))
-            if not monday in data:
-                data[monday] = {}
-            row = data[monday]
+                self.stdout.write(item.date_started.strftime('  {}'.format(year_month)))
+            if not year_month in data:
+                data[year_month] = {}
+            row = data[year_month]
             if not item.user.username in row:
                 row[item.user.username] = 0
             row[item.user.username] = row[item.user.username] + item.minutes
@@ -42,8 +44,8 @@ class Command(BaseCommand):
             for user_name in user_names:
                 heading.append(user_name)
             csv_writer.writerow(heading)
-            for d, item in data.items():
-                row = [d.strftime('%d/%m/%Y')]
+            for key, item in data.items():
+                row = ['{}/{}'.format(*key)]
                 for user_name in user_names:
                     row.append(int(item.get(user_name, 0)))
                 csv_writer.writerow(row)
