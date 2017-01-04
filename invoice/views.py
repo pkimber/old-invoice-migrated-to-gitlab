@@ -481,7 +481,7 @@ class InvoiceTimeCreateView(
                 self.request,
                 "Draft invoice {} for {} created at {} today.".format(
                     self.object.invoice_number,
-                    self.object.contact.name,
+                    self.object.contact.full_name,
                     self.object.created.strftime("%H:%M"),
                 )
             )
