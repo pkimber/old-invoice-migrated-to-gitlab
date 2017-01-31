@@ -1,11 +1,11 @@
 {% extends 'invoice/base.html' %}
 
 {% block sub_title %}
-  Chargeable Time for {{ user_full_name }}
+  Chargeable Time for {{ report_date|date:'M Y' }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Chargeable Time for {{ user_full_name }}
+  Chargeable Time for {{ report_date|date:'M Y' }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -15,11 +15,6 @@
         <ul class="pure-menu-list">
           {% if user.is_staff %}
             {% include 'crm/_menu_time.html' %}
-            <li class="pure-menu-item">
-              <a href="{% url 'invoice.time.summary.user' user_pk %}" class="pure-menu-link">
-                <i class="fa fa-clock-o"></i>
-              </a>
-            </li>
           {% endif %}
         </ul>
       </div>
@@ -27,16 +22,31 @@
   </div>
   <div class="pure-g">
     <div class="pure-u-1">
-      <table class="pure-table pure-table-bordered">
-        <thead>
-          <tr>
-            <th colspan="2">Ticket</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-        </tbody>
-      </table>
+      {% for user, data in report.items %}
+        <table class="pure-table pure-table-bordered">
+          <thead>
+            <tr>
+              <th colspan="2">{{ user }}</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pk, item in data.items %}
+              <tr>
+                <td>
+                  {{ pk }}
+                </td>
+                <td>
+                  {{ item.title }}
+                </td>
+                <td>
+                  {{ item.total }}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
     </div>
   </div>
 {% endblock content %}

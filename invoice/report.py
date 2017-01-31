@@ -15,6 +15,31 @@ from .models import TimeRecord
 from .service import format_minutes, InvoiceError
 
 
+def chargeable_time(year, month):
+    count = 0
+    data = collections.OrderedDict()
+    qs = TimeRecord.objects.filter(
+        billable=True,
+        date_started__year=year,
+        date_started__month=month,
+    ).order_by(
+        'user__username',
+        'created',
+    )
+    for row in qs:
+        if not row.user.username in data:
+            data[row.user.username] = collections.OrderedDict()
+        user_data = data[row.user.username]
+        if not row.ticket.pk in user_data:
+            user_data[row.ticket.pk] = {
+                'title': row.ticket.title,
+                'total': 0,
+            }
+        item = user_data[row.ticket.pk]
+        item['total'] = item['total'] + int(row.minutes)
+    return data
+
+
 def time_summary(user, days=None):
     """Time summary for a user.
 

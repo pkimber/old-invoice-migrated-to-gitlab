@@ -2,17 +2,14 @@
 import pytest
 
 from datetime import date
-
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from base.tests.test_utils import PermTestCase
 from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from finance.tests.factories import VatSettingsFactory
-from invoice.service import (
-    InvoiceCreate,
-    InvoicePrint,
-)
+from invoice.service import InvoiceCreate, InvoicePrint
 from invoice.tests.factories import (
     InvoiceContactFactory,
     InvoiceFactory,
@@ -167,8 +164,8 @@ def test_quick_time_record_update(perm_check):
 
 @pytest.mark.django_db
 def test_time_chargeable_user(perm_check):
-    user = UserFactory()
-    url = reverse('invoice.time.chargeable.user', args=[user.pk])
+    today = timezone.now().date()
+    url = reverse('invoice.time.chargeable', args=[today.year, today.month])
     perm_check.staff(url)
 
 

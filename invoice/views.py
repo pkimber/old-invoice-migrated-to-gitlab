@@ -2,7 +2,7 @@
 import collections
 
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from django.apps import apps
 from django.conf import settings
@@ -51,6 +51,7 @@ from .models import (
 )
 from .service import format_minutes, InvoiceCreate, InvoicePrint
 from .report import (
+    chargeable_time,
     ReportInvoiceTimeAnalysis,
     ReportInvoiceTimeAnalysisCSV,
     time_summary,
@@ -586,23 +587,26 @@ class QuickTimeRecordUpdateView(
         return reverse('invoice.quick.time.record.list')
 
 
-class TimeRecordChargeableUserView(
+class TimeRecordChargeableView(
         LoginRequiredMixin, StaffuserRequiredMixin,
         BaseMixin, TemplateView):
 
     template_name = 'invoice/time_record_chargeable.html'
 
-    def _user(self):
-        pk = self.kwargs.get('pk')
-        return get_user_model().objects.get(pk=pk)
+    def _date(self):
+        month = int(self.kwargs.get('month', 0))
+        year = int(self.kwargs.get('year', 0))
+        try:
+            return datetime(year, month, 1).date()
+        except ValueError:
+            raise Http404("Invalid date.")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self._user()
-        full_name = user.get_full_name() or user.username
+        report_date = self._date()
         context.update(dict(
-            user_full_name=full_name,
-            user_pk=user.pk,
+            report=chargeable_time(report_date.year, report_date.month),
+            report_date=report_date,
         ))
         return context
 
