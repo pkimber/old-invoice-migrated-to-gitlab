@@ -22,16 +22,17 @@
   </div>
   <div class="pure-g">
     <div class="pure-u-1">
-      {% for user, data in report.items %}
-        <table class="pure-table pure-table-bordered">
-          <thead>
-            <tr>
-              <th colspan="2">{{ user }}</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pk, item in data.data.items %}
+      <table class="pure-table pure-table-bordered">
+        <tbody>
+          {% for user, summary in report.items %}
+              <tr>
+                <td colspan="3">
+                  <strong>
+                    {{ user }}
+                  </strong>
+                </td>
+              </tr>
+            {% for pk, item in summary.data.items %}
               <tr>
                 <td>
                   {{ pk }}
@@ -57,7 +58,7 @@
               </td>
               <td align="right">
                 <strong>
-                  {{ data.total }}
+                  {{ summary.total }}
                 </strong>
               </td>
             </tr>
@@ -65,9 +66,9 @@
               <td colspan="3">
               </td>
             </tr>
-          </tbody>
-        </table>
-      {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 {% endblock content %}
