@@ -586,6 +586,27 @@ class QuickTimeRecordUpdateView(
         return reverse('invoice.quick.time.record.list')
 
 
+class TimeRecordChargeableUserView(
+        LoginRequiredMixin, StaffuserRequiredMixin,
+        BaseMixin, TemplateView):
+
+    template_name = 'invoice/time_record_chargeable.html'
+
+    def _user(self):
+        pk = self.kwargs.get('pk')
+        return get_user_model().objects.get(pk=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self._user()
+        full_name = user.get_full_name() or user.username
+        context.update(dict(
+            user_full_name=full_name,
+            user_pk=user.pk,
+        ))
+        return context
+
+
 class TimeRecordCreateView(
         LoginRequiredMixin, StaffuserRequiredMixin,
         RedirectNextMixin, BaseMixin, CreateView):
@@ -666,6 +687,7 @@ class TimeRecordSummaryView(
             report=self._report(self.request.user),
             running=TimeRecord.objects.running(self.request.user),
             user_full_name=full_name,
+            user_pk=self.request.user.pk,
         ))
         return context
 
@@ -686,6 +708,7 @@ class TimeRecordSummaryUserView(
             report=self._report(self._user()),
             running=None,
             user_full_name=full_name,
+            user_pk=user.pk,
         ))
         return context
 

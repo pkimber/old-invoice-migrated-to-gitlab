@@ -1,4 +1,4 @@
-{% extends "invoice/base.html" %}
+{% extends 'invoice/base.html' %}
 
 {% block sub_title %}
   Time Summary for {{ user_full_name }}
@@ -15,6 +15,12 @@
         <ul class="pure-menu-list">
           {% if user.is_staff %}
             {% include 'crm/_menu_time.html' %}
+            <li class="pure-menu-item">
+              <a href="{% url 'invoice.time.chargeable.user' user_pk %}" class="pure-menu-link">
+                <i class="fa fa-credit-card"></i>
+                Chargeable
+              </a>
+            </li>
           {% endif %}
         </ul>
       </div>
@@ -30,7 +36,6 @@
           </tr>
         </thead>
         <tbody>
-
           {% for tr in running %}
             {% if forloop.first %}
               <tr valign="top">

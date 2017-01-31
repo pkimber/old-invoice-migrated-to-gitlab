@@ -166,6 +166,13 @@ def test_quick_time_record_update(perm_check):
 
 
 @pytest.mark.django_db
+def test_time_chargeable_user(perm_check):
+    user = UserFactory()
+    url = reverse('invoice.time.chargeable.user', args=[user.pk])
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
 def test_timerecord_list(perm_check):
     url = reverse('invoice.time')
     perm_check.staff(url)

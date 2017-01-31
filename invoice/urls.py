@@ -26,6 +26,7 @@ from .views import (
     report_invoice_time_analysis,
     report_invoice_time_analysis_csv,
     TicketTimeRecordListView,
+    TimeRecordChargeableUserView,
     TimeRecordCreateView,
     TimeRecordListView,
     TimeRecordSummaryUserView,
@@ -146,6 +147,10 @@ urlpatterns = [
     url(regex=r'^time/$',
         view=TimeRecordListView.as_view(),
         name='invoice.time'
+        ),
+    url(regex=r'^time/chargeable/(?P<pk>\d+)/$',
+        view=TimeRecordChargeableUserView.as_view(),
+        name='invoice.time.chargeable.user'
         ),
     url(regex=r'^time/summary/$',
         view=TimeRecordSummaryView.as_view(),
