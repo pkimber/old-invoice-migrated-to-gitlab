@@ -17,7 +17,7 @@ from .service import format_minutes, InvoiceError
 
 def chargeable_time(year, month):
     count = 0
-    data = collections.OrderedDict()
+    result = collections.OrderedDict()
     qs = TimeRecord.objects.filter(
         billable=True,
         date_started__year=year,
@@ -27,17 +27,24 @@ def chargeable_time(year, month):
         'created',
     )
     for row in qs:
-        if not row.user.username in data:
-            data[row.user.username] = collections.OrderedDict()
-        user_data = data[row.user.username]
+        user_name = row.user.username
+        if not user_name in result:
+            result[user_name] = {
+                'data': collections.OrderedDict(),
+                'total': 0,
+            }
+        user_data = result[user_name]['data']
         if not row.ticket.pk in user_data:
             user_data[row.ticket.pk] = {
+                'contact': row.ticket.contact.user.username,
                 'title': row.ticket.title,
                 'total': 0,
             }
         item = user_data[row.ticket.pk]
-        item['total'] = item['total'] + int(row.minutes)
-    return data
+        minutes = int(row.minutes)
+        item['total'] = item['total'] + minutes
+        result[user_name]['total'] = result[user_name]['total'] + minutes
+    return result
 
 
 def time_summary(user, days=None):

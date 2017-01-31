@@ -31,19 +31,40 @@
             </tr>
           </thead>
           <tbody>
-            {% for pk, item in data.items %}
+            {% for pk, item in data.data.items %}
               <tr>
                 <td>
                   {{ pk }}
                 </td>
                 <td>
+                  <small>
+                    {{ item.contact }}
+                  </small>
                   {{ item.title }}
                 </td>
-                <td>
+                <td align="right">
                   {{ item.total }}
                 </td>
               </tr>
             {% endfor %}
+            <tr>
+              <td>
+                <strong>
+                  Total
+                </strong>
+              </td>
+              <td>
+              </td>
+              <td align="right">
+                <strong>
+                  {{ data.total }}
+                </strong>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+              </td>
+            </tr>
           </tbody>
         </table>
       {% endfor %}
