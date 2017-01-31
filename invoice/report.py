@@ -19,7 +19,6 @@ def chargeable_time(year, month):
     count = 0
     result = collections.OrderedDict()
     qs = TimeRecord.objects.filter(
-        billable=True,
         date_started__year=year,
         date_started__month=month,
     ).order_by(
@@ -31,19 +30,29 @@ def chargeable_time(year, month):
         if not user_name in result:
             result[user_name] = {
                 'data': collections.OrderedDict(),
-                'total': 0,
+                'charge': 0,
+                'fixed': 0,
+                'non': 0,
             }
         user_data = result[user_name]['data']
         if not row.ticket.pk in user_data:
             user_data[row.ticket.pk] = {
                 'contact': row.ticket.contact.user.username,
                 'title': row.ticket.title,
-                'total': 0,
+                'charge': 0,
+                'fixed': 0,
+                'non': 0,
             }
         item = user_data[row.ticket.pk]
         minutes = int(row.minutes)
-        item['total'] = item['total'] + minutes
-        result[user_name]['total'] = result[user_name]['total'] + minutes
+        if row.ticket.fixed:
+            key = 'fixed'
+        elif row.billable:
+            key = 'charge'
+        else:
+            key = 'non'
+        item[key] = item[key] + minutes
+        result[user_name][key] = result[user_name][key] + minutes
     return result
 
 

@@ -25,26 +25,43 @@
       <table class="pure-table pure-table-bordered">
         <tbody>
           {% for user, summary in report.items %}
-              <tr>
-                <td colspan="3">
-                  <strong>
-                    {{ user }}
-                  </strong>
-                </td>
-              </tr>
+            <tr>
+              <td colspan="2">
+                <strong>
+                  {{ user }}
+                </strong>
+              </td>
+              <td>
+                N/C
+              </td>
+              <td>
+                Charge
+              </td>
+              <td>
+                Order
+              </td>
+            </tr>
             {% for pk, item in summary.data.items %}
               <tr>
                 <td>
                   {{ pk }}
                 </td>
                 <td>
+                  <a href="{% url 'crm.ticket.detail' pk %}">
+                    {{ item.title }}
+                  </a>
                   <small>
                     {{ item.contact }}
                   </small>
-                  {{ item.title }}
                 </td>
                 <td align="right">
-                  {{ item.total }}
+                  {{ item.non }}
+                </td>
+                <td align="right">
+                  {{ item.charge }}
+                </td>
+                <td align="right">
+                  {{ item.fixed }}
                 </td>
               </tr>
             {% endfor %}
@@ -58,12 +75,18 @@
               </td>
               <td align="right">
                 <strong>
-                  {{ summary.total }}
+                  {{ summary.non }}
                 </strong>
               </td>
-            </tr>
-            <tr>
-              <td colspan="3">
+              <td align="right">
+                <strong>
+                  {{ summary.charge }}
+                </strong>
+              </td>
+              <td align="right">
+                <strong>
+                  {{ summary.fixed }}
+                </strong>
               </td>
             </tr>
           {% endfor %}
