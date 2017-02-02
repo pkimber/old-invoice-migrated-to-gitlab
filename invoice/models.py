@@ -679,7 +679,11 @@ class TimeRecord(TimeStampedModel):
         return False
 
     def delta(self):
-        return self._end_date_time() - self._date_started_time()
+        if self.start_time and self.end_time:
+            return self._end_date_time() - self._date_started_time()
+        else:
+            from datetime import timedelta
+            return timedelta()
 
     def delta_as_string(self):
         if self.start_time and self.end_time:

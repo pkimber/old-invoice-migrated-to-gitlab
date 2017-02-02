@@ -33,8 +33,10 @@
           <thead>
             <tr>
               <th>Time</th>
+              <th>Date</th>
               <th>Start</th>
               <th>End</th>
+              <th>Duration</th>
               <th>Bill</th>
             </tr>
           </thead>
@@ -49,12 +51,18 @@
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}
+                </td>
+                <td>
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
                 <td>
                   {% if timerecord.end_time %}
                     {{ timerecord.end_time|time:"H:i" }}
-                    <small>({{ timerecord.delta_as_string }})</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if timerecord.end_time %}
+                    <small>{{ timerecord.delta_as_string }}</small>
                   {% endif %}
                 </td>
                 <td>
@@ -75,12 +83,35 @@
               </tr>
             {% endfor %}
           </tbody>
+
         </table>
       {% endif %}
     </div>
-  </div>
-  <div class="pure-g">
     <div class="pure-u-1">
+      <br>
+      <table class="pure-table pure-table-bordered">
+        <thead>
+          <tr>
+            <th>Billable</th>
+            <th>Not chargable</th>
+            <th>Total</th>
+            <th>Invoiced</th>
+            <th>Pending</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ billable_total }}</td>
+            <td>{{ not_billable_total }}</td>
+            <td>{{ total }}</td>
+            <td>{{ invoiced_total }}</td>
+            <td>{{ pending_total}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pure-u-1">
+      <br>
       <div class="pure-menu pure-menu-horizontal">
         <ul class="pure-menu-list">
           {% include 'invoice/_menu_add_note_add_time.html' %}
