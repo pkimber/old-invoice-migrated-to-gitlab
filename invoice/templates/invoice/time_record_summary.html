@@ -109,7 +109,9 @@
                   </a>
                 </td>
                 <td>
-                  {{ ticket.format_minutes }}
+                  <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
+                    {{ ticket.format_minutes }}
+                  </a>
                 </td>
               </tr>
             {% endfor %}
