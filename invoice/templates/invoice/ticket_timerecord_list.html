@@ -101,11 +101,11 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ billable_total }}</td>
-            <td>{{ not_billable_total }}</td>
-            <td>{{ total }}</td>
-            <td>{{ invoiced_total }}</td>
-            <td>{{ pending_total}}</td>
+            <td>{{ ticket.totals.billable }}</td>
+            <td>{{ ticket.totals.not_billable }}</td>
+            <td>{{ ticket.totals.total }}</td>
+            <td>{{ ticket.totals.invoiced }}</td>
+            <td>{{ ticket.totals.pending }}</td>
           </tr>
         </tbody>
       </table>

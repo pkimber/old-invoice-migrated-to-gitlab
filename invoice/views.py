@@ -703,25 +703,8 @@ class TicketTimeRecordListView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ticket = self._get_ticket()
-        from datetime import timedelta
-        invoiced_total = timedelta()
-        billable_total = timedelta()
-        not_billable_total = timedelta()
-        for time_record in TimeRecord.objects.filter(ticket=ticket):
-            if time_record.billable:
-                billable_total += time_record.delta()
-            else:
-                not_billable_total += time_record.delta()
-            if time_record.invoice_line:
-                invoiced_total += time_record.delta()
         context.update(dict(
-            ticket=ticket,
-            billable_total=billable_total,
-            not_billable_total=not_billable_total,
-            total=billable_total + not_billable_total,
-            invoiced_total=invoiced_total,
-            pending_total=billable_total - invoiced_total,
+            ticket=self._get_ticket(),
         ))
         return context
 
