@@ -33,8 +33,10 @@
             <tr>
               <th>Ticket</th>
               <th>Time</th>
+              <th>Date</th>
               <th>Start</th>
               <th>End</th>
+              <th>Duration</th>
               <th>Invoice</th>
             </tr>
           </thead>
@@ -55,12 +57,18 @@
                 </td>
                 <td>
                   {{ timerecord.date_started|date:"d/m/y" }}
+                </td>
+                <td>
                   {{ timerecord.start_time|time:"H:i" }}
                 </td>
                 <td>
                   {% if timerecord.end_time %}
                     {{ timerecord.end_time|time:"H:i" }}
-                    <small>({{ timerecord.delta_as_string }})</small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if timerecord.end_time %}
+                    <small>{{ timerecord.delta_as_string }}</small>
                   {% endif %}
                 </td>
                 <td>
