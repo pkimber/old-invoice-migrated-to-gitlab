@@ -30,7 +30,7 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.1.40',
+    version='0.1.41',
     description='invoice',
     author='Malcolm Dinsmore',
     author_email='code-md@kbsoftware.co.uk',
