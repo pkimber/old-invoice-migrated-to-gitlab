@@ -42,6 +42,7 @@ media
 media-private
 temp.db
 venv-*
+report_time_by_user_by_week_date.csv
 
 # private info
 .private
