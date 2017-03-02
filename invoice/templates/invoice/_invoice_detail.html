@@ -69,7 +69,7 @@
             {% if line.description %}
               {{ line.description|linebreaksbr }}
             {% else %}
-              Time{% if line.timerecord %} : {{ line.timerecord.title}}{% endif %} 
+              Time{% if line.timerecord %} : {{ line.timerecord.ticket.id}} {{ line.timerecord.ticket.title }} - {{ line.timerecord.title}}{% endif %} 
             {% endif %}
             {% if line.product %}
               <small>
