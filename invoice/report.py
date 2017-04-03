@@ -46,7 +46,7 @@ def time_summary(user, days=None):
         if data:
             summary = {}
             tickets = []
-            total = 0
+            total_charge = total_fixed = total_non = 0
             for ticket_pk, analysis in data.items():
                 ticket = Ticket.objects.get(pk=ticket_pk)
                 tickets.append({
@@ -72,13 +72,23 @@ def time_summary(user, days=None):
 
                 })
 
-
-                total = total + analysis[TimeRecord.CHARGE] + analysis[TimeRecord.FIXED_PRICE] + analysis[TimeRecord.NON_CHARGE]
+                total_charge = total_charge + analysis[TimeRecord.CHARGE]
+                total_fixed = total_fixed + analysis[TimeRecord.FIXED_PRICE]
+                total_non = total_non + analysis[TimeRecord.NON_CHARGE]
 
                 # total = total + minutes
+            total = total_charge + total_fixed + total_non
             summary['tickets'] = tickets
             summary['total'] = total
-            summary['format_total'] = format_minutes(total)
+            summary['total_format'] = format_minutes(total)
+
+            summary['total_charge'] = total_charge
+            summary['total_charge_format'] = format_minutes(total_charge)
+            summary['total_fixed'] = total_fixed
+            summary['total_fixed_format'] = format_minutes(total_fixed)
+            summary['total_non'] = total_non
+            summary['total_non_format'] = format_minutes(total_non)
+
             report[d] = summary
             count = count + 1
         # maximum of 5 days

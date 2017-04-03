@@ -26,7 +26,9 @@
         <thead>
           <tr>
             <th colspan="2">Ticket</th>
-            <th>Time</th>
+            <th>Fix</th>
+            <th>Non</th>
+            <th>Chg</th>
           </tr>
         </thead>
         <tbody>
@@ -94,8 +96,9 @@
                   {{ d|date:'l' }}
                 <small>
               </td>
-              <td>
-              </td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
             {% for ticket in summary.tickets %}
               <tr valign="top">
@@ -109,8 +112,18 @@
                   </a>
                 </td>
                 <td>
+                  <a href="{% url 'crm.ticket.update' ticket.pk %}">
+                    {{ ticket.analysis.fixed_minutes_format }}
+                  </a>
+                </td>
+                <td>
                   <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
-                    {{ ticket.format_minutes }}
+                    {{ ticket.analysis.non_minutes_format }}
+                  </a>
+                </td>
+                <td>
+                  <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
+                    {{ ticket.analysis.charge_minutes_format }}
                   </a>
                 </td>
               </tr>
@@ -120,7 +133,17 @@
               </td>
               <td>
                 <strong>
-                  {{ summary.format_total }}
+                  {{ summary.total_fixed_format }}
+                </strong>
+              </td>
+              <td>
+                <strong>
+                  {{ summary.total_non_format }}
+                </strong>
+              </td>
+              <td>
+                <strong>
+                  {{ summary.total_charge_format }}
                 </strong>
               </td>
             </tr>

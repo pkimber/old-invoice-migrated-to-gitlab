@@ -421,7 +421,6 @@ def test_time_summary():
 
     assert {
         date(2017, 4, 3): {
-            'format_total': '00:55',
             'tickets': [
                 {
                     'analysis': {
@@ -452,6 +451,13 @@ def test_time_summary():
                     'user_name': 'user_164'
                 }
             ],
-            'total': 55.0
+            'total': 55.0,
+            'total_format': '00:55',
+            'total_charge': 55.0,
+            'total_charge_format': '00:55',
+            'total_fixed': 0,
+            'total_fixed_format': '00:00',
+            'total_non': 0,
+            'total_non_format': '00:00',
         }
     } == data
