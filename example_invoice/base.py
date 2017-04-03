@@ -101,6 +101,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.media',
+                'django.template.context_processors.request',
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
@@ -110,7 +111,7 @@ TEMPLATES = [
     },
 ]
 
-INSTALLED_APPS = (
+DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -120,8 +121,17 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'contact',
+)
+
+THIRD_PARTY_APPS = (
+    'easy_thumbnails',
     'reversion',
+    'taggit',
+)
+
+LOCAL_APPS = (
+    'block',
+    'contact',
     'base',
     'crm',
     'example_invoice',
@@ -132,6 +142,8 @@ INSTALLED_APPS = (
     'report',
     'stock',
 )
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
