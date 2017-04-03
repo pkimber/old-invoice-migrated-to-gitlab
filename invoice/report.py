@@ -15,6 +15,17 @@ from .models import TimeRecord
 from .service import format_minutes, InvoiceError
 
 
+def _analysis(analysis):
+    return {
+        'charge_minutes': analysis[TimeRecord.CHARGE],
+        'charge_minutes_format': format_minutes(analysis[TimeRecord.CHARGE]),
+        'fixed_minutes': analysis[TimeRecord.FIXED_PRICE],
+        'fixed_minutes_format': format_minutes(analysis[TimeRecord.FIXED_PRICE]),
+        'non_minutes': analysis[TimeRecord.NON_CHARGE],
+        'non_minutes_format': format_minutes(analysis[TimeRecord.NON_CHARGE]),
+    }
+
+
 def time_summary(user, days=None):
     """Time summary for a user.
 
@@ -36,17 +47,35 @@ def time_summary(user, days=None):
             summary = {}
             tickets = []
             total = 0
-            for ticket_pk, minutes in data.items():
+            for ticket_pk, analysis in data.items():
                 ticket = Ticket.objects.get(pk=ticket_pk)
                 tickets.append({
                     'pk': ticket.pk,
                     'description': ticket.title,
                     'contact': ticket.contact.get_full_name,
                     'user_name': ticket.contact.user.username,
-                    'minutes': minutes,
-                    'format_minutes': format_minutes(minutes),
+                    'analysis': _analysis(analysis),
+
+                    # 'minutes': minutes,
+                    # 'format_minutes': format_minutes(minutes),
+
+                    # 'analysis': {
+                    #     'charge_minutes': analysis[TimeRecord.CHARGE],
+                    #     'charge_minutes_format': format_minutes(analysis[TimeRecord.CHARGE]),
+                    #     'fixed_minutes': analysis[TimeRecord.FIXED_PRICE],
+                    #     'fixed_minutes_format': format_minutes(analysis[TimeRecord.FIXED_PRICE]),
+                    #     'non_minutes': analysis[TimeRecord.NON_CHARGE],
+                    #     'non_minutes_format': format_minutes(analysis[TimeRecord.NON_CHARGE]),
+                    # }
+
+
+
                 })
-                total = total + minutes
+
+
+                total = total + analysis[TimeRecord.CHARGE] + analysis[TimeRecord.FIXED_PRICE] + analysis[TimeRecord.NON_CHARGE]
+
+                # total = total + minutes
             summary['tickets'] = tickets
             summary['total'] = total
             summary['format_total'] = format_minutes(total)

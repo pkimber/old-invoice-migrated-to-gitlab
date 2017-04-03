@@ -5,7 +5,7 @@ Test report.
 import pytest
 import pytz
 
-from datetime import datetime, time
+from datetime import date, datetime, time
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
@@ -15,6 +15,7 @@ from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from invoice.models import TimeRecord
 from invoice.service import report
+from invoice.report import time_summary
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -271,7 +272,10 @@ def test_report_time_by_ticket():
         user=user,
     )
     data = TimeRecord.objects.report_time_by_ticket(user, d)
-    assert {1: 40, 2: 15} == data
+    assert {
+        1: {'Chargeable': 40.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
+        2: {'Chargeable': 15.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
+    } == data
 
 
 @pytest.mark.django_db
@@ -363,3 +367,91 @@ def test_report_total_by_user():
         for ticket_pk, totals in tickets.items():
             net = net + totals['net']
     assert invoice.net == net
+
+
+@pytest.mark.django_db
+def test_time_summary():
+    user = UserFactory(username='green')
+    d = timezone.now().date()
+    t1 = TicketFactory(pk=1, contact=ContactFactory())
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(pk=2, contact=ContactFactory()),
+        date_started=d,
+        start_time=time(10, 0),
+        end_time=time(10, 15),
+        user=user,
+    )
+    # another date (so not included)
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d+relativedelta(days=-1),
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=UserFactory(),
+    )
+    # another user (so not included)
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=UserFactory(),
+    )
+    TimeRecordFactory(
+        ticket=t1,
+        date_started=d,
+        start_time=time(12, 0),
+        end_time=time(12, 10),
+        user=user,
+    )
+    data = time_summary(user)
+    # assert {
+    #     1: {'Chargeable': 40.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
+    #     2: {'Chargeable': 15.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
+    # } == data
+
+
+
+    assert {
+        date(2017, 4, 3): {
+            'format_total': '00:55',
+            'tickets': [
+                {
+                    'analysis': {
+                        'charge_minutes': 40.0,
+                        'charge_minutes_format': '00:40',
+                        'fixed_minutes': 0,
+                        'fixed_minutes_format': '00:00',
+                        'non_minutes': 0,
+                        'non_minutes_format': '00:00'
+                    },
+                    'contact': 'first_name_162',
+                    'description': '',
+                    'pk': 1,
+                    'user_name': 'user_162'
+                },
+                {
+                    'analysis': {
+                        'charge_minutes': 15.0,
+                        'charge_minutes_format': '00:15',
+                        'fixed_minutes': 0,
+                        'fixed_minutes_format': '00:00',
+                        'non_minutes': 0,
+                        'non_minutes_format': '00:00'
+                    },
+                    'contact': 'first_name_164',
+                    'description': '',
+                    'pk': 2,
+                    'user_name': 'user_164'
+                }
+            ],
+            'total': 55.0
+        }
+    } == data

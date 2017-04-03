@@ -485,9 +485,6 @@ class QuickTimeRecord(TimeStampedModel):
 
 class TimeRecordManager(models.Manager):
 
-    CHARGE = 'Chargeable'
-    NON_CHARGE = 'Non-Chargeable'
-
     def create_time_record(self, ticket, quick_time_record, start_time):
         obj = self.model(
             billable=quick_time_record.chargeable,
@@ -513,13 +510,13 @@ class TimeRecordManager(models.Manager):
         for row in qs:
             if row.is_complete:
                 if row.billable:
-                    if not self.CHARGE in result:
-                        result[self.CHARGE] = 0
-                    result[self.CHARGE] = result[self.CHARGE] + row.minutes
+                    if not TimeRecord.CHARGE in result:
+                        result[TimeRecord.CHARGE] = 0
+                    result[TimeRecord.CHARGE] = result[TimeRecord.CHARGE] + row.minutes
                 else:
-                    if not self.NON_CHARGE in result:
-                        result[self.NON_CHARGE] = 0
-                    result[self.NON_CHARGE] = result[self.NON_CHARGE] + row.minutes
+                    if not TimeRecord.NON_CHARGE in result:
+                        result[TimeRecord.NON_CHARGE] = 0
+                    result[TimeRecord.NON_CHARGE] = result[TimeRecord.NON_CHARGE] + row.minutes
         return result
 
     def report_time_by_contact(self, from_date, to_date, user=None):
@@ -539,7 +536,12 @@ class TimeRecordManager(models.Manager):
         return result
 
     def report_time_by_ticket(self, user, day):
-        """Group time by ticket for a user for a day."""
+        """Group time by ticket for a user for a day.
+
+        Return an ordered dictionary containing analysis of chargeable,
+        non-chargeable and fixed price time.
+
+        """
         qs = TimeRecord.objects.filter(
             user=user,
             date_started=day,
@@ -549,10 +551,29 @@ class TimeRecordManager(models.Manager):
         result = collections.OrderedDict()
         for row in qs:
             if row.is_complete:
+                ticket = row.ticket
                 ticket_pk = row.ticket.pk
                 if not ticket_pk in result:
-                    result[ticket_pk] = 0
-                result[ticket_pk] = result[ticket_pk] + row.minutes
+                    result[ticket_pk] = {
+                        TimeRecord.CHARGE: 0,
+                        TimeRecord.FIXED_PRICE: 0,
+                        TimeRecord.NON_CHARGE: 0,
+                    }
+                data = result[ticket_pk]
+                minutes = row.minutes
+                if ticket.fixed_price:
+                    data[TimeRecord.FIXED_PRICE] = data[
+                        TimeRecord.FIXED_PRICE
+                    ] + minutes
+                elif row.billable:
+                    data[TimeRecord.CHARGE] = data[
+                        TimeRecord.CHARGE
+                    ] + minutes
+                else:
+                    data[TimeRecord.NON_CHARGE] = data[
+                        TimeRecord.NON_CHARGE
+                    ] + minutes
+                result[ticket_pk] = data
         return result
 
     def report_time_by_user(self, from_date, to_date):
@@ -641,6 +662,10 @@ class TimeRecordManager(models.Manager):
 
 class TimeRecord(TimeStampedModel):
     """Simple time recording"""
+
+    CHARGE = 'Chargeable'
+    FIXED_PRICE = 'Fixed-Price'
+    NON_CHARGE = 'Non-Chargeable'
 
     ticket = models.ForeignKey(Ticket)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
