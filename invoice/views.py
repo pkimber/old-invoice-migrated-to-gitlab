@@ -367,7 +367,7 @@ class InvoicePdfUpdateView(
             self.request,
             "Created PDF for invoice {}, {} at {} today.".format(
                 self.object.invoice_number,
-                self.object.contact.full_name,
+                self.object.contact.get_full_name,
                 self.object.created.strftime("%H:%M"),
             )
         )
@@ -481,7 +481,7 @@ class InvoiceTimeCreateView(
                 self.request,
                 "Draft invoice {} for {} created at {} today.".format(
                     self.object.invoice_number,
-                    self.object.contact.full_name,
+                    self.object.contact.get_full_name,
                     self.object.created.strftime("%H:%M"),
                 )
             )

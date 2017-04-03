@@ -1,11 +1,11 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Time records for {{ contact.full_name }}
+  Time records for {{ contact.get_full_name }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Time records for {{ contact.full_name }}
+  Time records for {{ contact.get_full_name }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -20,7 +20,7 @@
   <div class="pure-g">
     <div class="pure-u-1">
       {% if not timerecord_list %}
-        No time records for {{ contact.full_name }}
+        No time records for {{ contact.get_full_name }}
       {% else %}
         <table class="pure-table pure-table-bordered">
           <thead>

@@ -363,5 +363,3 @@ def test_report_total_by_user():
         for ticket_pk, totals in tickets.items():
             net = net + totals['net']
     assert invoice.net == net
-
-

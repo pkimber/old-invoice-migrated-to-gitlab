@@ -48,7 +48,7 @@
                 {{ tr.ticket.pk }}
               </td>
               <td>
-                {{ tr.ticket.contact.full_name }}:
+                {{ tr.ticket.contact.get_full_name }}:
                 <a href="{% url 'crm.ticket.detail' tr.ticket.pk %}">
                   {{ tr.ticket.title }}
                 </a>

@@ -50,7 +50,7 @@
                 <td>{{ invoice.invoice_date|date:"d/m/y" }}</td>
                 <td>
                   <a href="{% url 'contact.detail' invoice.contact.pk %}">
-                    {{ invoice.contact.full_name }}
+                    {{ invoice.contact.get_full_name }}
                   </a>
                 </td>
                 <td>{{ invoice.net }}</td>

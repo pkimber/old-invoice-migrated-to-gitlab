@@ -1,11 +1,11 @@
 {% extends "invoice/base.html" %}
 
 {% block sub_title %}
-  Invoices for {{ contact.full_name }}
+  Invoices for {{ contact.get_full_name }}
 {% endblock sub_title %}
 
 {% block sub_heading %}
-  Invoices for {{ contact.full_name }}
+  Invoices for {{ contact.get_full_name }}
 {% endblock sub_heading %}
 
 {% block content %}
@@ -66,7 +66,7 @@
           </tbody>
         </table>
       {% else %}
-        Sorry, there are no invoices on the system for {{ contact.full_name }}
+        Sorry, there are no invoices on the system for {{ contact.get_full_name }}
       {% endif %}
     </div>
   </div>
