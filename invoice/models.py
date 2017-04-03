@@ -37,7 +37,7 @@ class InvoiceContact(TimeStampedModel):
         verbose_name_plural = 'Invoice Contacts'
 
     def __str__(self):
-        result = '{}'.format(self.contact.full_name)
+        result = '{}'.format(self.contact.get_full_name)
         if self.hourly_rate:
             result = '{} @ {}'.format(result, self.hourly_rate)
         return result
