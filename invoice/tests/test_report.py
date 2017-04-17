@@ -371,9 +371,12 @@ def test_report_total_by_user():
 
 @pytest.mark.django_db
 def test_time_summary():
-    user = UserFactory(username='green')
+    user = UserFactory(username='green', first_name='P', last_name='Kimber')
     d = timezone.now().date()
-    t1 = TicketFactory(pk=1, contact=ContactFactory())
+    contact = ContactFactory(
+        user=UserFactory(username='orange', first_name='O', last_name='Rind')
+    )
+    t1 = TicketFactory(pk=1, contact=ContactFactory(user=user))
     TimeRecordFactory(
         ticket=t1,
         date_started=d,
@@ -381,8 +384,11 @@ def test_time_summary():
         end_time=time(11, 30),
         user=user,
     )
+    contact = ContactFactory(
+        user=UserFactory(username='blue', first_name='A', last_name='Teal')
+    )
     TimeRecordFactory(
-        ticket=TicketFactory(pk=2, contact=ContactFactory()),
+        ticket=TicketFactory(pk=2, contact=contact),
         date_started=d,
         start_time=time(10, 0),
         end_time=time(10, 15),
@@ -412,15 +418,8 @@ def test_time_summary():
         user=user,
     )
     data = time_summary(user)
-    # assert {
-    #     1: {'Chargeable': 40.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
-    #     2: {'Chargeable': 15.0, 'Fixed-Price': 0, 'Non-Chargeable': 0},
-    # } == data
-
-
-
     assert {
-        date(2017, 4, 3): {
+        date.today(): {
             'tickets': [
                 {
                     'analysis': {
@@ -431,10 +430,10 @@ def test_time_summary():
                         'non_minutes': 0,
                         'non_minutes_format': '00:00'
                     },
-                    'contact': 'first_name_162',
+                    'contact': 'P Kimber',
                     'description': '',
                     'pk': 1,
-                    'user_name': 'user_162'
+                    'user_name': 'green'
                 },
                 {
                     'analysis': {
@@ -445,10 +444,10 @@ def test_time_summary():
                         'non_minutes': 0,
                         'non_minutes_format': '00:00'
                     },
-                    'contact': 'first_name_164',
+                    'contact': 'A Teal',
                     'description': '',
                     'pk': 2,
-                    'user_name': 'user_164'
+                    'user_name': 'blue'
                 }
             ],
             'total': 55.0,
