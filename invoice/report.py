@@ -55,46 +55,68 @@ def time_summary(user, days=None):
                     'contact': ticket.contact.get_full_name,
                     'user_name': ticket.contact.user.username,
                     'analysis': _analysis(analysis),
-
-                    # 'minutes': minutes,
-                    # 'format_minutes': format_minutes(minutes),
-
-                    # 'analysis': {
-                    #     'charge_minutes': analysis[TimeRecord.CHARGE],
-                    #     'charge_minutes_format': format_minutes(analysis[TimeRecord.CHARGE]),
-                    #     'fixed_minutes': analysis[TimeRecord.FIXED_PRICE],
-                    #     'fixed_minutes_format': format_minutes(analysis[TimeRecord.FIXED_PRICE]),
-                    #     'non_minutes': analysis[TimeRecord.NON_CHARGE],
-                    #     'non_minutes_format': format_minutes(analysis[TimeRecord.NON_CHARGE]),
-                    # }
-
-
-
                 })
-
                 total_charge = total_charge + analysis[TimeRecord.CHARGE]
                 total_fixed = total_fixed + analysis[TimeRecord.FIXED_PRICE]
                 total_non = total_non + analysis[TimeRecord.NON_CHARGE]
-
-                # total = total + minutes
             total = total_charge + total_fixed + total_non
             summary['tickets'] = tickets
             summary['total'] = total
             summary['total_format'] = format_minutes(total)
-
             summary['total_charge'] = total_charge
             summary['total_charge_format'] = format_minutes(total_charge)
             summary['total_fixed'] = total_fixed
             summary['total_fixed_format'] = format_minutes(total_fixed)
             summary['total_non'] = total_non
             summary['total_non_format'] = format_minutes(total_non)
-
             report[d] = summary
             count = count + 1
         # maximum of 5 days
         if count > days:
             break
     return report
+
+
+def time_summary_by_user(today=None):
+    result = {}
+    if today is None:
+        today = date.today()
+    # 12 whole months
+    from_date = today + relativedelta(months=-12, day=1)
+    to_date = today + relativedelta(day=1, days=-1)
+    qs = TimeRecord.objects.filter(
+        date_started__gte=from_date,
+        date_started__lte=to_date,
+    )
+    for row in qs:
+        if row.is_complete:
+            ticket = row.ticket
+            minutes = row.minutes
+            user_name = ticket.contact.user.username
+            if not user_name in result:
+                print(user_name)
+                result[user_name] = collections.OrderedDict()
+                x = from_date
+                while x < to_date:
+                    x = x + relativedelta(months=+1, day=1)
+                    key = x.strftime('%Y-%m')
+                    result[user_name][key] = {
+                        'label': x.strftime('%b'),
+                        'month': x.month,
+                        'year': x.year,
+                        'charge_minutes': 0,
+                        'fixed_minutes': 0,
+                        'non_minutes': 0,
+                    }
+            key = row.date_started.strftime('%Y-%m')
+            data = result[user_name][key]
+            if ticket.fixed_price:
+                data['fixed_minutes'] = data['fixed_minutes'] + minutes
+            elif row.billable:
+                data['charge_minutes'] = data['charge_minutes'] + minutes
+            else:
+                data['non_minutes'] = data['non_minutes'] + minutes
+    return result
 
 
 class ReportInvoiceTimeAnalysis(MyReport):

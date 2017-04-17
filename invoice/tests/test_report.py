@@ -15,7 +15,7 @@ from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from invoice.models import TimeRecord
 from invoice.service import report
-from invoice.report import time_summary
+from invoice.report import time_summary, time_summary_by_user
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -23,10 +23,7 @@ from invoice.tests.factories import (
     TimeRecordFactory,
 )
 from login.tests.factories import UserFactory
-from report.models import (
-    Report,
-    ReportDataInteger,
-)
+from report.models import Report, ReportDataInteger
 
 
 @pytest.mark.django_db
@@ -372,7 +369,7 @@ def test_report_total_by_user():
 @pytest.mark.django_db
 def test_time_summary():
     user = UserFactory(username='green', first_name='P', last_name='Kimber')
-    d = timezone.now().date()
+    d = date(2017, 4, 16)
     contact = ContactFactory(
         user=UserFactory(username='orange', first_name='O', last_name='Rind')
     )
@@ -419,7 +416,7 @@ def test_time_summary():
     )
     data = time_summary(user)
     assert {
-        date.today(): {
+        date(2017, 4, 16): {
             'tickets': [
                 {
                     'analysis': {
@@ -458,5 +455,134 @@ def test_time_summary():
             'total_fixed_format': '00:00',
             'total_non': 0,
             'total_non_format': '00:00',
+        }
+    } == data
+
+
+@pytest.mark.django_db
+def test_time_summary_by_user():
+    user = UserFactory(username='green', first_name='P', last_name='Kimber')
+    contact = ContactFactory(user=user)
+    TimeRecordFactory(
+        ticket=TicketFactory(contact=contact),
+        date_started=date(2017, 1, 16),
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        billable=False,
+        ticket=TicketFactory(contact=contact),
+        date_started=date(2016, 12, 1),
+        start_time=time(11, 0),
+        end_time=time(11, 15),
+        user=user,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(contact=contact, fixed_price=True),
+        date_started=date(2016, 11, 30),
+        start_time=time(11, 0),
+        end_time=time(11, 10),
+        user=user,
+    )
+    data = time_summary_by_user(date(2017, 3, 17))
+    assert {
+        'green': {
+            '2016-04': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Apr',
+                'month': 4,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-05': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'May',
+                'month': 5,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-06': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Jun',
+                'month': 6,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-07': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Jul',
+                'month': 7,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-08': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Aug',
+                'month': 8,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-09': {
+                 'charge_minutes': 0,
+                 'fixed_minutes': 0,
+                 'label': 'Sep',
+                 'month': 9,
+                 'non_minutes': 0,
+                 'year': 2016,
+            },
+            '2016-10': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Oct',
+                'month': 10,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-11': {
+                'charge_minutes': 0,
+                'fixed_minutes': 10,
+                'label': 'Nov',
+                'month': 11,
+                'non_minutes': 0,
+                'year': 2016,
+            },
+            '2016-12': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Dec',
+                'month': 12,
+                'non_minutes': 15,
+                'year': 2016,
+            },
+            '2017-01': {
+                'charge_minutes': 30.0,
+                'fixed_minutes': 0,
+                'label': 'Jan',
+                'month': 1,
+                'non_minutes': 0,
+                'year': 2017,
+            },
+            '2017-02': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Feb',
+                'month': 2,
+                'non_minutes': 0,
+                'year': 2017,
+            },
+            '2017-03': {
+                 'charge_minutes': 0,
+                 'fixed_minutes': 0,
+                 'label': 'Mar',
+                 'month': 3,
+                 'non_minutes': 0,
+                 'year': 2017,
+            },
         }
     } == data
