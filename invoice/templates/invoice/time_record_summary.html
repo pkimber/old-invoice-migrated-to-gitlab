@@ -25,23 +25,36 @@
       <table class="pure-table pure-table-bordered">
         <thead>
           <tr>
-            <th colspan="2">Ticket</th>
-            <th>Fix</th>
-            <th>Non</th>
-            <th>Chg</th>
+            <th colspan="2">
+              Ticket
+            </th>
+            <th align="right">
+              <small>
+                Non
+              </small>
+            </th>
+            <th align="right">
+              <small>
+                Fix
+              </small>
+            </th>
+            <th align="right">
+              <small>
+                Chg
+              </small>
+            </th>
+            <th>
+            </th>
           </tr>
         </thead>
         <tbody>
-
           {% for tr in running %}
             {% if forloop.first %}
               <tr valign="top">
-                <td colspan="2">
+                <td colspan="6">
                   <strong>
                     Open Time Records
                   </strong>
-                </td>
-                <td>
                 </td>
               </tr>
             {% endif %}
@@ -55,27 +68,50 @@
                   {{ tr.ticket.title }}
                 </a>
               </td>
-              <td>
-                <a href="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}">
-                  <i class="fa fa-edit"></i>
+              {% if tr.ticket.fixed_price %}
+                <td>
+                </td>
+                <td align="right">
                   {{ tr.start_time|time:'H:i' }}
-                </a>
-                <form action="." method="post" class="pure-form">
-                  {% csrf_token %}
-                  {% if form.non_field_errors %}
-                    {{ form.non_field_errors }}
-                  {% endif %}
-                  <small>
-                    <button type="submit" name="pk" value="{{ tr.pk }}" class="pure-button">
-                      Stop
-                      {% if tr.chargeable %}
-                        <i class="fa fa-gbp"></i>
-                      {% else %}
-                        <i class="fa fa-gift"></i>
-                      {% endif %}
+                </td>
+                <td>
+                </td>
+              {% elif tr.billable %}
+                <td>
+                </td>
+                <td>
+                </td>
+                <td align="right">
+                  {{ tr.start_time|time:'H:i' }}
+                </td>
+              {% else %}
+                <td align="right">
+                  {{ tr.start_time|time:'H:i' }}
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+              {% endif %}
+              <td>
+                <small>
+                  <form action="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}" method="get" class="pure-form">
+                    <button type="submit" class="pure-button">
+                      <i class="fa fa-edit"></i>
+                      Edit
                     </button>
-                  </small>
-                </form>
+                  </form>
+                  <form action="." method="post" class="pure-form">
+                    {% csrf_token %}
+                    {% if form.non_field_errors %}
+                      {{ form.non_field_errors }}
+                    {% endif %}
+                    <button type="submit" name="pk" value="{{ tr.pk }}" class="pure-button">
+                      <i class="fa fa-stop"></i>
+                      Stop
+                    </button>
+                  </form>
+                </small>
               </td>
             </tr>
             {% if forloop.last %}
@@ -88,7 +124,7 @@
           {% endfor %}
           {% for d, summary in report.items %}
             <tr valign="top">
-              <td colspan="2">
+              <td colspan="6">
                 <strong>
                   {{ d|date:'d/m/Y' }}
                 </strong>
@@ -96,9 +132,6 @@
                   {{ d|date:'l' }}
                 <small>
               </td>
-              <td></td>
-              <td></td>
-              <td></td>
             </tr>
             {% for ticket in summary.tickets %}
               <tr valign="top">
@@ -111,20 +144,30 @@
                     {{ ticket.description }}
                   </a>
                 </td>
-                <td>
-                  <a href="{% url 'crm.ticket.update' ticket.pk %}">
-                    {{ ticket.analysis.fixed_minutes_format }}
-                  </a>
-                </td>
-                <td>
-                  <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
+                <td align="right">
+                  {% if ticket.analysis.non_minutes %}
                     {{ ticket.analysis.non_minutes_format }}
-                  </a>
+                  {% endif %}
+                </td>
+                <td align="right">
+                  {% if ticket.analysis.fixed_minutes %}
+                    {{ ticket.analysis.fixed_minutes_format }}
+                  {% endif %}
+                </td>
+                <td align="right">
+                  {% if ticket.analysis.charge_minutes %}
+                    {{ ticket.analysis.charge_minutes_format }}
+                  {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
-                    {{ ticket.analysis.charge_minutes_format }}
-                  </a>
+                  <small>
+                    <form action="{% url 'invoice.time.ticket.list' ticket.pk %}?next={{ request.path }}" method="get" class="pure-form">
+                      <button type="submit" class="pure-button">
+                        <i class="fa fa-edit"></i>
+                        Edit
+                      </button>
+                    </form>
+                  </small>
                 </td>
               </tr>
             {% endfor %}
@@ -133,18 +176,20 @@
               </td>
               <td>
                 <strong>
-                  {{ summary.total_fixed_format }}
+                  {{ summary.total_non_format }}
                 </strong>
               </td>
               <td>
                 <strong>
-                  {{ summary.total_non_format }}
+                  {{ summary.total_fixed_format }}
                 </strong>
               </td>
               <td>
                 <strong>
                   {{ summary.total_charge_format }}
                 </strong>
+              </td>
+              <td>
               </td>
             </tr>
           {% endfor %}
