@@ -26,6 +26,7 @@ def _analysis(analysis):
     }
 
 
+
 def time_summary(user, days=None):
     """Time summary for a user.
 
@@ -116,6 +117,29 @@ def time_summary_by_user(today=None):
                 data['charge_minutes'] = data['charge_minutes'] + minutes
             else:
                 data['non_minutes'] = data['non_minutes'] + minutes
+    return result
+
+
+def time_summary_by_user_for_chartist(today=None):
+    result = {}
+    summary = time_summary_by_user(today)
+    for user_name, data in summary.items():
+        charge_minutes = []
+        fixed_minutes = []
+        labels = []
+        non_minutes = []
+        for year_month, values in data.items():
+            charge_minutes.append(values['charge_minutes'])
+            fixed_minutes.append(values['fixed_minutes'])
+            labels.append(values['label'])
+            non_minutes.append(values['non_minutes'])
+        result[user_name] = {
+            'labels': labels,
+            'series': [charge_minutes, fixed_minutes, non_minutes],
+        }
+    import pprint
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(result)
     return result
 
 
@@ -341,5 +365,3 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
             ])
 
         return rows
-
-

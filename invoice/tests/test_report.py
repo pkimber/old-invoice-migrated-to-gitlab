@@ -15,7 +15,11 @@ from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from invoice.models import TimeRecord
 from invoice.service import report
-from invoice.report import time_summary, time_summary_by_user
+from invoice.report import (
+    time_summary,
+    time_summary_by_user,
+    time_summary_by_user_for_chartist,
+)
 from invoice.tests.factories import (
     InvoiceFactory,
     InvoiceLineFactory,
@@ -586,3 +590,44 @@ def test_time_summary_by_user():
             },
         }
     } == data
+
+
+@pytest.mark.django_db
+def test_time_summary_by_user_for_chartist():
+    user = UserFactory(username='green', first_name='P', last_name='Kimber')
+    contact = ContactFactory(user=user)
+    TimeRecordFactory(
+        ticket=TicketFactory(contact=contact),
+        date_started=date(2017, 1, 16),
+        start_time=time(11, 0),
+        end_time=time(11, 30),
+        user=user,
+    )
+    TimeRecordFactory(
+        billable=False,
+        ticket=TicketFactory(contact=contact),
+        date_started=date(2016, 12, 1),
+        start_time=time(11, 0),
+        end_time=time(11, 15),
+        user=user,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(contact=contact, fixed_price=True),
+        date_started=date(2016, 11, 30),
+        start_time=time(11, 0),
+        end_time=time(11, 10),
+        user=user,
+    )
+    assert {
+        'green': {
+            'labels': [
+                'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+                'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar',
+            ],
+            'series': [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0],
+            ],
+        }
+    } == time_summary_by_user_for_chartist(date(2017, 3, 17))
