@@ -48,13 +48,13 @@ def mail_time_summary():
 
 @shared_task
 def time_summary_by_user():
-    spec = ReportSpecification.objects.init_reportspecification(
+    report = ReportSpecification.objects.init_reportspecification(
         slug='time_summary_by_user',
         title='Time Summary by User',
         app='invoice',
         module='report',
         report_class='TimeSummaryByUserReport',
     )
-    schedule = ReportSchedule.objects.init_reportschedule(report=spec)
+    schedule = ReportSchedule.objects.init_reportschedule(report=report)
     ReportSchedule.objects.run_reports()
     logger.info('time_summary_by_user: {}'.format(schedule.pk))
