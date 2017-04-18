@@ -391,7 +391,7 @@ def time_summary_by_user_for_chartist(csv_data):
                     'series': [[], [], []],
                 }
             result[user_name]['labels'].append(label)
-            result[user_name]['series'][0].append(int(non))
+            result[user_name]['series'][0].append(int(chg))
             result[user_name]['series'][1].append(int(fix))
-            result[user_name]['series'][2].append(int(chg))
+            result[user_name]['series'][2].append(int(non))
     return result
