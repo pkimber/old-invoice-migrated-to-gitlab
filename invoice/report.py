@@ -2,6 +2,7 @@
 import collections
 import csv
 
+from datetime import date
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 from django.utils import timezone
@@ -11,6 +12,7 @@ from reportlab.lib.pagesizes import A4
 
 from crm.models import Ticket
 from report.pdf import MyReport
+from report.service import ReportMixin
 from .models import TimeRecord
 from .service import format_minutes, InvoiceError
 
@@ -24,7 +26,6 @@ def _analysis(analysis):
         'non_minutes': analysis[TimeRecord.NON_CHARGE],
         'non_minutes_format': format_minutes(analysis[TimeRecord.NON_CHARGE]),
     }
-
 
 
 def time_summary(user, days=None):
@@ -91,15 +92,11 @@ def time_summary_by_user(today=None):
     )
     for row in qs:
         if row.is_complete:
-            ticket = row.ticket
-            minutes = row.minutes
-            user_name = ticket.contact.user.username
+            user_name = row.user.username
             if not user_name in result:
-                print(user_name)
                 result[user_name] = collections.OrderedDict()
                 x = from_date
                 while x < to_date:
-                    x = x + relativedelta(months=+1, day=1)
                     key = x.strftime('%Y-%m')
                     result[user_name][key] = {
                         'label': x.strftime('%b'),
@@ -109,9 +106,11 @@ def time_summary_by_user(today=None):
                         'fixed_minutes': 0,
                         'non_minutes': 0,
                     }
+                    x = x + relativedelta(months=+1, day=1)
             key = row.date_started.strftime('%Y-%m')
             data = result[user_name][key]
-            if ticket.fixed_price:
+            minutes = int(row.minutes)
+            if row.ticket.fixed_price:
                 data['fixed_minutes'] = data['fixed_minutes'] + minutes
             elif row.billable:
                 data['charge_minutes'] = data['charge_minutes'] + minutes
@@ -137,9 +136,6 @@ def time_summary_by_user_for_chartist(today=None):
             'labels': labels,
             'series': [charge_minutes, fixed_minutes, non_minutes],
         }
-    import pprint
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(result)
     return result
 
 
@@ -365,3 +361,34 @@ class ReportInvoiceTimeAnalysisCSV(MyReport):
             ])
 
         return rows
+
+
+class TimeSummaryByUserReport(ReportMixin):
+
+    def run_csv_report(self, csv_writer):
+        csv_writer.writerow((
+            'user_name',
+            'year',
+            'month',
+            'label',
+            'non_minutes',
+            'fixed_minutes',
+            'charge_minutes',
+        ))
+        summary = time_summary_by_user(date.today())
+        for user_name, data in summary.items():
+            charge_minutes = []
+            fixed_minutes = []
+            labels = []
+            non_minutes = []
+            for year_month, values in data.items():
+                csv_writer.writerow((
+                    user_name,
+                    values['year'],
+                    values['month'],
+                    values['label'],
+                    values['non_minutes'],
+                    values['fixed_minutes'],
+                    values['charge_minutes'],
+                ))
+        return True

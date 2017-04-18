@@ -5,9 +5,10 @@ from celery import shared_task
 from django.utils import timezone
 
 from invoice.models import InvoiceUser
+from invoice.report import time_summary
 from mail.service import queue_mail_message
 from mail.tasks import process_mail
-from .report import time_summary
+from report.models import ReportSchedule, ReportSpecification
 
 
 logger = logging.getLogger(__name__)
@@ -43,3 +44,17 @@ def mail_time_summary():
         )
     if users:
         process_mail.delay()
+
+
+@shared_task
+def time_summary_by_user():
+    spec = ReportSpecification.objects.init_reportspecification(
+        slug='time_summary_by_user',
+        title='Time Summary by User',
+        app='invoice',
+        module='report',
+        report_class='TimeSummaryByUserReport',
+    )
+    schedule = ReportSchedule.objects.init_reportschedule(report=spec)
+    ReportSchedule.objects.run_reports()
+    logger.info('time_summary_by_user: {}'.format(schedule.pk))

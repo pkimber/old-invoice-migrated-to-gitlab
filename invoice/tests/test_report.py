@@ -14,7 +14,6 @@ from django.utils import timezone
 from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from invoice.models import TimeRecord
-from invoice.service import report
 from invoice.report import (
     time_summary,
     time_summary_by_user,
@@ -27,30 +26,6 @@ from invoice.tests.factories import (
     TimeRecordFactory,
 )
 from login.tests.factories import UserFactory
-from report.models import Report, ReportDataInteger
-
-
-@pytest.mark.django_db
-def test_reports():
-    to_date = timezone.now()
-    from_date = to_date + relativedelta(months=-1)
-    d = from_date + relativedelta(days=7)
-    TimeRecordFactory(
-        billable=True,
-        date_started=d,
-        start_time=time(11, 0),
-        end_time=time(11, 30),
-    )
-    TimeRecordFactory(
-        billable=False,
-        date_started=d,
-        start_time=time(10, 0),
-        end_time=time(10, 15),
-    )
-    report()
-    obj = Report.objects.get(slug='invoice_charge_non_charge')
-    qs = ReportDataInteger.objects.filter(report=obj)
-    assert 2 == qs.count()
 
 
 @pytest.mark.django_db
@@ -492,6 +467,14 @@ def test_time_summary_by_user():
     data = time_summary_by_user(date(2017, 3, 17))
     assert {
         'green': {
+            '2016-03': {
+                'charge_minutes': 0,
+                'fixed_minutes': 0,
+                'label': 'Mar',
+                'month': 3,
+                'non_minutes': 0,
+                'year': 2016,
+            },
             '2016-04': {
                 'charge_minutes': 0,
                 'fixed_minutes': 0,
@@ -580,14 +563,6 @@ def test_time_summary_by_user():
                 'non_minutes': 0,
                 'year': 2017,
             },
-            '2017-03': {
-                 'charge_minutes': 0,
-                 'fixed_minutes': 0,
-                 'label': 'Mar',
-                 'month': 3,
-                 'non_minutes': 0,
-                 'year': 2017,
-            },
         }
     } == data
 
@@ -595,7 +570,7 @@ def test_time_summary_by_user():
 @pytest.mark.django_db
 def test_time_summary_by_user_for_chartist():
     user = UserFactory(username='green', first_name='P', last_name='Kimber')
-    contact = ContactFactory(user=user)
+    contact = ContactFactory()
     TimeRecordFactory(
         ticket=TicketFactory(contact=contact),
         date_started=date(2017, 1, 16),
@@ -621,13 +596,13 @@ def test_time_summary_by_user_for_chartist():
     assert {
         'green': {
             'labels': [
-                'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-                'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar',
+                'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+                'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb',
             ],
             'series': [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0],
             ],
         }
     } == time_summary_by_user_for_chartist(date(2017, 3, 17))

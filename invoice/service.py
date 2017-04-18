@@ -17,12 +17,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab import platypus
 
 from finance.models import VatSettings
-from report.models import (
-    Report,
-    ReportDataInteger,
-)
 from report.pdf import MyReport, NumberedCanvas
-from report.service import top
 from .models import (
     Invoice,
     InvoiceContact,
@@ -462,51 +457,3 @@ class InvoicePrint(MyReport):
 
     def _text_our_vat_number(self, vat_number):
         return '<b>VAT Number</b> {}'.format(vat_number)
-
-
-def report():
-    """Chart data to be added to the off-line report models."""
-    to_date = timezone.now()
-    from_date = to_date + relativedelta(months=-1)
-    user_qs = get_user_model().objects.filter(is_staff=True)
-    users_list = [user for user in user_qs]
-    users_list.append(None)
-    with transaction.atomic():
-        for user in users_list:
-            # charge and non-chargeable
-            data = TimeRecord.objects.report_charge_non_charge(
-                from_date,
-                to_date,
-                user,
-            )
-            report = Report.objects.init_report(
-                'invoice_charge_non_charge',
-                'Chargeable vs Non-Chargeable',
-                'pieChart',
-                user,
-            )
-            ReportDataInteger.objects.init_report_data(report, data)
-            # contact
-            data = TimeRecord.objects.report_time_by_contact(
-                from_date,
-                to_date,
-                user,
-            )
-            report = Report.objects.init_report(
-                'invoice_time_by_contact',
-                'Time by Contact',
-                'pieChart',
-                user,
-            )
-            ReportDataInteger.objects.init_report_data(report, top(data))
-        # user
-        data = TimeRecord.objects.report_time_by_user(
-            from_date,
-            to_date,
-        )
-        report = Report.objects.init_report(
-            'invoice_time_by_user',
-            'Time by User',
-            'pieChart',
-        )
-        ReportDataInteger.objects.init_report_data(report, data)
