@@ -119,26 +119,6 @@ def time_summary_by_user(today=None):
     return result
 
 
-def time_summary_by_user_for_chartist(today=None):
-    result = {}
-    summary = time_summary_by_user(today)
-    for user_name, data in summary.items():
-        charge_minutes = []
-        fixed_minutes = []
-        labels = []
-        non_minutes = []
-        for year_month, values in data.items():
-            charge_minutes.append(values['charge_minutes'])
-            fixed_minutes.append(values['fixed_minutes'])
-            labels.append(values['label'])
-            non_minutes.append(values['non_minutes'])
-        result[user_name] = {
-            'labels': labels,
-            'series': [charge_minutes, fixed_minutes, non_minutes],
-        }
-    return result
-
-
 class ReportInvoiceTimeAnalysis(MyReport):
 
     def report(self, invoice, user, response):
@@ -392,3 +372,26 @@ class TimeSummaryByUserReport(ReportMixin):
                     values['charge_minutes'],
                 ))
         return True
+
+
+def time_summary_by_user_for_chartist(csv_data):
+    result = {}
+    count = 0
+    first = True
+    for row in csv_data:
+        if first:
+            first = False
+        else:
+            user_name, year, month, label, non, fix, chg = row
+            if user_name not in result:
+                count = count + 1
+                result[user_name] = {
+                    'id': count,
+                    'labels': [],
+                    'series': [[], [], []],
+                }
+            result[user_name]['labels'].append(label)
+            result[user_name]['series'][0].append(int(non))
+            result[user_name]['series'][1].append(int(fix))
+            result[user_name]['series'][2].append(int(chg))
+    return result

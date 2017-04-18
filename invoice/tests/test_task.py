@@ -52,6 +52,7 @@ def test_time_summary_by_user():
         else:
             # check the values in the last three columns (dates will change)
             result.append(row[4:])
+        print(row)
     assert [
         'user_name',
         'year',

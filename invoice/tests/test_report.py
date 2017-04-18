@@ -8,7 +8,6 @@ import pytz
 from datetime import date, datetime, time
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
-
 from django.utils import timezone
 
 from contact.tests.factories import ContactFactory
@@ -569,40 +568,36 @@ def test_time_summary_by_user():
 
 @pytest.mark.django_db
 def test_time_summary_by_user_for_chartist():
-    user = UserFactory(username='green', first_name='P', last_name='Kimber')
-    contact = ContactFactory()
-    TimeRecordFactory(
-        ticket=TicketFactory(contact=contact),
-        date_started=date(2017, 1, 16),
-        start_time=time(11, 0),
-        end_time=time(11, 30),
-        user=user,
-    )
-    TimeRecordFactory(
-        billable=False,
-        ticket=TicketFactory(contact=contact),
-        date_started=date(2016, 12, 1),
-        start_time=time(11, 0),
-        end_time=time(11, 15),
-        user=user,
-    )
-    TimeRecordFactory(
-        ticket=TicketFactory(contact=contact, fixed_price=True),
-        date_started=date(2016, 11, 30),
-        start_time=time(11, 0),
-        end_time=time(11, 10),
-        user=user,
-    )
+    """Convert the data extracted from a CSV file to Chartist data"""
+    csv_data = [
+        [
+            'user_name', 'year', 'month', 'label',
+            'non_minutes', 'fixed_minutes', 'charge_minutes'
+        ],
+        ['green', '2016', '3', 'Mar', '0', '0', '0'],
+        ['green', '2016', '4', 'Apr', '0', '0', '0'],
+        ['green', '2016', '5', 'May', '0', '0', '0'],
+        ['green', '2016', '6', 'Jun', '0', '0', '0'],
+        ['green', '2016', '7', 'Jul', '0', '0', '0'],
+        ['green', '2016', '8', 'Aug', '0', '0', '0'],
+        ['green', '2016', '9', 'Sep', '0', '0', '0'],
+        ['green', '2016', '10', 'Oct', '0', '0', '0'],
+        ['green', '2016', '11', 'Nov', '0', '10', '0'],
+        ['green', '2016', '12', 'Dec', '15', '0', '0'],
+        ['green', '2017', '1', 'Jan', '0', '0', '30'],
+        ['green', '2017', '2', 'Feb', '0', '0', '0'],
+    ]
     assert {
         'green': {
+            'id': 1,
             'labels': [
                 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
                 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb',
             ],
             'series': [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0],
             ],
         }
-    } == time_summary_by_user_for_chartist(date(2017, 3, 17))
+    } == time_summary_by_user_for_chartist(csv_data)
