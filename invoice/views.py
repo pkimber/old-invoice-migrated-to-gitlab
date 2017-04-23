@@ -639,6 +639,11 @@ class TimeRecordSummaryMixin:
     def _report(self, user):
         return time_summary(user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(dict(today=date.today()))
+        return context
+
 
 class TimeRecordSummaryView(
         LoginRequiredMixin, StaffuserRequiredMixin,
@@ -688,6 +693,45 @@ class TimeRecordSummaryUserView(
             user_full_name=full_name,
         ))
         return context
+
+
+class TicketListMonthView(
+        LoginRequiredMixin, StaffuserRequiredMixin, BaseMixin, ListView):
+
+    template_name = 'invoice/ticket_list_month.html'
+
+    def _from_date(self):
+        month = int(self.kwargs.get('month', 0))
+        year = int(self.kwargs.get('year', 0))
+        try:
+            return date(year, month, 1)
+        except ValueError:
+            raise Http404("Invalid date.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        report_date = self._from_date()
+        next_month = report_date+relativedelta(months=+1, day=1)
+        if next_month > date.today():
+            next_month = None
+        context.update(dict(
+            next_month=next_month,
+            prev_month=report_date+relativedelta(months=-1, day=1),
+            report_date=report_date,
+        ))
+        return context
+
+    def get_queryset(self):
+        from_date = self._from_date()
+        to_date = from_date + relativedelta(months=+1, day=1, days=-1)
+        return TimeRecord.objects.tickets(
+            from_date,
+            to_date,
+            self.request.user,
+        ).order_by(
+            'contact__slug',
+            'pk',
+        )
 
 
 class TicketTimeRecordListView(

@@ -2,7 +2,7 @@
 import pytest
 import pytz
 
-from datetime import datetime, time
+from datetime import date, datetime, time
 from django.utils import timezone
 
 from crm.tests.factories import TicketFactory
@@ -141,6 +141,58 @@ def test_stop_already_stopped():
 def test_str():
     time_record = TimeRecordFactory()
     str(time_record)
+
+
+@pytest.mark.django_db
+def test_tickets():
+    """List of tickets where time was recorded for a user."""
+    user = UserFactory()
+    today = date.today()
+    # first day of the month
+    from_date = today + relativedelta(day=1)
+    # last day of the month
+    to_date = today + relativedelta(months=+1, day=1, days=-1)
+    # last month
+    last_month = today + relativedelta(months=-1)
+    # next month
+    next_month = today + relativedelta(months=+1)
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t0'),
+        user=user,
+        date_started=last_month,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t1'),
+        user=user,
+        date_started=from_date,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t2'),
+        user=user,
+        date_started=today,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t3'),
+        date_started=to_date,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t4'),
+        user=user,
+        date_started=to_date,
+        end_time=None,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t5'),
+        user=user,
+        date_started=to_date,
+    )
+    TimeRecordFactory(
+        ticket=TicketFactory(title='t6'),
+        user=user,
+        date_started=next_month,
+    )
+    qs = TimeRecord.objects.tickets(from_date, to_date, user)
+    assert ['t1', 't2', 't5'] == [x.title for x in qs]
 
 
 @pytest.mark.django_db

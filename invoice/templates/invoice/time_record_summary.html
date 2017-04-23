@@ -15,6 +15,12 @@
         <ul class="pure-menu-list">
           {% if user.is_staff %}
             {% include 'crm/_menu_time.html' %}
+            <li class="pure-menu-item">
+              <a href="{% url 'invoice.ticket.list.month' today.year today.month %}" class="pure-menu-link">
+                <i class="fa fa-ticket"></i>
+                Tickets This Month
+               </a>
+            </li>
           {% endif %}
         </ul>
       </div>

@@ -595,9 +595,9 @@ def test_time_summary_by_user_for_chartist():
                 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb',
             ],
             'series': [
-                [0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0],
             ],
         }
     } == time_summary_by_user_for_chartist(csv_data)

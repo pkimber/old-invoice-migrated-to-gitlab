@@ -195,6 +195,12 @@ def test_timerecord_create(perm_check):
 
 
 @pytest.mark.django_db
+def test_ticket_list_month(perm_check):
+    url = reverse('invoice.ticket.list.month', args=[2000, 3])
+    perm_check.staff(url)
+
+
+@pytest.mark.django_db
 def test_ticket_timerecord_list(perm_check):
     ticket = TicketFactory()
     url = reverse(

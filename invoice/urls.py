@@ -25,6 +25,7 @@ from .views import (
     QuickTimeRecordUpdateView,
     report_invoice_time_analysis,
     report_invoice_time_analysis_csv,
+    TicketListMonthView,
     TicketTimeRecordListView,
     TimeRecordCreateView,
     TimeRecordListView,
@@ -131,6 +132,12 @@ urlpatterns = [
         name='invoice.user.update'
         ),
     # ticket
+
+    url(regex=r'^ticket/(?P<year>\d{4})/(?P<month>\d+)/$',
+        view=TicketListMonthView.as_view(),
+        name='invoice.ticket.list.month'
+        ),
+
     url(regex=r'^ticket/(?P<pk>\d+)/time/$',
         view=TicketTimeRecordListView.as_view(),
         name='invoice.time.ticket.list'

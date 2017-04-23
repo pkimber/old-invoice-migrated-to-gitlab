@@ -641,6 +641,21 @@ class TimeRecordManager(models.Manager):
             )
         return obj
 
+    def tickets(self, from_date, to_date, user):
+        """List of tickets which have been worked on by this user."""
+        qs = self.model.objects.filter(
+            date_started__gte=from_date,
+            date_started__lte=to_date,
+            user=user,
+        ).exclude(
+            end_time__isnull=True,
+        )
+        tickets = set()
+        for x in qs:
+            tickets.add(x.ticket.pk)
+        return Ticket.objects.filter(pk__in=tickets)
+
+
     def to_invoice(self, contact, iteration_end):
         """
         Find time records:
