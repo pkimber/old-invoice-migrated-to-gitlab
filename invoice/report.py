@@ -84,7 +84,7 @@ def time_summary_by_user(today=None):
     if today is None:
         today = date.today()
     # 12 whole months
-    from_date = today + relativedelta(months=-12, day=1)
+    from_date = today + relativedelta(months=-24, day=1)
     to_date = today + relativedelta(day=1, days=-1)
     qs = TimeRecord.objects.filter(
         date_started__gte=from_date,
