@@ -30,10 +30,10 @@ setup(
             'templates/search/indexes/invoice/*.*',
         ],
     },
-    version='0.1.42',
+    version='0.1.43',
     description='invoice',
-    author='Malcolm Dinsmore',
-    author_email='code-md@kbsoftware.co.uk',
+    author='Patrick Kimber',
+    author_email='code@pkimber.net',
     url='git@github.com:pkimber/invoice.git',
     classifiers=[
         'Development Status :: 1 - Planning',
