@@ -655,19 +655,21 @@ class TimeRecordManager(models.Manager):
             tickets.add(x.ticket.pk)
         return Ticket.objects.filter(pk__in=tickets)
 
-
     def to_invoice(self, contact, iteration_end):
         """
         Find time records:
         - before iteration ended
         - which have not been included on a previous invoice
         - which are chargeable
+        - which are not fixed price
         """
         return self.model.objects.filter(
             ticket__contact=contact,
             date_started__lte=iteration_end,
             invoice_line__isnull=True,
             billable=True,
+        ).exclude(
+            ticket__fixed_price=True,
         ).order_by(
             'ticket__pk',
             'date_started',

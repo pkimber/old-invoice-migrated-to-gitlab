@@ -5,6 +5,7 @@ import pytz
 from datetime import date, datetime, time
 from django.utils import timezone
 
+from contact.tests.factories import ContactFactory
 from crm.tests.factories import TicketFactory
 from dateutil.relativedelta import relativedelta
 from invoice.models import InvoiceError, TimeRecord
@@ -193,6 +194,51 @@ def test_tickets():
     )
     qs = TimeRecord.objects.tickets(from_date, to_date, user)
     assert ['t1', 't2', 't5'] == [x.title for x in qs]
+
+
+@pytest.mark.django_db
+def test_to_invoice():
+    contact = ContactFactory()
+    d = date(2012, 7, 1)
+    #
+    TimeRecordFactory(
+        title='t1',
+        ticket=TicketFactory(contact=contact),
+        date_started=d,
+    )
+    # exclude records created after the invoice date
+    TimeRecordFactory(
+        title='t2',
+        ticket=TicketFactory(contact=contact),
+        date_started=date(2012, 8, 1),
+    )
+    # exclude records for another contact
+    TimeRecordFactory(
+        title='t3',
+        ticket=TicketFactory(contact=ContactFactory()),
+        date_started=d,
+    )
+    # exclude records which have already been invoiced
+    TimeRecordFactory(
+        title='t4',
+        ticket=TicketFactory(contact=contact),
+        date_started=d,
+        invoice_line=InvoiceLineFactory(),
+    )
+    # exclude records which have a fixed price ticket
+    TimeRecordFactory(
+        title='t5',
+        ticket=TicketFactory(contact=contact, fixed_price=True),
+        date_started=d,
+    )
+    #
+    TimeRecordFactory(
+        title='t6',
+        ticket=TicketFactory(contact=contact),
+        date_started=d,
+    )
+    qs = TimeRecord.objects.to_invoice(contact, date(2012, 7, 31))
+    assert ['t1', 't6'] == [x.title for x in qs]
 
 
 @pytest.mark.django_db

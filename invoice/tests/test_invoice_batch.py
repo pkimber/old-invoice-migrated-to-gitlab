@@ -10,6 +10,7 @@ from invoice.models import Invoice
 from invoice.service import InvoiceCreateBatch
 from invoice.tests.factories import (
     InvoiceContactFactory,
+    InvoiceLine,
     InvoiceSettingsFactory,
     TimeRecordFactory,
 )
@@ -51,6 +52,30 @@ def test_create_invoices_only_billable_time():
     )
     InvoiceCreateBatch().create(UserFactory(), date(2012, 9, 30))
     assert 1 == Invoice.objects.filter(contact=contact).count()
+
+
+@pytest.mark.django_db
+def test_create_invoices_not_fixed_price():
+    InvoiceSettingsFactory()
+    VatSettingsFactory()
+    contact = ContactFactory()
+    InvoiceContactFactory(contact=contact)
+    # ticket 1
+    t1 = TicketFactory(contact=contact)
+    TimeRecordFactory(ticket=t1, title='t1', date_started=date(2012, 7, 1))
+    # ticket 2 is for fixed price work
+    t2 = TicketFactory(contact=contact, fixed_price=True)
+    TimeRecordFactory(ticket=t2, title='t2', date_started=date(2012, 7, 2))
+    # ticket 3
+    t3 = TicketFactory(contact=contact)
+    TimeRecordFactory(ticket=t3, title='t3', date_started=date(2012, 7, 3))
+    # test
+    InvoiceCreateBatch().create(UserFactory(), date(2012, 9, 30))
+    assert 1 == Invoice.objects.filter(contact=contact).count()
+    invoice = Invoice.objects.get(contact=contact)
+    assert ['t1', 't3'] == [
+        x.timerecord.title for x in InvoiceLine.objects.filter(invoice=invoice)
+    ]
 
 
 @pytest.mark.django_db
