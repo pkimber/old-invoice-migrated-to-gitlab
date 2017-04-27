@@ -34,11 +34,11 @@ def test_is_today_not():
 @pytest.mark.django_db
 def test_running():
     user = UserFactory()
-    t1 = TimeRecordFactory(title='t1', user=user, end_time=None)
-    t2 = TimeRecordFactory(title='t2', user=user, end_time=time(11, 0))
+    TimeRecordFactory(title='t1', user=user, end_time=None)
+    TimeRecordFactory(title='t2', user=user, end_time=time(11, 0))
     d = timezone.now().date() + relativedelta(days=-7)
-    t3 = TimeRecordFactory(title='t3', date_started=d, user=user, end_time=None)
-    t4 = TimeRecordFactory(title='t4', user=UserFactory(), end_time=None)
+    TimeRecordFactory(title='t3', date_started=d, user=user, end_time=None)
+    TimeRecordFactory(title='t4', user=UserFactory(), end_time=None)
     qs = TimeRecord.objects.running(user).order_by('title')
     assert ['t1', 't3'] == [obj.title for obj in qs]
 
@@ -46,11 +46,11 @@ def test_running():
 @pytest.mark.django_db
 def test_running_today():
     user = UserFactory()
-    t1 = TimeRecordFactory(title='t1', user=user, end_time=None)
-    t2 = TimeRecordFactory(title='t2', user=user, end_time=time(11, 0))
+    TimeRecordFactory(title='t1', user=user, end_time=None)
+    TimeRecordFactory(title='t2', user=user, end_time=time(11, 0))
     d = timezone.now().date() + relativedelta(days=7)
-    t3 = TimeRecordFactory(title='t3', date_started=d, user=user, end_time=None)
-    t4 = TimeRecordFactory(title='t4', user=UserFactory(), end_time=None)
+    TimeRecordFactory(title='t3', date_started=d, user=user, end_time=None)
+    TimeRecordFactory(title='t4', user=UserFactory(), end_time=None)
     qs = TimeRecord.objects.running_today(user).order_by('title')
     assert ['t1'] == [obj.title for obj in qs]
 

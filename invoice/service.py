@@ -2,15 +2,12 @@
 import io
 
 from datetime import date
-from dateutil.relativedelta import relativedelta
 from decimal import Decimal
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db import transaction
-from django.utils import timezone
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4

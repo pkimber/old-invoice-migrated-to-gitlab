@@ -357,10 +357,6 @@ class TimeSummaryByUserReport(ReportMixin):
         ))
         summary = time_summary_by_user(date.today())
         for user_name, data in summary.items():
-            charge_minutes = []
-            fixed_minutes = []
-            labels = []
-            non_minutes = []
             for year_month, values in data.items():
                 csv_writer.writerow((
                     user_name,

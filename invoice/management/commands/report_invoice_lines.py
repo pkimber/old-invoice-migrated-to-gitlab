@@ -1,9 +1,6 @@
 # -*- encoding: utf-8 -*-
-import collections
 import csv
 
-from datetime import date
-from dateutil.relativedelta import relativedelta, MO
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 

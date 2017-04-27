@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-import pytest
-
 from decimal import Decimal
 
 from invoice.service import format_minutes

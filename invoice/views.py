@@ -1,6 +1,4 @@
 # -*- encoding: utf-8 -*-
-import collections
-
 from braces.views import LoginRequiredMixin, StaffuserRequiredMixin
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -11,7 +9,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model, REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic import (
@@ -49,7 +47,7 @@ from .models import (
     QuickTimeRecord,
     TimeRecord,
 )
-from .service import format_minutes, InvoiceCreate, InvoicePrint
+from .service import InvoiceCreate, InvoicePrint
 from .report import (
     ReportInvoiceTimeAnalysis,
     ReportInvoiceTimeAnalysisCSV,
