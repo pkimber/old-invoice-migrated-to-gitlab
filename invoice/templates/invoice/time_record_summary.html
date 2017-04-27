@@ -101,12 +101,6 @@
               {% endif %}
               <td>
                 <small>
-                  <form action="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}" method="get" class="pure-form">
-                    <button type="submit" class="pure-button">
-                      <i class="fa fa-edit"></i>
-                      Edit
-                    </button>
-                  </form>
                   <form action="." method="post" class="pure-form">
                     {% csrf_token %}
                     {% if form.non_field_errors %}
@@ -117,6 +111,12 @@
                       Stop
                     </button>
                   </form>
+                </small>
+                <small>
+                  <a href="{% url 'invoice.time.update' tr.pk %}?next={{ request.path }}">
+                    <i class="fa fa-edit"></i>
+                    Edit
+                  </a>
                 </small>
               </td>
             </tr>
@@ -167,12 +167,10 @@
                 </td>
                 <td>
                   <small>
-                    <form action="{% url 'invoice.time.ticket.list' ticket.pk %}?next={{ request.path }}" method="get" class="pure-form">
-                      <button type="submit" class="pure-button">
-                        <i class="fa fa-edit"></i>
-                        Edit
-                      </button>
-                    </form>
+                    <a href="{% url 'invoice.time.ticket.list' ticket.pk %}">
+                      <i class="fa fa-clock-o"></i>
+                      View
+                    </a>
                   </small>
                 </td>
               </tr>
